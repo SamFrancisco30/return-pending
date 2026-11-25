@@ -56,7 +56,7 @@ const CAST: Record<string, { rank: string; role: string; gear: string; job: stri
 // ---------------- board: cast ----------------
 const KIT: Record<string, string[]> = {
   KNOX: ["盾：左为行进，右为防御姿态", "泵动霰弹枪：右手"],
-  HOUND: ["弩：弓臂、弓弦、箭、绕线器", "战斧：挂在右腰，斧刃朝外"],
+  HOUND: ["弩（左）和战斧（右）：手里只拿一样，", "另一样收起，画面上不显示"],
   REYES: ["狙击枪：瞄准镜、两脚架、长枪管", "手枪：右胯枪套"],
   MILLER: ["步枪：弹匣在侧面，带瞄具"],
   COLE: ["手枪：双手持握", "急救包：背上的白十字"],
@@ -68,6 +68,7 @@ function cast() {
     floorDisc(ctx, cx, cy, 170);
     mag(ctx, cx, cy, 2.25, () => { const u = { id: r.id, x: 0, y: 0, heading: -90, gait: { phase: 0, moving: 0 } }; drawIdentityArc(ctx, u, r, 1); drawOperatorThermal(ctx, u, r, 1.2, 1); });
     if (r.kit === "shield") { mag(ctx, cx + 118, cy + 92, 1.05, () => { const u = { id: r.id, x: 0, y: 0, heading: -90, guard: 1 }; drawOperatorThermal(ctx, u, r, 1.2, 1); }); text(ctx, ["防御姿态"], cx + 118, cy + 160, 15, DIMC, 1.5, true); }
+    if (r.kit === "crossbow") { mag(ctx, cx + 122, cy + 92, 1.05, () => { const u = { id: r.id, x: 0, y: 0, heading: -90, guard: 1 }; drawOperatorThermal(ctx, u, r, 1.2, 1); }); text(ctx, ["持斧"], cx + 122, cy + 160, 15, DIMC, 1.5, true); }
     drawIcon(ctx, r.icon, cx - 150, 532, 11, r.color);
     ctx.font = `bold 32px ${EN}`; ctx.fillStyle = r.color; ctx.fillText(r.callsign, cx - 130, 544);
     ctx.font = `bold 20px ${EN}`; ctx.fillStyle = INK; ctx.fillText(`RANK ${c.rank}`, cx + 40, 541);
@@ -78,6 +79,8 @@ function cast() {
     ctx.save(); ctx.beginPath(); ctx.rect(cx - 160, 672, 330, 250); ctx.clip();
     if (r.kit === "shield") {
       mag(ctx, cx - 110, 800, 1.9, () => drawKit(ctx, r.kit, r.color, 0)); mag(ctx, cx + 55, 800, 1.9, () => drawKit(ctx, r.kit, r.color, 1));
+    } else if (r.kit === "crossbow") {
+      mag(ctx, cx - 130, 800, 2.3, () => drawKit(ctx, r.kit, r.color, 0)); mag(ctx, cx + 12, 780, 2.5, () => drawKit(ctx, r.kit, r.color, 1));
     } else mag(ctx, cx - (r.kit === "recon" ? 95 : 40), 800, 3.1, () => drawKit(ctx, r.kit, r.color));
     ctx.restore();
     text(ctx, KIT[r.callsign], cx - 160, 950, 17, rgba(r.color, 0.95), 1.45);

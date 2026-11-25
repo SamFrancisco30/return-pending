@@ -58,7 +58,8 @@ function part(ctx: SKRSContext2D, x: number, y: number, w: number, h: number, r 
   ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = EDGE; ctx.lineWidth = 1.1; ctx.stroke();
 }
 // facing +x, in the operator's own space (shoulders at y = +-21). Also used alone on the design boards.
-// guard (0..1, shield only): 0 = carried on the left arm, 1 = squared up to the front and pushed forward
+// guard (0..1): shield 0 = carried on the left arm, 1 = squared up and pushed forward;
+// crossbow kit 0 = crossbow in hand, 1 = tomahawk in hand. Only one of the two is ever shown.
 export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0) {
   ctx.save(); ctx.lineJoin = "round"; ctx.lineCap = "butt";
   if (kit === "shield") {
@@ -83,12 +84,17 @@ export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0)
     for (let k = 0; k < 5; k++) { const an = A0 + (A1 - A0) * (k + 0.5) / 5; ctx.beginPath(); ctx.moveTo(sx + Math.cos(an) * (R - 6), Math.sin(an) * (R - 6)); ctx.lineTo(sx + Math.cos(an) * (R + 6), Math.sin(an) * (R + 6)); ctx.stroke(); }
     ctx.fillStyle = BRIGHT; ctx.fillRect(sx + R - 4, -3, 5, 6);                     // view port
   } else if (kit === "crossbow") {
-    // tomahawk on the belt at the right hip: handle along the body, head forward, blade turned outward
-    part(ctx, -24, 21.4, 27, 3.2, 1.5, "rgba(56,84,90,1)");                          // handle
-    part(ctx, -3.5, 18.6, 6.5, 3, 1, STEEL2);                                          // poll, inboard
-    ctx.beginPath(); ctx.moveTo(-3.5, 24.6); ctx.lineTo(3, 24.6); ctx.lineTo(6.5, 32); ctx.quadraticCurveTo(-0.5, 35.5, -7.5, 32); ctx.closePath();
-    ctx.fillStyle = "rgba(150,196,206,1)"; ctx.fill(); ctx.strokeStyle = EDGE; ctx.lineWidth = 1.1; ctx.stroke();
-    ctx.strokeStyle = BRIGHT; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(6.5, 32); ctx.quadraticCurveTo(-0.5, 35.5, -7.5, 32); ctx.stroke();
+    if (guard >= 0.5) {
+      // tomahawk in the right hand, carried forward ready to strike: handle, poll, bearded blade with a bright edge
+      ctx.save(); ctx.translate(13, 9); ctx.rotate(-0.16);
+      part(ctx, -6, -1.8, 40, 3.6, 1.6, "rgba(56,84,90,1)");                         // handle
+      part(ctx, 26, -5.6, 7, 3.8, 1, STEEL2);                                          // poll
+      ctx.beginPath(); ctx.moveTo(25.5, 1.8); ctx.lineTo(33.5, 1.8); ctx.lineTo(38, 14.5); ctx.quadraticCurveTo(29, 20, 19.5, 14.5); ctx.closePath();
+      ctx.fillStyle = "rgba(150,196,206,1)"; ctx.fill(); ctx.strokeStyle = EDGE; ctx.lineWidth = 1.1; ctx.stroke();
+      ctx.strokeStyle = BRIGHT; ctx.lineWidth = 2.4; ctx.shadowColor = idc; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.moveTo(38, 14.5); ctx.quadraticCurveTo(29, 20, 19.5, 14.5); ctx.stroke(); ctx.shadowBlur = 0;
+      ctx.restore();
+    } else {
     // crossbow: stock, rail, recurve limbs, drawn string, a bolt on the rail, a line reel under it
     part(ctx, -4, -2.6, 17, 5.2, 2);
     part(ctx, 13, -2, 33, 4, 1);
@@ -100,6 +106,7 @@ export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0)
     ctx.fillStyle = BRIGHT; ctx.beginPath(); ctx.moveTo(59, 0); ctx.lineTo(52, -3.2); ctx.lineTo(52, 3.2); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.arc(22, 7.5, 4.6, 0, TAU); ctx.fillStyle = STEEL2; ctx.fill(); ctx.strokeStyle = EDGE; ctx.lineWidth = 1.1; ctx.stroke();
     ctx.strokeStyle = rgba(idc, 0.9); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(22, 7.5, 2.2, 0, TAU); ctx.stroke();
+    }
   } else if (kit === "recon") {
     const y = 3;                                            // long bolt-action rifle with a scope and a bipod
     part(ctx, 22, y - 1.15, 41, 2.3, 1);                    // barrel
@@ -195,7 +202,8 @@ export function drawOperatorThermal(ctx: SKRSContext2D, u: ThermalUnit, spec: Op
   const idc = spec.color ?? "#aae6f0";
   const GRIP: Record<string, number[]> = { shield: [21, -11, 9, 21], crossbow: [27, -2, 8, 3], medic: [16, -2, 16, 2], recon: [31, 2, 12, 6], rifle: [30, 2, 12, 6] };
   const gd = u.guard ?? 0;
-  const gr = spec.kit === "shield" ? [21 + 4 * gd, -11 + 9 * gd, 9 - 5 * gd, 21 - 2 * gd] : GRIP[spec.kit] ?? GRIP.rifle;
+  const gr = spec.kit === "shield" ? [21 + 4 * gd, -11 + 9 * gd, 9 - 5 * gd, 21 - 2 * gd]
+    : spec.kit === "crossbow" && gd >= 0.5 ? [15, -13, 17, 9] : GRIP[spec.kit] ?? GRIP.rifle;
   ctx.strokeStyle = WARM; ctx.lineWidth = 6.5; ctx.lineCap = "round";
   ctx.beginPath(); ctx.moveTo(-2, -shW + 3); ctx.lineTo(gr[0], gr[1]); ctx.moveTo(-2, shW - 3); ctx.lineTo(gr[2], gr[3]); ctx.stroke();
   drawKit(ctx, spec.kit, idc, gd);
