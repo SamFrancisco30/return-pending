@@ -11,9 +11,9 @@ function blurred(ctx: SKRSContext2D, x: number, y: number, px: number, draw: (c:
   ctx.save(); ctx.filter = `blur(${px.toFixed(1)}px)`; ctx.drawImage(cv, x - OFF / 2, y - OFF / 2); ctx.restore();
 }
 
-type Limb = { pts: [number, number][]; w: number[]; finger: number };
+type Limb = { pts: [number, number][]; w: number[]; finger: number; hand?: boolean };
 type Pose = { torso: [number, number]; head: [number, number, number, number]; limbs: Limb[]; blades?: boolean };
-type Species = { name: string; poses: [Pose, Pose]; size: number };
+type Species = { name: string; poses: [Pose, Pose]; size: number; cuffs?: boolean; dim?: number };
 
 const TAU = Math.PI * 2;
 function rng(seed: number) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
@@ -37,15 +37,32 @@ export const SPECIES: Record<string, Species> = {
   },
   // FILE 001 "the Condemned": a heavy man in shackles. pose 0 seated and folded in, pose 1 upright and swinging
   prisoner: {
-    name: "Condemned", size: 1.18,
+    name: "Condemned", size: 1.34, cuffs: true,
     poses: [
-      { torso: [17, 25], head: [9, 0, 12, 11], limbs: [
-        ...pair({ pts: [[2, -23], [15, -22], [24, -9]], w: [11, 9], finger: 11 }),
-        ...pair({ pts: [[-8, -11], [10, -15], [26, -13]], w: [11, 9], finger: 4 }),
+      // seated: folded forward, forearms on the knees, cuffed hands close together in front
+      { torso: [17, 27], head: [13, 0, 12, 11], limbs: [
+        ...pair({ pts: [[2, -25], [20, -19], [31, -7]], w: [12, 10], finger: 5, hand: true }),
+        ...pair({ pts: [[-2, -13], [16, -17], [30, -15]], w: [13, 11], finger: 3 }),
       ] },
-      { torso: [18, 31], head: [12, 0, 12, 11], limbs: [
-        ...pair({ pts: [[4, -29], [27, -33], [46, -20]], w: [12, 10], finger: 11 }),
-        ...pair({ pts: [[-10, -12], [-22, -15], [-30, -13]], w: [11, 9], finger: 4 }),
+      // upright: very broad shoulders, heavy arms carried ahead of the body
+      { torso: [18, 33], head: [13, 0, 12, 11], limbs: [
+        ...pair({ pts: [[4, -31], [26, -30], [40, -15]], w: [14, 12], finger: 5, hand: true }),
+        ...pair({ pts: [[-4, -14], [-8, -15], [-11, -14]], w: [11, 9], finger: 2 }),
+      ] },
+    ],
+  },
+  // FILE 001 reanimated inmates: human-sized, dimmer than the Condemned. pose 0 standing at the cell door with
+  // arms hanging and head tipped forward, pose 1 lunging with both arms out
+  inmate: {
+    name: "Inmate", size: 0.92, dim: 0.72,
+    poses: [
+      { torso: [10, 21], head: [8, 0, 10, 9], limbs: [
+        ...pair({ pts: [[0, -19], [4, -22], [7, -21]], w: [8, 7], finger: 3, hand: true }),
+        ...pair({ pts: [[-3, -8], [-5, -9], [-7, -8]], w: [7, 6], finger: 2 }),
+      ] },
+      { torso: [13, 21], head: [14, 0, 10, 9], limbs: [
+        ...pair({ pts: [[4, -19], [24, -19], [40, -9]], w: [8, 7], finger: 6, hand: true }),
+        ...pair({ pts: [[-8, -9], [-18, -12], [-26, -10]], w: [8, 6], finger: 3 }),
       ] },
     ],
   },
@@ -91,17 +108,19 @@ function shape(ctx: SKRSContext2D, sp: Species, pose: number, seed: number, widt
   const torso = [lerp(A.torso[0], B.torso[0], pose), lerp(A.torso[1], B.torso[1], pose)];
   const head = A.head.map((v, i) => lerp(v, B.head[i], pose));
   ctx.fillStyle = fill; ctx.strokeStyle = fill; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  const hands: [number, number][] = [];
   A.limbs.forEach((la, i) => {
     const lb = B.limbs[i];
     let pts = la.pts.map((p, k) => [lerp(p[0], lb.pts[k][0], pose), lerp(p[1], lb.pts[k][1], pose)] as [number, number]);
-    const ext = reach > 0.01 && la.finger > 10 ? (i % 2 === 0 ? 1.0 : 0.2) * reach : 0;
+    const ext = reach > 0.01 && (la.hand || la.finger > 10) ? (i % 2 === 0 ? 1.0 : 0.2) * reach : 0;
     if (ext > 0) { const [sx, sy] = pts[0]; pts = pts.map(([x, y]) => [sx + (x - sx) * (1 + ext), sy + (y - sy) * (1 - 0.5 * ext)] as [number, number]); }
     limbPath(ctx, pts, la.w, widthMul, tw, lerp(la.finger, lb.finger, pose));
+    if (la.hand) hands.push(pts[pts.length - 1]);
   });
   ctx.beginPath(); ctx.ellipse(-2, 0, torso[0] + widthMul * 2, torso[1] + widthMul, 0, 0, TAU); ctx.fill();
   if (A.blades) for (const s of [-1, 1]) { ctx.beginPath(); ctx.ellipse(lerp(2, 10, pose), s * torso[1] * 0.55, 6 + widthMul, 4 + widthMul, 0, 0, TAU); ctx.fill(); }
   ctx.beginPath(); ctx.ellipse(head[0], head[1], head[2] + widthMul, head[3] + widthMul * 0.6, 0, 0, TAU); ctx.fill();
-  return { torso, head };
+  return { torso, head, hands };
 }
 
 export type EntityState = { x: number; y: number; heading: number; visible: number; glitch?: number; pose?: number; look?: number; hidden?: number; reach?: number };
@@ -126,7 +145,7 @@ function drawEntitySharp(ctx: SKRSContext2D, e: EntityState, t: number, ghost: b
   const breath = 1 + 0.035 * Math.sin(t * 1.7);
   const tw = Math.pow(Math.max(0, Math.sin(t * 2.7)), 24);   // occasional sharp twitch
   const seed = Math.floor(t * 8) + Math.floor(tw * 5) * 97;
-  const a = e.visible * flick * (ghost ? 0.5 : 1) * (1 - 0.55 * hid);
+  const a = e.visible * flick * (ghost ? 0.5 : 1) * (1 - 0.55 * hid) * (sp.dim ?? 1);
   const k = breath * sp.size * mapScale;
 
   ctx.save(); ctx.translate(e.x + dx, e.y); ctx.rotate((e.heading + tw * 9) * Math.PI / 180); ctx.scale(k, k);
@@ -144,7 +163,20 @@ function drawEntitySharp(ctx: SKRSContext2D, e: EntityState, t: number, ghost: b
   ctx.shadowColor = "rgba(255,40,30,1)"; ctx.shadowBlur = 26;
   shape(ctx, sp, pose, seed, 1.25, "#b81418", e.reach ?? 0);
   ctx.shadowBlur = 0;
-  const { torso, head } = shape(ctx, sp, pose, seed, 0.85, "#ff4a3a", e.reach ?? 0);
+  const { torso, head, hands } = shape(ctx, sp, pose, seed, 0.85, "#ff4a3a", e.reach ?? 0);
+  if (sp.cuffs && hands.length >= 2) {   // the shackles: the one cold-bright thing on it, the same blue as the ripple they emit
+    const beat = 0.75 + 0.25 * Math.sin(t * 6.3);
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = `rgba(150,200,255,${0.75 * beat})`; ctx.lineWidth = 2.2; ctx.setLineDash([3, 3]);
+    const [h0, h1] = hands, sag = 8 + 3 * Math.sin(t * 3);
+    ctx.beginPath(); ctx.moveTo(h0[0] - 5, h0[1]); ctx.quadraticCurveTo((h0[0] + h1[0]) / 2 - 5 + sag, (h0[1] + h1[1]) / 2, h1[0] - 5, h1[1]); ctx.stroke(); ctx.setLineDash([]);
+    for (const [hx, hy] of hands) {          // a heavy band across each wrist, not a ring around the hand
+      ctx.shadowColor = "rgba(90,160,255,1)"; ctx.shadowBlur = 10;
+      ctx.strokeStyle = `rgba(215,235,255,${beat})`; ctx.lineWidth = 4.5; ctx.lineCap = "butt";
+      ctx.beginPath(); ctx.moveTo(hx - 5, hy - 6.5); ctx.lineTo(hx - 5, hy + 6.5); ctx.stroke(); ctx.shadowBlur = 0;
+    }
+    ctx.restore();
+  }
   if (hid < 0.6) {
     ctx.save(); ctx.beginPath(); ctx.ellipse(-2, 0, torso[0], torso[1], 0, 0, TAU); ctx.clip();
     for (let k2 = 0; k2 < 4; k2++) {

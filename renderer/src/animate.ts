@@ -121,12 +121,13 @@ function countdownAt(t: number) {
 }
 const idOf = (who: string) => Object.entries(tl.operatorIds ?? {}).find(([, cs]) => cs === who)?.[0] ?? who;
 function shotsAt(t: number, ops: { id: string; x: number; y: number }[]) {
-  const out: { x0: number; y0: number; x1: number; y1: number; age: number }[] = [];
+  const out: { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string }[] = [];
   for (const f of tl.fire ?? []) for (let k = 0; k < 3; k++) {
     const age = t - (f.t + k * 0.085); if (age < 0 || age > 0.45) continue;
     const o = ops.find(o => o.id === idOf(f.who)); if (!o) continue;
     const dx = f.at[0] - o.x, dy = f.at[1] - o.y, L = Math.hypot(dx, dy) || 1;
-    out.push({ x0: o.x + dx / L * 38, y0: o.y + dy / L * 38, x1: f.at[0] + (k - 1) * 9, y1: f.at[1] + ((k * 7) % 5 - 2) * 5, age });
+    if (f.kind === "bolt" && k) continue;
+    out.push({ x0: o.x + dx / L * 38, y0: o.y + dy / L * 38, x1: f.at[0] + (f.kind === "bolt" ? 0 : (k - 1) * 9), y1: f.at[1] + (f.kind === "bolt" ? 0 : ((k * 7) % 5 - 2) * 5), age, kind: f.kind });
   }
   return out;
 }
@@ -136,12 +137,20 @@ function mapState(t: number): FrameState {
   for (const [id, keys] of Object.entries(tl.doors)) doors[id] = sample(keys as Track, t)[0];
   const footprints: any[] = [];
   const operators = Object.entries(tl.operators).map(([id, keys]) => {
-    const [x, y, heading] = sample(keys as Track, t, [2]);
+    let [x, y, heading] = sample(keys as Track, t, [2]);
+    // whoever is firing faces what they are firing at: turn in before the shot, hold, ease back after
+    for (const f of tl.fire ?? []) {
+      if (idOf(f.who) !== id) continue;
+      const dt = t - f.t, w = dt < 0 ? 1 + dt / 0.45 : 1 - (dt - 0.5) / 0.5;
+      if (w <= 0) continue;
+      const aim = Math.atan2(f.at[1] - y, f.at[0] - x) * 180 / Math.PI, d = ((aim - heading + 540) % 360) - 180;
+      heading += d * Math.min(1, w);
+    }
     const tr = track(id, keys as Track, t);
     const col = scene.roster?.find((r: any) => r.id === id)?.color;
     footprints.push(...tr.prints.map(p => ({ ...p, color: col })));
     const downAt = tl.down?.[id];
-    return { id, x, y, heading, gait: { phase: tr.phase, moving: tr.moving }, down: downAt != null && t >= downAt };
+    return { id, x, y, heading, gait: { phase: tr.phase, moving: tr.moving }, down: downAt != null && t >= downAt, guard: tl.guard?.[id] ? sample(tl.guard[id] as Track, t)[0] : 0 };
   });
   const residues = jumps.filter(([, b]: number[][]) => t >= b[0] && t - b[0] < 3)
     .map(([a, b]: number[][]) => ({ e: { x: a[1], y: a[2], heading: a[3], visible: 1, pose: a[6] ?? 1, hidden: a[8] ?? 0 }, age: t - b[0] }));
@@ -155,7 +164,20 @@ function mapState(t: number): FrameState {
   let pulse: any, pulseHud: any;
   if (tl.pulse) {
     const P = tl.pulse, n = Math.floor((t - P.t0) / P.period), tp = P.t0 + n * P.period;
-    if (n >= 0) { const [px, py] = sample(tl.entity as Track, Math.max(0, tp - 0.01)); pulse = { x: px, y: py, age: t - tp, zone: P.zone }; }
+    if (n >= 0) {
+      const [px, py] = sample(tl.entity as Track, tp);
+      const age = t - tp, hit = (P.hits ?? []).find((h: any) => Math.abs(h.t - tp) < 1e-6);
+      const bx = tl.boundary ? (tl.boundary.x1 + tl.boundary.x2) / 2 : null;
+      let r: number, alpha: number, lock: any;
+      if (hit) {                       // the ripple stops on the first living person it reaches, holds, then they trade places
+        const ta = hit.touch - tp, sa = hit.swap - tp;
+        r = P.speed * Math.min(age, ta); alpha = age < sa ? 1 : Math.max(0, 1 - (age - sa) / 0.45);
+        if (age >= ta && age < sa) { const o = operators.find(o => o.id === idOf(hit.who)); if (o) lock = { x: o.x, y: o.y, u: (age - ta) / (sa - ta) }; }
+      } else { r = P.speed * age; alpha = Math.max(0, Math.min(1, (P.maxR - r) / (P.maxR * 0.2))); }
+      const dB = bx != null ? Math.abs(bx - px) : Infinity, eAge = age - dB / P.speed;
+      const reaches = !hit || P.speed * (hit.touch - tp) >= dB;
+      pulse = { x: px, y: py, r, alpha, zone: P.zone, lock, edge: reaches && eAge >= 0 && eAge < 1.3 ? 1 - eAge / 1.3 : 0 };
+    }
     const rem = n >= 0 ? P.period - (t - tp) : P.t0 - t;
     pulseHud = { remaining: rem, period: P.period, alert: Math.max(0, Math.min(1, (t - (P.alertFrom ?? 1e9)) / 0.6)), count: Math.max(0, n + 1) };
   }

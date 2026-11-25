@@ -1,0 +1,20 @@
+{
+ "block": {
+  "xray": "../concepts/block_plate_b.png",
+  "fit": {
+   "sx": 0.9995,
+   "sy": 1.0178,
+   "dx": 31.0,
+   "dy": 19.6
+  }
+ },
+ "deathrow": {
+  "xray": "../concepts/deathrow4_plate_a.png",
+  "fit": {
+   "sx": 0.9233,
+   "sy": 0.9608,
+   "dx": 30.7,
+   "dy": 40.8
+  }
+ }
+}

@@ -108,10 +108,17 @@ export function drawDoorFx(ctx: SKRSContext2D, d: { id: string; hx: number; hy: 
 }
 
 // ---------------- gunfire ----------------
-export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number };
+export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string };
 export function drawGunfire(ctx: SKRSContext2D, shots: Shot[]) {
   ctx.save(); ctx.globalCompositeOperation = "lighter";
   for (const s of shots) {
+    if (s.kind === "bolt") {           // a crossbow bolt: no flash, a thin pale streak
+      const u = clamp(s.age / 0.11), tx = s.x0 + (s.x1 - s.x0) * u, ty = s.y0 + (s.y1 - s.y0) * u;
+      const L = Math.hypot(s.x1 - s.x0, s.y1 - s.y0) || 1, ux = (s.x1 - s.x0) / L, uy = (s.y1 - s.y0) / L;
+      ctx.strokeStyle = `rgba(230,246,250,${u < 1 ? 0.95 : Math.max(0, 0.9 - (s.age - 0.11) * 2.6)})`; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(tx - ux * 34, ty - uy * 34); ctx.lineTo(tx, ty); ctx.stroke();
+      continue;
+    }
     if (s.age < 0.2) { // tracer + muzzle bloom
       const a = 1 - s.age / 0.2;
       const g = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 70);
@@ -253,48 +260,61 @@ export function drawWireframe(ctx: SKRSContext2D, walls: { x: number; y: number;
 }
 
 // ---------------- FILE 001: shackle pulse, block boundary, position swap, impacts ----------------
-export type Pulse = { x: number; y: number; age: number; zone: { x: number; y: number; w: number; h: number }; empty?: boolean };
+export type Pulse = {
+  x: number; y: number; r: number; alpha: number;          // ripple origin (the wearer), current radius, fade
+  zone: number[][];                                        // the block as [x, y, w, h] rects: the ripple cannot leave it
+  lock?: { x: number; y: number; u: number };              // the first living person it touched; u 0..1 until the trade
+  edge?: number;                                           // 0..1 flash on the boundary line where it is stopped
+};
 export type Boundary = { x1: number; y1: number; x2: number; y2: number; label?: string };
 export type SwapFx = { a: number[]; b: number[]; age: number };
 export type Impact = { x: number; y: number; age: number; r: number };
-const PULSE_SPEED = 1500, PULSE_LIFE = 1.9;
 
-// a red ring that leaves the wearer and is cut off by the block's outline
+// a slow blue ripple that leaves the wearer, is cut off by the block's outline, and stops on the first person it touches
 export function drawPulse(ctx: SKRSContext2D, p: Pulse | undefined, b: Boundary | undefined, t: number) {
-  const hitAge = p && b ? p.age - Math.abs((b.x1 + b.x2) / 2 - p.x) / PULSE_SPEED : -1;   // when the ring reaches the boundary line
   if (b) {
-    const flash = hitAge > 0 && hitAge < 1.1 ? 1 - hitAge / 1.1 : 0;
+    const flash = p?.edge ?? 0;
     ctx.save(); ctx.lineCap = "butt";
-    ctx.strokeStyle = flash > 0 ? `rgba(255,${Math.round(90 + 120 * (1 - flash))},${Math.round(80 + 150 * (1 - flash))},${0.75 + 0.25 * flash})` : "rgba(150,225,235,0.6)";
-    ctx.lineWidth = 3 + 5 * flash; ctx.setLineDash([16, 10]); ctx.lineDashOffset = -t * 14;
-    if (flash > 0) { ctx.shadowColor = "rgba(255,60,50,1)"; ctx.shadowBlur = 22 * flash; }
+    ctx.strokeStyle = flash > 0 ? `rgba(${Math.round(150 - 60 * flash)},${Math.round(225 - 55 * flash)},255,${0.7 + 0.3 * flash})` : "rgba(150,225,235,0.6)";
+    ctx.lineWidth = 3 + 6 * flash; ctx.setLineDash([16, 10]); ctx.lineDashOffset = -t * 14;
+    if (flash > 0) { ctx.shadowColor = "rgba(70,150,255,1)"; ctx.shadowBlur = 26 * flash; }
     ctx.beginPath(); ctx.moveTo(b.x1, b.y1); ctx.lineTo(b.x2, b.y2); ctx.stroke(); ctx.setLineDash([]); ctx.shadowBlur = 0;
     if (b.label) {
-      ctx.font = "bold 15px Consolas"; ctx.fillStyle = flash > 0 ? "rgba(255,150,140,0.95)" : "rgba(160,225,235,0.8)";
+      ctx.font = "bold 15px Consolas"; ctx.fillStyle = flash > 0 ? "rgba(170,210,255,0.95)" : "rgba(160,225,235,0.8)";
       ctx.save(); ctx.translate(b.x1 - 12, (b.y1 + b.y2) / 2); ctx.rotate(-Math.PI / 2);
       ctx.fillText(b.label, -ctx.measureText(b.label).width / 2, 0); ctx.restore();
     }
     ctx.restore();
   }
-  if (!p || p.age < 0 || p.age > PULSE_LIFE) return;
-  const z = p.zone, fade = 1 - p.age / PULSE_LIFE;
-  ctx.save(); ctx.beginPath(); ctx.rect(z.x, z.y, z.w, z.h); ctx.clip();
+  if (!p || p.alpha <= 0.01 || p.r <= 0) return;
+  const locked = !!p.lock, lu = p.lock?.u ?? 0;
+  ctx.save(); ctx.beginPath(); for (const [x, y, w, h] of p.zone) ctx.rect(x, y, w, h); ctx.clip();
   ctx.globalCompositeOperation = "lighter";
-  // faint wash over the whole block right after the ring passes
-  ctx.fillStyle = `rgba(255,40,30,${0.10 * fade * fade})`; ctx.fillRect(z.x, z.y, z.w, z.h);
-  for (let k = 0; k < 3; k++) {
-    const r = (p.age - k * 0.09) * PULSE_SPEED; if (r <= 0) continue;
-    const a = fade * (k === 0 ? 0.95 : 0.4 / k);
-    ctx.strokeStyle = `rgba(255,${k === 0 ? 70 : 40},${k === 0 ? 55 : 30},${a})`; ctx.lineWidth = k === 0 ? 7 : 16;
-    if (k === 0) { ctx.shadowColor = "rgba(255,40,30,1)"; ctx.shadowBlur = 26; }
+  // water-like: a bright crest, then trailing troughs that get wider and fainter
+  const crest = locked ? `rgba(${Math.round(120 + 135 * lu)},${Math.round(190 - 90 * lu)},${Math.round(255 - 170 * lu)},` : "rgba(120,190,255,";
+  for (let k = 0; k < 5; k++) {
+    const r = p.r - k * 34 - (k ? Math.sin(t * 5 + k) * 3 : 0); if (r <= 2) continue;
+    const a = p.alpha * (k === 0 ? 0.95 : 0.42 / k);
+    ctx.strokeStyle = (k === 0 ? crest : "rgba(60,120,255,") + a + ")"; ctx.lineWidth = k === 0 ? 5 : 5 + k * 5;
+    if (k === 0) { ctx.shadowColor = locked ? "rgba(255,90,70,1)" : "rgba(80,150,255,1)"; ctx.shadowBlur = 22; }
     ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0;
   }
+  const g = ctx.createRadialGradient(p.x, p.y, Math.max(0, p.r - 220), p.x, p.y, p.r);     // faint lit water behind the crest
+  g.addColorStop(0, "rgba(40,90,220,0)"); g.addColorStop(1, `rgba(50,110,240,${0.16 * p.alpha})`);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, TAU); ctx.fill();
   ctx.restore();
-  // the block outline itself lights up where the ring is stopped
-  const edge = clamp(1 - Math.abs(p.age - 0.75) / 0.75);
-  if (edge > 0.01) {
-    ctx.save(); ctx.strokeStyle = `rgba(255,70,55,${0.55 * edge})`; ctx.lineWidth = 4; ctx.shadowColor = "rgba(255,40,30,1)"; ctx.shadowBlur = 18;
-    ctx.strokeRect(z.x, z.y, z.w, z.h); ctx.restore();
+  // lock: the ripple has found someone. Brackets close on them while the line back to the wearer brightens.
+  if (p.lock) {
+    const { x, y, u } = p.lock, R = 96 - 44 * u, beat = 0.6 + 0.4 * Math.abs(Math.sin(t * 22));
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = `rgba(255,${Math.round(240 - 150 * u)},${Math.round(235 - 170 * u)},${0.35 + 0.65 * u})`; ctx.lineWidth = 2 + 3 * u; ctx.setLineDash([10, 9]);
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(x, y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = `rgba(255,${Math.round(245 - 160 * u)},${Math.round(240 - 180 * u)},${beat})`; ctx.lineWidth = 4; ctx.shadowColor = "rgba(255,80,60,1)"; ctx.shadowBlur = 18;
+    for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { ctx.beginPath(); ctx.moveTo(x + sx * R, y + sy * (R - 30)); ctx.lineTo(x + sx * R, y + sy * R); ctx.lineTo(x + sx * (R - 30), y + sy * R); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(x, y, R * 0.62, 0, TAU); ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.font = "bold 20px Consolas"; ctx.fillStyle = `rgba(255,${Math.round(240 - 130 * u)},${Math.round(235 - 150 * u)},${beat})`;
+    const txt = "NEAREST"; ctx.fillText(txt, x - ctx.measureText(txt).width / 2, y - R - 12);
+    ctx.restore();
   }
 }
 

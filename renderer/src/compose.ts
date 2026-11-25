@@ -8,7 +8,7 @@ import { drawOperatorThermal, drawCallsign, callsignWidth, drawEntityThermal, dr
 GlobalFonts.registerFromPath("C:/Windows/Fonts/consola.ttf", "Consolas");
 
 export type Style = "S2" | "S3";
-export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean };
+export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number };
 export type FrameState = {
   t: number;                       // seconds, drives noise/flicker
   doors: Record<string, number>;   // id -> open fraction 0..1
@@ -497,6 +497,7 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
     // callsign labels: stack downward instead of overlapping
     const placed: Rect[] = [];
     for (const o of [...st.operators].sort((p, q) => p.y - q.y)) {
+      if (o.x < view.x0 - 20 || o.x > view.x1 + 20) continue;      // off-screen: no label parked at the edge
       const bw = callsignWidth(ctx, spec(o.id)); let dy = 0;
       const lx = Math.max(o.x - 48 - bw, view.x0 + 12);       // pushed inward at the left edge of the view
       const box = () => ({ x: lx, y: o.y + 32 + dy, w: bw, h: 24 });
