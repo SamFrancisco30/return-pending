@@ -1,0 +1,28 @@
+{
+  "_note": "Casting + line direction for ElevenLabs eleven_v3. Tags in [brackets] are performance directions, not spoken. 'window' = seconds available in the timeline (takes may run a little longer).",
+  "voices": {
+    "VANCE": "TxWZERZ5Hc6h9dGxVmXa",
+    "ODA": "GLSWsaquVBsIPLPPRi2s",
+    "REYES_sarah": "EXAVITQu4vr4xnSDxMaL",
+    "REYES_lucia": "EkpXPRVw7LERkOks6f1W",
+    "REYES_veda": "1rnYMVDXZksVr6x7pZPX",
+    "DISPATCH": "wa4sQVgbDDzUDEzJwch3"
+  },
+  "lines": [
+    { "id": "m_reyes", "who": ["REYES_sarah", "REYES_lucia", "REYES_veda"], "window": 3.2,
+      "text": "[whispers, frightened] Door two... [shaky breath] it just opened. [barely audible] Nobody touched it.",
+      "subtitle": "Door two... it just opened. Nobody touched it." },
+    { "id": "m_dispatch", "who": ["DISPATCH"], "window": 3.6,
+      "text": "[sharp, urgent] Don't touch anything. [firm, commanding] Fall back to the exit. Now!",
+      "subtitle": "Don't touch anything. Fall back to the exit. Now!" },
+    { "id": "g_oda2", "who": ["ODA"], "window": 2.6,
+      "text": "[breathing hard] Feed's back... [whispers, uneasy] it moved.",
+      "subtitle": "Feed's back... it moved." },
+    { "id": "g_reyes", "who": ["REYES_sarah", "REYES_lucia", "REYES_veda"], "window": 2.6,
+      "text": "[whispers, voice shaking] Again... [gasps] it's under the sedan.",
+      "subtitle": "Again... it's under the sedan." },
+    { "id": "g_dispatch", "who": ["DISPATCH"], "window": 3.3,
+      "text": "[urgent] Every time the feed drops, it gets closer. [shouting] Get out. Now!",
+      "subtitle": "Every time the feed drops, it gets closer. Get out. Now!" }
+  ]
+}

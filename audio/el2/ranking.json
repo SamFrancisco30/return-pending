@@ -1,0 +1,275 @@
+{
+ "m_reyes": {
+  "subtitle": "Door two... it just opened. Nobody touched it.",
+  "window": 3.2,
+  "takes": [
+   {
+    "file": "audio/el2/m_reyes__REYES_veda__t2.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 3.23,
+    "pitch_sd": 3.5,
+    "loud_sd": 5.28,
+    "raw_dur": 4.68,
+    "score": 6.05
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_sarah__t2.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 3.73,
+    "pitch_sd": 3.17,
+    "loud_sd": 6.89,
+    "raw_dur": 4.74,
+    "score": 5.03
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_lucia__t1.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 4.04,
+    "pitch_sd": 5.04,
+    "loud_sd": 4.53,
+    "raw_dur": 4.04,
+    "score": 4.79
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_sarah__t0.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 4.42,
+    "pitch_sd": 4.86,
+    "loud_sd": 6.8,
+    "raw_dur": 4.67,
+    "score": 4.6
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_lucia__t0.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 4.11,
+    "pitch_sd": 4.72,
+    "loud_sd": 4.98,
+    "raw_dur": 4.11,
+    "score": 4.48
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_sarah__t1.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 4.36,
+    "pitch_sd": 3.62,
+    "loud_sd": 5.92,
+    "raw_dur": 5.45,
+    "score": 3.1
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_veda__t0.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 4.35,
+    "pitch_sd": 3.38,
+    "loud_sd": 5.84,
+    "raw_dur": 6.4,
+    "score": 2.85
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_veda__t1.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 4.62,
+    "pitch_sd": 4.07,
+    "loud_sd": 5.87,
+    "raw_dur": 5.35,
+    "score": 2.75
+   },
+   {
+    "file": "audio/el2/m_reyes__REYES_lucia__t2.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 5.53,
+    "pitch_sd": 2.82,
+    "loud_sd": 3.35,
+    "raw_dur": 5.53,
+    "score": -2.5
+   }
+  ]
+ },
+ "m_dispatch": {
+  "subtitle": "Don't touch anything. Fall back to the exit. Now!",
+  "window": 3.6,
+  "takes": [
+   {
+    "file": "audio/el2/m_dispatch__DISPATCH__t0.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 3.17,
+    "pitch_sd": 4.63,
+    "loud_sd": 7.78,
+    "raw_dur": 3.71,
+    "score": 8.52
+   },
+   {
+    "file": "audio/el2/m_dispatch__DISPATCH__t2.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 3.75,
+    "pitch_sd": 4.92,
+    "loud_sd": 7.26,
+    "raw_dur": 4.24,
+    "score": 8.1
+   },
+   {
+    "file": "audio/el2/m_dispatch__DISPATCH__t1.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 3.28,
+    "pitch_sd": 3.96,
+    "loud_sd": 7.22,
+    "raw_dur": 4.07,
+    "score": 7.57
+   }
+  ]
+ },
+ "g_oda2": {
+  "subtitle": "Feed's back... it moved.",
+  "window": 2.6,
+  "takes": [
+   {
+    "file": "audio/el2/g_oda2__ODA__t0.tight.wav",
+    "voice": "ODA",
+    "dur": 2.13,
+    "pitch_sd": 9.06,
+    "loud_sd": 5.17,
+    "raw_dur": 3.55,
+    "score": 11.64
+   },
+   {
+    "file": "audio/el2/g_oda2__ODA__t1.tight.wav",
+    "voice": "ODA",
+    "dur": 1.85,
+    "pitch_sd": 7.48,
+    "loud_sd": 5.29,
+    "raw_dur": 2.88,
+    "score": 10.12
+   },
+   {
+    "file": "audio/el2/g_oda2__ODA__t2.tight.wav",
+    "voice": "ODA",
+    "dur": 2.71,
+    "pitch_sd": 7.46,
+    "loud_sd": 3.53,
+    "raw_dur": 3.52,
+    "score": 8.89
+   }
+  ]
+ },
+ "g_reyes": {
+  "subtitle": "Again... it's under the sedan.",
+  "window": 2.6,
+  "takes": [
+   {
+    "file": "audio/el2/g_reyes__REYES_sarah__t1.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 1.98,
+    "pitch_sd": 3.54,
+    "loud_sd": 5.95,
+    "raw_dur": 2.81,
+    "score": 6.52
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_veda__t2.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 2.34,
+    "pitch_sd": 3.08,
+    "loud_sd": 6.79,
+    "raw_dur": 3.17,
+    "score": 6.47
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_sarah__t0.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 2.89,
+    "pitch_sd": 3.23,
+    "loud_sd": 7.97,
+    "raw_dur": 3.25,
+    "score": 6.34
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_sarah__t2.tight.wav",
+    "voice": "REYES_sarah",
+    "dur": 2.26,
+    "pitch_sd": 2.27,
+    "loud_sd": 6.66,
+    "raw_dur": 2.5,
+    "score": 5.6
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_lucia__t2.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 3.2,
+    "pitch_sd": 4.81,
+    "loud_sd": 4.86,
+    "raw_dur": 3.2,
+    "score": 5.44
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_lucia__t0.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 2.93,
+    "pitch_sd": 3.59,
+    "loud_sd": 4.88,
+    "raw_dur": 2.93,
+    "score": 5.04
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_veda__t0.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 2.69,
+    "pitch_sd": 1.98,
+    "loud_sd": 6.01,
+    "raw_dur": 3.31,
+    "score": 4.71
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_veda__t1.tight.wav",
+    "voice": "REYES_veda",
+    "dur": 3.03,
+    "pitch_sd": 1.76,
+    "loud_sd": 5.73,
+    "raw_dur": 5.0,
+    "score": 3.34
+   },
+   {
+    "file": "audio/el2/g_reyes__REYES_lucia__t1.tight.wav",
+    "voice": "REYES_lucia",
+    "dur": 3.81,
+    "pitch_sd": 3.46,
+    "loud_sd": 4.83,
+    "raw_dur": 3.81,
+    "score": 2.25
+   }
+  ]
+ },
+ "g_dispatch": {
+  "subtitle": "Every time the feed drops, it gets closer. Get out. Now!",
+  "window": 3.3,
+  "takes": [
+   {
+    "file": "audio/el2/g_dispatch__DISPATCH__t2.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 3.7,
+    "pitch_sd": 3.83,
+    "loud_sd": 6.25,
+    "raw_dur": 3.86,
+    "score": 5.75
+   },
+   {
+    "file": "audio/el2/g_dispatch__DISPATCH__t0.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 4.68,
+    "pitch_sd": 3.49,
+    "loud_sd": 7.27,
+    "raw_dur": 5.04,
+    "score": 2.99
+   },
+   {
+    "file": "audio/el2/g_dispatch__DISPATCH__t1.tight.wav",
+    "voice": "DISPATCH",
+    "dur": 4.66,
+    "pitch_sd": 3.33,
+    "loud_sd": 6.69,
+    "raw_dur": 5.06,
+    "score": 2.59
+   }
+  ]
+ }
+}

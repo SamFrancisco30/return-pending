@@ -1,0 +1,102 @@
+# FILE 001 · staging beats. Door events, dialogue and zone jumps come from episode.json;
+# this file only says who moves where, camera, shots and HUD extras.
+# Compile:  cd renderer; node src/compile_timeline.ts ../episodes/file_001/beats.txt ../episodes/file_001/timeline.json
+
+@episode episode.json
+@scene ../../scene/motel.json
+@plates xray=../../concepts/plate_xray_b.png real=../../concepts/plate_real_a.png
+@feed SITE 07 // ROUTE 9 MOTEL // SRS RECONSTRUCTED FEED
+@clock 03:21:27
+@duration 4:00
+@species stalker
+@site SITE 07 · ROUTE 9 MOTEL
+@objective RECOVER SRS BEACON (LAST SIGNAL: ROOM 6)
+@cast VANCE=A ODA=B REYES=C
+@doormap 01=T1 02=T2 03=T3 04=B1 05=B2 06=B3 EXIT=EXIT
+@spot T3=room 03 | B2=doorway 05+(40,60) | T1_DOORWAY=doorway 01 | EXIT_VESTIBULE=EXIT
+@start ODA=OUTSIDE+(0,-10) VANCE=OUTSIDE+(-30,30) REYES=OUTSIDE+(-50,-30)
+@sample creak=../../audio/sfx/door_creak.wav relocate=../../audio/sfx/relocate.wav ambience=../../audio/sfx/amb_motel.wav step=../../audio/sfx/step_c.wav step_heavy=../../audio/sfx/step_b.wav step_light=../../audio/sfx/step_c.wav breath=../../audio/sfx/breath.wav squelch=../../audio/sfx/squelch.wav door_open=../../audio/sfx/fire_door.wav gunfire=../../audio/sfx/f01/gunfire_burst.wav rattle=../../audio/sfx/f01/door_rattle.wav thump=../../audio/sfx/f01/door_thump.wav frost=../../audio/sfx/f01/frost_crackle.wav door_burst=../../audio/sfx/f01/door_burst.wav door_slam=../../audio/sfx/f01/door_slam.wav door_latch=../../audio/sfx/f01/door_latch.wav pack_drag=../../audio/sfx/f01/pack_drag.wav lapse_close=../../audio/sfx/f01/lapse_close.wav stamp=../../audio/sfx/f01/stamp.wav limb=../../audio/sfx/f01/limb_stretch.wav beacon_chirp=../../audio/sfx/f01/beacon_chirp.wav outside=../../audio/sfx/f01/outside_night.wav glitch=../../audio/sfx/f01/glitch_burst.wav holloway=../../audio/sfx/f01/holloway_t0.wav
+
+# ---- shots
+0:00-0:03 shot map at=2:04
+0:03-0:07 shot bodycam REYES clip=../../concepts/insert2_doorway_gaze.mp4 still=../../concepts/bodycam_b2_b.png offset=1.0
+0:07-0:08 shot black
+0:08-0:18 shot card case
+0:18-0:58 shot map
+0:58-1:08 shot bodycam REYES clip=../../concepts/bodycam_b2_i2v.mp4 still=../../concepts/bodycam_b2_b.png offset=0.3
+1:08-2:41 shot map
+2:41-2:49 shot bodycam REYES clip=../../concepts/insert2_doorway_gaze.mp4 still=../../concepts/bodycam_b2_b.png offset=0
+2:49-3:40 shot map
+3:40-4:00 shot card report
+
+# ---- props and item readouts
+0:00-1:14 prop beacon at doorway 06+(30,70)
+1:14-1:20 tag SRS BEACON · REG. RT-04 / HOLLOWAY at doorway 06+(30,40)
+2:34-3:02 prop pack at (150,600)
+
+# ---- hand-placed sounds (door, gunfire, reach, lapse sounds come from episode.json events)
+0:07 sfx door_slam gain=1.3           # hard cut to black: one heavy door shutting
+0:08.5-0:10.8 sfx typing              # case card types out
+0:14 sfx stamp                        # RETURN PENDING stamp
+1:14 sfx beacon_chirp gain=0.7        # REYES picks up the beacon
+2:03 sfx rattle gain=0.55 pan=-0.5     # door 04 handle starts turning by itself
+3:02 sfx pack_drag pan=-0.4           # REYES drags the pack clear of the exit door
+3:40.4-3:43.8 sfx typing              # recovery report types out
+3:57.4 sfx holloway gain=0.5          # the beacon light flickers: "...Vance?"
+
+# ---- 0:18 entry (ODA opens the exit, everyone files in)
+0:18 move ODA,VANCE,REYES to corridor 01+(-60,0) walk
+0:18 camera follow ODA,VANCE,REYES zoom 1.35
+0:18 confidence 91
+0:38-0:44 warn UNK-1 DETECTED
+0:38 confidence 74
+0:41 confidence 90
+0:41 face VANCE,REYES,ODA to door 05
+
+# ---- 0:48 east; ODA tries door 01 on the way; REYES peeks into room 5
+0:48 move ODA to door 01 walk
+0:48 move VANCE,REYES to corridor 02+(-90,0) creep by 0:58
+0:55 move ODA to corridor 02+(-200,0) walk
+0:58 move REYES to door 05 creep
+0:59 face REYES to doorway 05
+0:59-1:06 entity look REYES          # insert 1: its head tilts toward her (contact 1)
+1:05 move VANCE to corridor 03 creep
+1:05 move REYES to doorway 06 creep by 1:14
+1:06 move ODA to corridor 03+(-130,0) creep
+1:05 camera follow VANCE,REYES zoom 1.3
+
+# ---- 1:40 it relocates to room 1; they come back west; VANCE fires
+1:40 camera at corridor 02 zoom 1.0
+1:40 confidence 72
+1:43 confidence 88
+1:44 face VANCE,ODA,REYES to corridor 01
+1:46 move VANCE,ODA,REYES to corridor 02 walk
+1:50-1:53 entity reach toward VANCE
+1:51 move VANCE to corridor 01+(130,10) walk by 1:53
+1:53 fire VANCE at doorway 01
+1:53 entity freeze 2.1
+1:56 move ODA,REYES to corridor 01+(260,0) walk
+1:56 camera follow VANCE,ODA zoom 1.45
+2:03-2:20 warn PATTERN: UNPROMPTED DOOR -> UNK-1 ADVANCES (2/2)
+2:08 move VANCE to door 04 walk by 2:12
+2:12 face VANCE to 90
+
+# ---- 2:31 the plan: VANCE holds 4, ODA props the exit, REYES opens 3
+2:31 camera at corridor 02 zoom 1.0
+2:31 move ODA to EXIT run
+2:34 move ODA to OUTSIDE+(0,40) walk
+2:31 move REYES to door 03 run
+1:57-2:50 entity look REYES          # after the shots its attention goes back to her; insert 2 = contact 2
+2:37 move REYES to corridor 01+(200,0) run by 2:40
+2:40 move REYES to OUTSIDE+(0,-40) creep by 2:51
+
+# ---- 3:00 VANCE lets go and runs; REYES shuts the exit; they hold it
+2:59 move VANCE to OUTSIDE+(-30,0) run
+3:00-3:01.5 entity look VANCE        # it lands one step behind him (contact)
+2:59 camera at EXIT+(120,0) zoom 1.6
+3:01 move ODA to OUTSIDE+(-20,30) walk
+3:03 face VANCE,ODA,REYES to 0
+3:05 confidence 40
+3:24 confidence 0
+3:24 camera at corridor 02 zoom 1.0
+3:24-3:38 warn LAPSE STATUS: CLOSED

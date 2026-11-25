@@ -1,0 +1,523 @@
+{
+  "series": {
+    "_about": "Series-level canon. Only approved episodes change files in canon/ (tools/continuity_check.py --apply). Writer-only fields are prefixed with 'secret_' or live in mysteries.json.",
+    "title": "RETURN PENDING",
+    "theme": "The better they get at surviving, the less human they become.",
+    "logline": "Three contractors enter places that stopped following the rules. A dispatcher watches from the other side. Every assignment changes them. Not everyone comes back.",
+    "bible": "https://claude.ai/artifact/SpkmKNhGzDZcpyoLj6yTgg",
+    "bible_version": "V2.1",
+    "program": "Wayfarer Recovery Program",
+    "anomaly_zone_term": "Lapse",
+    "overhead_system": "SRS (Spatial Reconstruction System)",
+    "status_values": [
+      "RETURNED",
+      "RETURN PENDING",
+      "LOST",
+      "DECEASED"
+    ],
+    "mission_results": [
+      "COMPLETE",
+      "FAILED",
+      "ABORTED"
+    ],
+    "last_approved_file": 0,
+    "approved_files": []
+  },
+  "characters": {
+    "_about": "State BEFORE the next unapproved file. hidden_motive and secret_* are writer-only; characters may not say them until mysteries.json marks them revealed.",
+    "characters": [
+      {
+        "id": "VANCE",
+        "callsign": "VANCE",
+        "field": true,
+        "role": "point / field lead",
+        "kit": "shield",
+        "color": "#6fdcff",
+        "icon": "tri",
+        "voice": "TxWZERZ5Hc6h9dGxVmXa",
+        "status": "RETURNED",
+        "exposure": 22,
+        "exposure_floor": 9,
+        "missions_completed": 9,
+        "standard_equipment": [
+          "ballistic_shield",
+          "sidearm",
+          "srs_node"
+        ],
+        "symptoms": [],
+        "known_anomalies": [],
+        "known_secrets": [
+          "team04_exists",
+          "team04_missing"
+        ],
+        "hidden_motive": "Former member of Recovery Team 04. The rest of Team 04 went missing on an assignment; only he came back. Their file was never closed.",
+        "first_appearance": null,
+        "last_appearance": null
+      },
+      {
+        "id": "ODA",
+        "callsign": "ODA",
+        "field": true,
+        "role": "support / radio and SRS main relay",
+        "kit": "radio",
+        "color": "#ffc15a",
+        "icon": "square",
+        "voice": "GLSWsaquVBsIPLPPRi2s",
+        "status": "RETURNED",
+        "exposure": 52,
+        "exposure_floor": 31,
+        "missions_completed": 43,
+        "standard_equipment": [
+          "carbine",
+          "srs_relay_pack",
+          "radio"
+        ],
+        "symptoms": [
+          "radio_calls_that_should_not_exist"
+        ],
+        "known_anomalies": [],
+        "known_secrets": [],
+        "hidden_motive": "Exposure already high; does not believe he can ever be normal again. Was told six jobs would clear him.",
+        "first_appearance": null,
+        "last_appearance": null
+      },
+      {
+        "id": "REYES",
+        "callsign": "REYES",
+        "field": true,
+        "role": "recon / bodycam",
+        "kit": "recon",
+        "color": "#b9a4ff",
+        "icon": "diamond",
+        "voice": "1rnYMVDXZksVr6x7pZPX",
+        "status": "RETURNED",
+        "exposure": 0,
+        "exposure_floor": 0,
+        "missions_completed": 0,
+        "standard_equipment": [
+          "carbine",
+          "bodycam",
+          "headlamp",
+          "srs_node"
+        ],
+        "symptoms": [],
+        "known_anomalies": [],
+        "known_secrets": [],
+        "hidden_motive": "Joined on purpose to find a missing family member whose name appears in an old Wayfarer file.",
+        "first_appearance": null,
+        "last_appearance": null
+      },
+      {
+        "id": "DISPATCH",
+        "callsign": "DISPATCH",
+        "field": false,
+        "role": "off-site coordinator, voice only",
+        "voice": "wa4sQVgbDDzUDEzJwch3",
+        "status": "RETURNED",
+        "exposure": null,
+        "exposure_floor": null,
+        "missions_completed": null,
+        "known_anomalies": [],
+        "known_secrets": [
+          "program_true_purpose",
+          "srs_core_is_salvage",
+          "stabilizer_from_salvage"
+        ],
+        "hidden_motive": "Knows what the program is really for and cannot tell the crew.",
+        "first_appearance": null,
+        "last_appearance": null
+      }
+    ]
+  },
+  "exposure_rules": {
+    "_about": "Writer-side numbers (bible V2.1 section 3). Viewers only ever see results on the recovery report. Values may be tuned before an episode is released, never after.",
+    "events": {
+      "entry": 6,
+      "direct_contact": 15,
+      "severe": 25,
+      "salvage_use_min": 3,
+      "salvage_use_max": 10
+    },
+    "stabilizer": -10,
+    "stabilizer_requires": "COMPLETE",
+    "floor_increase_per_entry": 1,
+    "off_duty_rebound_per_two_weeks": 2,
+    "cap": 100,
+    "at_cap": "RETURN PENDING",
+    "stages": [
+      {
+        "stage": 1,
+        "from": 0,
+        "to": 25,
+        "symptoms": "voices from the Lapse; short memory gaps"
+      },
+      {
+        "stage": 2,
+        "from": 25,
+        "to": 50,
+        "symptoms": "sees things in the normal world that should not exist"
+      },
+      {
+        "stage": 3,
+        "from": 50,
+        "to": 75,
+        "symptoms": "people around them start forgetting them"
+      },
+      {
+        "stage": 4,
+        "from": 75,
+        "to": 100,
+        "symptoms": "pulled back into a Lapse without warning"
+      }
+    ],
+    "order_of_operations": [
+      "start = exposure before the file",
+      "add entry + every contact/severe/salvage event during the file",
+      "floor += floor_increase_per_entry",
+      "if mission result is COMPLETE and stabilizer access is granted: add stabilizer",
+      "result = clamp(max(floor, value), 0, cap)"
+    ]
+  },
+  "equipment": {
+    "_about": "Standard (replenishable) equipment. 'unlocked_in' = the file whose loadout scene first issues it; it must be used in that file (bible V2.1 section 9).",
+    "items": [
+      {
+        "id": "ballistic_shield",
+        "name": "Ballistic shield",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "sidearm",
+        "name": "Sidearm",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "carbine",
+        "name": "Carbine",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "radio",
+        "name": "Radio",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "bodycam",
+        "name": "Bodycam",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "headlamp",
+        "name": "Headlamp",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "srs_node",
+        "name": "SRS node",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": null,
+        "status": "available"
+      },
+      {
+        "id": "srs_relay_pack",
+        "name": "SRS main relay pack",
+        "standard_kit": true,
+        "unlocked_in": 0,
+        "quantity": 1,
+        "status": "available"
+      },
+      {
+        "id": "relay_puck",
+        "name": "Relay Puck",
+        "standard_kit": false,
+        "planned_unlock": 2,
+        "unlocked_in": null,
+        "quantity": 2,
+        "status": "locked",
+        "effect": "keeps a one-room window of SRS feed alive during a dropout"
+      },
+      {
+        "id": "door_wedge",
+        "name": "Door Wedge",
+        "standard_kit": false,
+        "planned_unlock": null,
+        "unlocked_in": null,
+        "quantity": 2,
+        "status": "locked",
+        "effect": "locks one door shut; 3 s to place"
+      },
+      {
+        "id": "pulse_scanner",
+        "name": "Pulse Scanner",
+        "standard_kit": false,
+        "planned_unlock": null,
+        "unlocked_in": null,
+        "quantity": 1,
+        "status": "locked",
+        "effect": "one-shot reveal of heat signatures in the next room; 20 s cooldown; may agitate anomalies"
+      },
+      {
+        "id": "chalk_line",
+        "name": "Chalk Line",
+        "standard_kit": false,
+        "planned_unlock": null,
+        "unlocked_in": null,
+        "quantity": null,
+        "status": "locked",
+        "effect": "fluorescent floor line that breaks when space shifts"
+      }
+    ]
+  },
+  "salvage": {
+    "_about": "Anomalous items. Unique; owned by Wayfarer; carrying one needs authorization; LOST_IN_FIELD is permanent. status: unknown | in_custody | lost_in_field | destroyed.",
+    "items": [
+      {
+        "id": "spare_key",
+        "name": "Spare Key",
+        "status": "unknown",
+        "planned_recovery": 5,
+        "effect": "opens any door",
+        "cost": "what is behind the door may not be the original room",
+        "exposure_per_use": 6
+      },
+      {
+        "id": "north_coin",
+        "name": "North Coin",
+        "status": "unknown",
+        "planned_recovery": null,
+        "effect": "always points to the nearest exit",
+        "cost": "each use drops the SRS feed once",
+        "exposure_per_use": 3
+      },
+      {
+        "id": "hush_lamp",
+        "name": "Hush Lamp",
+        "status": "unknown",
+        "planned_recovery": null,
+        "effect": "holder is invisible to entities",
+        "cost": "holder gradually stops hearing the crew's radio",
+        "exposure_per_use": 10
+      },
+      {
+        "id": "srs_core",
+        "name": "SRS core",
+        "status": "in_custody",
+        "secret": true,
+        "planned_recovery": null,
+        "effect": "makes spatial reconstruction possible",
+        "cost": "unknown",
+        "exposure_per_use": 0,
+        "note": "Recovered from the first Lapse. Its nature is the secret srs_core_is_salvage."
+      }
+    ]
+  },
+  "anomalies": {
+    "_about": "Each anomaly's rule and the writer-only truth behind it (the 'reality' layer). An episode may not change a rule; a deliberate variant must be declared as rule_variant.",
+    "anomalies": [
+      {
+        "id": "UNK-1",
+        "nickname": "Tall One",
+        "species": "stalker",
+        "planned_file": 1,
+        "first_seen": null,
+        "rule": "each door that opens by itself advances it one zone toward the exit",
+        "reality": "It claims one closed door at a time (the door turns cold on SRS; its handle will not turn for people) and eventually pushes it open. Each time a claimed door opens by itself, it advances exactly one zone toward the exit and appears somewhere in that zone; it does not walk into the room whose door opened. Doors opened by people, doors already open, and claimed doors being held shut give it nothing to open. Moving its limbs, turning its head or reaching through a doorway is not advancing.",
+        "vulnerability": "a claimed door held shut; gunfire only makes it pause for about two seconds",
+        "mechanic": "door_threshold",
+        "zones_are_site_specific": "each episode defines its own zone map (episode.json 'zones'); zone 0 is the space at the exit"
+      },
+      {
+        "id": "UNK-2",
+        "nickname": "Underbelly",
+        "species": "underbelly",
+        "planned_file": 2,
+        "first_seen": null,
+        "rule": "it can only move while it is not being observed by SRS",
+        "reality": "SRS observation pins it in place; a feed dropout releases it (supports srs_core_is_salvage)",
+        "vulnerability": "a Relay Puck window keeps a room observed during a dropout"
+      }
+    ]
+  },
+  "mysteries": {
+    "_about": "Long-arc questions and secrets. 'forbidden_terms' may not appear in any dialogue line before the secret is revealed, unless the line is spoken by someone in known_by AND the episode lists the secret under reveals.",
+    "questions": [
+      {
+        "id": "why_terminated",
+        "question": "Why was Wayfarer shut down?",
+        "season1": "reveal the direct cause"
+      },
+      {
+        "id": "what_is_lapse",
+        "question": "What is a Lapse?",
+        "season1": "reveal part of how it works, not its origin"
+      },
+      {
+        "id": "who_uploads",
+        "question": "Who is uploading these files?",
+        "season1": "a strong answer or clue at the finale"
+      }
+    ],
+    "secrets": [
+      {
+        "id": "team04_exists",
+        "truth": "Recovery Team 04 existed; Holloway was on it; their SRS beacon was left inside a Lapse.",
+        "planned_reveal": 1,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "Team 04",
+          "Team Four",
+          "Holloway"
+        ]
+      },
+      {
+        "id": "team04_missing",
+        "truth": "Team 04 went missing on an assignment and their file was never closed.",
+        "planned_reveal": 2,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "went missing",
+          "never closed",
+          "file's still open",
+          "file is still open",
+          "closed the file",
+          "closed Team 04's file"
+        ]
+      },
+      {
+        "id": "beacon_registration_altered",
+        "truth": "Someone inside Wayfarer changed the RT-04 beacon's registration to UNREGISTERED.",
+        "planned_reveal": null,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "altered the registration",
+          "changed the registration",
+          "someone changed it"
+        ]
+      },
+      {
+        "id": "team04_member_alive",
+        "truth": "At least one Team 04 member may still be alive inside a Lapse.",
+        "planned_reveal": 10,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "still alive"
+        ]
+      },
+      {
+        "id": "team04_caused_shutdown",
+        "truth": "Team 04's assignment may have caused the shutdown.",
+        "planned_reveal": 15,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "shut us down",
+          "why they shut"
+        ]
+      },
+      {
+        "id": "srs_core_is_salvage",
+        "truth": "The SRS core was recovered from the first Lapse: they observe anomalies with an anomaly.",
+        "planned_reveal": null,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "SRS core",
+          "core of the SRS"
+        ]
+      },
+      {
+        "id": "stabilizer_from_salvage",
+        "truth": "Stabilizer is refined from Salvage; only Wayfarer can make it.",
+        "planned_reveal": null,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "made from Salvage",
+          "refined from"
+        ]
+      },
+      {
+        "id": "program_true_purpose",
+        "truth": "What the program is really for (to be decided before FILE 15).",
+        "planned_reveal": null,
+        "revealed_in": null,
+        "forbidden_terms": []
+      },
+      {
+        "id": "recording_live",
+        "truth": "The archive is not historical: recording status is LIVE.",
+        "planned_reveal": 20,
+        "revealed_in": null,
+        "forbidden_terms": [
+          "RECORDING STATUS LIVE"
+        ]
+      }
+    ]
+  },
+  "timeline": {
+    "_about": "In-world dates. Files before program termination look like history; in the back half of season 1 mission dates drift past the termination date (finale twist).",
+    "program_terminated": "2024-11-02",
+    "files": [
+      {
+        "file": 1,
+        "planned_date": "2024-03-12",
+        "site": "Route 9 Motel",
+        "status": "planned"
+      },
+      {
+        "file": 2,
+        "planned_date": "2024-03-19",
+        "site": "Halverson Parkade P2",
+        "status": "planned"
+      },
+      {
+        "file": 3,
+        "planned_date": "2024-04-02",
+        "site": "gas station (TBD)",
+        "status": "planned"
+      },
+      {
+        "file": 4,
+        "planned_date": "2024-04-16",
+        "site": "laundromat (TBD)",
+        "status": "planned"
+      },
+      {
+        "file": 5,
+        "planned_date": "2024-05-07",
+        "site": "office building (TBD)",
+        "status": "planned"
+      },
+      {
+        "file": 6,
+        "planned_date": "2024-05-21",
+        "site": "TBD",
+        "status": "planned"
+      }
+    ],
+    "events": [
+      {
+        "date": "2023-08-17",
+        "event": "Recovery Team 04's SRS beacon (registered RT-04 / HOLLOWAY) sends its last signal",
+        "public": false,
+        "planned_reveal": 1
+      }
+    ]
+  }
+}

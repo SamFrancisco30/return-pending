@@ -1,0 +1,10 @@
+[
+  {
+    "name": "test_v1_xray_gpt2",
+    "model": "gpt-image-2",
+    "size": "16:9",
+    "resolution": "1k",
+    "refs": ["refs/user_xray_motel_ref.webp"],
+    "prompt": "Use the reference image only as a STYLE reference (X-ray surveillance look), not as a layout to copy. Strict orthographic 90-degree top-down cutaway view of an abandoned North American roadside motel: one long horizontal central corridor, three motel rooms above it and three below it, each room with a bed, nightstand, chair and a small bathroom with toilet and sink; the exit is at the left end of the corridor, opening onto an outdoor concrete walkway. Two room doors are open, the other four are closed. Three human operators in tactical gear stand in the left half of the corridor; one tall, unnatural unknown entity silhouette stands at the right end of the corridor. Rendering style: X-ray security scan / surveillance feed. Realistic real-world objects and furniture rendered as translucent grey-white density layers on a near-black background, cold cyan glowing edges on walls and door frames, thick walls with visible depth, stains and debris on the floor, subtle sensor noise. Muted cinematic horror atmosphere, clear readable spatial layout. Landscape 16:9. No text, no labels, no logos, no UI, no isometric perspective."
+  }
+]

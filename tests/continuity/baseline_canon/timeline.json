@@ -1,0 +1,50 @@
+{
+  "_about": "In-world dates. Files before program termination look like history; in the back half of season 1 mission dates drift past the termination date (finale twist).",
+  "program_terminated": "2024-11-02",
+  "files": [
+    {
+      "file": 1,
+      "planned_date": "2024-03-12",
+      "site": "Route 9 Motel",
+      "status": "planned"
+    },
+    {
+      "file": 2,
+      "planned_date": "2024-03-19",
+      "site": "Halverson Parkade P2",
+      "status": "planned"
+    },
+    {
+      "file": 3,
+      "planned_date": "2024-04-02",
+      "site": "gas station (TBD)",
+      "status": "planned"
+    },
+    {
+      "file": 4,
+      "planned_date": "2024-04-16",
+      "site": "laundromat (TBD)",
+      "status": "planned"
+    },
+    {
+      "file": 5,
+      "planned_date": "2024-05-07",
+      "site": "office building (TBD)",
+      "status": "planned"
+    },
+    {
+      "file": 6,
+      "planned_date": "2024-05-21",
+      "site": "TBD",
+      "status": "planned"
+    }
+  ],
+  "events": [
+    {
+      "date": "2023-08-17",
+      "event": "Recovery Team 04's SRS beacon (registered RT-04 / HOLLOWAY) sends its last signal",
+      "public": false,
+      "planned_reveal": 1
+    }
+  ]
+}

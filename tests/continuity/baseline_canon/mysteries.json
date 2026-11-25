@@ -1,0 +1,113 @@
+{
+  "_about": "Long-arc questions and secrets. 'forbidden_terms' may not appear in any dialogue line before the secret is revealed, unless the line is spoken by someone in known_by AND the episode lists the secret under reveals.",
+  "questions": [
+    {
+      "id": "why_terminated",
+      "question": "Why was Wayfarer shut down?",
+      "season1": "reveal the direct cause"
+    },
+    {
+      "id": "what_is_lapse",
+      "question": "What is a Lapse?",
+      "season1": "reveal part of how it works, not its origin"
+    },
+    {
+      "id": "who_uploads",
+      "question": "Who is uploading these files?",
+      "season1": "a strong answer or clue at the finale"
+    }
+  ],
+  "secrets": [
+    {
+      "id": "team04_exists",
+      "truth": "Recovery Team 04 existed; Holloway was on it; their SRS beacon was left inside a Lapse.",
+      "planned_reveal": 1,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "Team 04",
+        "Team Four",
+        "Holloway"
+      ]
+    },
+    {
+      "id": "team04_missing",
+      "truth": "Team 04 went missing on an assignment and their file was never closed.",
+      "planned_reveal": 2,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "went missing",
+        "never closed",
+        "file's still open",
+        "file is still open",
+        "closed the file",
+        "closed Team 04's file"
+      ]
+    },
+    {
+      "id": "beacon_registration_altered",
+      "truth": "Someone inside Wayfarer changed the RT-04 beacon's registration to UNREGISTERED.",
+      "planned_reveal": null,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "altered the registration",
+        "changed the registration",
+        "someone changed it"
+      ]
+    },
+    {
+      "id": "team04_member_alive",
+      "truth": "At least one Team 04 member may still be alive inside a Lapse.",
+      "planned_reveal": 10,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "still alive"
+      ]
+    },
+    {
+      "id": "team04_caused_shutdown",
+      "truth": "Team 04's assignment may have caused the shutdown.",
+      "planned_reveal": 15,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "shut us down",
+        "why they shut"
+      ]
+    },
+    {
+      "id": "srs_core_is_salvage",
+      "truth": "The SRS core was recovered from the first Lapse: they observe anomalies with an anomaly.",
+      "planned_reveal": null,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "SRS core",
+        "core of the SRS"
+      ]
+    },
+    {
+      "id": "stabilizer_from_salvage",
+      "truth": "Stabilizer is refined from Salvage; only Wayfarer can make it.",
+      "planned_reveal": null,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "made from Salvage",
+        "refined from"
+      ]
+    },
+    {
+      "id": "program_true_purpose",
+      "truth": "What the program is really for (to be decided before FILE 15).",
+      "planned_reveal": null,
+      "revealed_in": null,
+      "forbidden_terms": []
+    },
+    {
+      "id": "recording_live",
+      "truth": "The archive is not historical: recording status is LIVE.",
+      "planned_reveal": 20,
+      "revealed_in": null,
+      "forbidden_terms": [
+        "RECORDING STATUS LIVE"
+      ]
+    }
+  ]
+}

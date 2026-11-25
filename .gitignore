@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# rendered video and mixes (large, rebuilt from timelines)
+*.mp4
+*.mov
+renders/
+episodes/**/mix.wav
+episodes/**/_raw_*
+renders/_insert_frames_*/
+
+# local settings and secrets
+.env
+.env.*
+.claude/settings.local.json

@@ -1,0 +1,49 @@
+{
+  "_about": "Writer-side numbers (bible V2.1 section 3). Viewers only ever see results on the recovery report. Values may be tuned before an episode is released, never after.",
+  "events": {
+    "entry": 6,
+    "direct_contact": 15,
+    "severe": 25,
+    "salvage_use_min": 3,
+    "salvage_use_max": 10
+  },
+  "stabilizer": -10,
+  "stabilizer_requires": "COMPLETE",
+  "floor_increase_per_entry": 1,
+  "off_duty_rebound_per_two_weeks": 2,
+  "cap": 100,
+  "at_cap": "RETURN PENDING",
+  "stages": [
+    {
+      "stage": 1,
+      "from": 0,
+      "to": 25,
+      "symptoms": "voices from the Lapse; short memory gaps"
+    },
+    {
+      "stage": 2,
+      "from": 25,
+      "to": 50,
+      "symptoms": "sees things in the normal world that should not exist"
+    },
+    {
+      "stage": 3,
+      "from": 50,
+      "to": 75,
+      "symptoms": "people around them start forgetting them"
+    },
+    {
+      "stage": 4,
+      "from": 75,
+      "to": 100,
+      "symptoms": "pulled back into a Lapse without warning"
+    }
+  ],
+  "order_of_operations": [
+    "start = exposure before the file",
+    "add entry + every contact/severe/salvage event during the file",
+    "floor += floor_increase_per_entry",
+    "if mission result is COMPLETE and stabilizer access is granted: add stabilizer",
+    "result = clamp(max(floor, value), 0, cap)"
+  ]
+}

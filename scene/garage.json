@@ -1,0 +1,46 @@
+{
+  "name": "garage_p2",
+  "template": "explicit",
+  "canvas": { "w": 2048, "h": 1152 },
+  "floor": { "x": 110, "y": 70, "w": 1930, "h": 1015 },
+  "wall": 18,
+  "unitScale": 0.8,
+  "walls": [
+    [110, 70, 1940, 70],
+    [110, 1085, 1940, 1085],
+    [110, 70, 110, 1085],
+    [1940, 70, 1940, 470],
+    [1940, 690, 1940, 1085],
+    [110, 440, 330, 440], [110, 720, 330, 720], [330, 440, 330, 720],
+    [330, 70, 330, 300], [110, 300, 330, 300],
+    [110, 860, 330, 860], [330, 860, 330, 1085]
+  ],
+  "doors": [
+    { "id": "STAIR", "axis": "v", "hx": 330, "hy": 535, "width": 90, "swing": 1, "open": true },
+    { "id": "ELEC", "axis": "h", "hx": 180, "hy": 300, "width": 80, "swing": 1, "open": false },
+    { "id": "LIFT", "axis": "v", "hx": 330, "hy": 930, "width": 90, "swing": 1, "open": false }
+  ],
+  "rooms": [
+    { "id": "ELEC", "x": 110, "y": 70, "w": 220, "h": 230 },
+    { "id": "LIFT", "x": 110, "y": 860, "w": 220, "h": 225 }
+  ],
+  "stallRows": [
+    { "x0": 360, "w": 180, "count": 8, "y0": 85, "y1": 445, "occupied": [1, 1, 0, 1, 1, 1, 0, 1] },
+    { "x0": 360, "w": 180, "count": 8, "y0": 715, "y1": 1075, "occupied": [1, 0, 1, 1, 1, 0, 1, 1] }
+  ],
+  "props": [
+    { "type": "stairs", "x": 130, "y": 460, "w": 180, "h": 240 },
+    { "type": "pillar", "x": 880, "y": 430, "w": 40, "h": 40 },
+    { "type": "pillar", "x": 880, "y": 690, "w": 40, "h": 40 },
+    { "type": "pillar", "x": 1420, "y": 430, "w": 40, "h": 40 },
+    { "type": "pillar", "x": 1420, "y": 690, "w": 40, "h": 40 },
+    { "type": "box", "x": 130, "y": 90, "w": 60, "h": 150 },
+    { "type": "box", "x": 150, "y": 950, "w": 140, "h": 110 },
+    { "type": "stairs", "x": 1830, "y": 470, "w": 105, "h": 220 }
+  ],
+  "roster": [
+    { "id": "A", "callsign": "VANCE", "kit": "shield", "build": 1.1, "color": "#6fdcff", "icon": "tri" },
+    { "id": "B", "callsign": "ODA", "kit": "radio", "build": 1.18, "color": "#ffc15a", "icon": "square" },
+    { "id": "C", "callsign": "REYES", "kit": "recon", "build": 0.92, "color": "#b9a4ff", "icon": "diamond" }
+  ]
+}

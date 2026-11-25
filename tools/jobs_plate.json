@@ -1,0 +1,18 @@
+[
+  {
+    "name": "plate_xray_a",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["scene/motel_layout_nodoors.png", "refs/user_xray_motel_ref.webp"],
+    "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, room, bathroom partition, doorway gap, bed position and the outdoor walkway on the left must stay at the same pixel positions and proportions. Do not add, move or remove any wall or doorway. Image 2 is only a STYLE reference. Render the floor plan as a strict orthographic 90-degree top-down cutaway of an abandoned North American roadside motel in an X-ray security scan style: realistic real-world objects rendered as translucent grey-white density layers on near-black, cold cyan glowing edges on the top faces of thick walls, worn carpet in bedrooms, tiled floor in bathrooms with toilet and sink, a bed with rumpled sheets where the plan shows a rectangle, a nightstand and a chair in each bedroom, debris, stains and scattered paper on the corridor floor. Every doorway is an EMPTY opening with no door leaf at all. The building is completely empty: no people, no creatures. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+  },
+  {
+    "name": "plate_xray_b",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["scene/motel_layout_nodoors.png", "refs/user_xray_motel_ref.webp"],
+    "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, room, bathroom partition, doorway gap, bed position and the outdoor walkway on the left must stay at the same pixel positions and proportions. Do not add, move or remove any wall or doorway. Image 2 is only a STYLE reference. Render the floor plan as a strict orthographic 90-degree top-down cutaway of an abandoned North American roadside motel in an X-ray security scan style: realistic real-world objects rendered as translucent grey-white density layers on near-black, cold cyan glowing edges on the top faces of thick walls, worn carpet in bedrooms, tiled floor in bathrooms with toilet and sink, a bed with rumpled sheets where the plan shows a rectangle, a nightstand and a chair in each bedroom, debris, stains and scattered paper on the corridor floor. Every doorway is an EMPTY opening with no door leaf at all. The building is completely empty: no people, no creatures. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+  }
+]

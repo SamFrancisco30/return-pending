@@ -1,0 +1,43 @@
+{
+  "_about": "Anomalous items. Unique; owned by Wayfarer; carrying one needs authorization; LOST_IN_FIELD is permanent. status: unknown | in_custody | lost_in_field | destroyed.",
+  "items": [
+    {
+      "id": "spare_key",
+      "name": "Spare Key",
+      "status": "unknown",
+      "planned_recovery": 5,
+      "effect": "opens any door",
+      "cost": "what is behind the door may not be the original room",
+      "exposure_per_use": 6
+    },
+    {
+      "id": "north_coin",
+      "name": "North Coin",
+      "status": "unknown",
+      "planned_recovery": null,
+      "effect": "always points to the nearest exit",
+      "cost": "each use drops the SRS feed once",
+      "exposure_per_use": 3
+    },
+    {
+      "id": "hush_lamp",
+      "name": "Hush Lamp",
+      "status": "unknown",
+      "planned_recovery": null,
+      "effect": "holder is invisible to entities",
+      "cost": "holder gradually stops hearing the crew's radio",
+      "exposure_per_use": 10
+    },
+    {
+      "id": "srs_core",
+      "name": "SRS core",
+      "status": "in_custody",
+      "secret": true,
+      "planned_recovery": null,
+      "effect": "makes spatial reconstruction possible",
+      "cost": "unknown",
+      "exposure_per_use": 0,
+      "note": "Recovered from the first Lapse. Its nature is the secret srs_core_is_salvage."
+    }
+  ]
+}

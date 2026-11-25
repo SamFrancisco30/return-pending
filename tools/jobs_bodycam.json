@@ -1,0 +1,16 @@
+[
+  {
+    "name": "bodycam_b2_a",
+    "model": "gpt-image-2",
+    "size": "16:9",
+    "resolution": "2k",
+    "prompt": "Body-worn camera footage frame, first-person POV of a tactical operator standing in the open doorway of an abandoned North American roadside motel room at night, looking into the room. A rifle-mounted flashlight beam cuts into the darkness: stained beige carpet, scattered debris, an unmade bed with a faded floral bedspread against the far wall on the right, a bathroom partition wall on the left, peeling wallpaper. In the middle of the room a very tall, gaunt, pale grey, hairless humanoid figure stands perfectly still with its back to the camera, its head nearly touching the ceiling, its arms unnaturally long, hanging past its knees, fingers too long. The muzzle of the rifle is visible at the bottom of the frame. Wide-angle fisheye lens distortion, harsh flashlight falloff, deep black shadows, heavy sensor noise, slight motion blur, muted desaturated colors, realistic found-footage horror. No text, no timestamp, no overlays, no watermark, no logos."
+  },
+  {
+    "name": "bodycam_b2_b",
+    "model": "gpt-image-2",
+    "size": "16:9",
+    "resolution": "2k",
+    "prompt": "Body-worn camera footage frame, first-person POV of a tactical operator standing in the open doorway of an abandoned North American roadside motel room at night, looking into the room. A rifle-mounted flashlight beam cuts into the darkness: stained beige carpet, scattered debris, an unmade bed with a faded floral bedspread against the far wall on the right, a bathroom partition wall on the left, peeling wallpaper. In the middle of the room a very tall, gaunt, pale grey, hairless humanoid figure stands perfectly still with its back to the camera, its head nearly touching the ceiling, its arms unnaturally long, hanging past its knees, fingers too long. The muzzle of the rifle is visible at the bottom of the frame. Wide-angle fisheye lens distortion, harsh flashlight falloff, deep black shadows, heavy sensor noise, slight motion blur, muted desaturated colors, realistic found-footage horror. No text, no timestamp, no overlays, no watermark, no logos."
+  }
+]

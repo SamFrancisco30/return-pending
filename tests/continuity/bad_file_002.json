@@ -1,0 +1,20 @@
+{
+  "_about": "Test fixture with deliberate continuity errors; every ERROR below should be reported.",
+  "file": 3, "title": "Broken on purpose", "date": "2024-03-01", "site": "Halverson Parkade P2", "type": "rules",
+  "approved": true,
+  "cast": [
+    { "id": "VANCE", "appearance": "field" }, { "id": "REYES", "appearance": "field" },
+    { "id": "DISPATCH", "appearance": "field" }
+  ],
+  "anomalies": [{ "id": "UNK-2", "rule": "it moves whenever the lights go out" }],
+  "equipment_used": [{ "id": "relay_puck", "by": "VANCE", "count": 3 }],
+  "salvage_used": [{ "id": "spare_key", "by": "REYES", "uses": 1, "authorized": true }],
+  "exposure_events": [{ "who": "REYES", "event": "direct_contact" }],
+  "mission_result": "FAILED", "stabilizer_access": true,
+  "personnel_results": [{ "id": "VANCE", "status": "RETURNED" }, { "id": "REYES", "status": "RETURNED" }],
+  "report": { "REYES": [11, 12] },
+  "dialogue": [
+    { "who": "REYES", "line": "Is the SRS core even ours?" },
+    { "who": "ODA", "line": "Feed's back... it moved." }
+  ]
+}

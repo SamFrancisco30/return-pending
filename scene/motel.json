@@ -1,0 +1,30 @@
+{
+  "name": "motel_test_scene",
+  "canvas": { "w": 2048, "h": 1152 },
+  "building": { "x0": 200, "y0": 60, "x1": 1960, "y1": 1092, "wall": 16 },
+  "corridor": { "y0": 476, "y1": 676 },
+  "walkway": { "x0": 40, "x1": 184 },
+  "exit": { "x": 200, "y0": 526, "y1": 626 },
+  "exitDoor": { "open": false, "swing": "outward", "closer": true },
+  "unit": { "count": 3, "bathW": 170 },
+  "doors": [
+    { "id": "T1", "row": "top", "unit": 0, "open": false },
+    { "id": "T2", "row": "top", "unit": 1, "open": true },
+    { "id": "T3", "row": "top", "unit": 2, "open": false },
+    { "id": "B1", "row": "bottom", "unit": 0, "open": false },
+    { "id": "B2", "row": "bottom", "unit": 1, "open": false },
+    { "id": "B3", "row": "bottom", "unit": 2, "open": true }
+  ],
+  "doorGeom": { "offsetInBedroom": 70, "width": 96 },
+  "roster": [
+    { "id": "A", "callsign": "VANCE", "kit": "shield", "build": 1.1, "color": "#6fdcff", "icon": "tri" },
+    { "id": "B", "callsign": "ODA", "kit": "radio", "build": 1.18, "color": "#ffc15a", "icon": "square" },
+    { "id": "C", "callsign": "REYES", "kit": "recon", "build": 0.92, "color": "#b9a4ff", "icon": "diamond" }
+  ],
+  "operators": [
+    { "id": "A", "x": 400, "y": 540, "heading": -11 },
+    { "id": "B", "x": 540, "y": 622, "heading": 7 },
+    { "id": "C", "x": 690, "y": 560, "heading": 2 }
+  ],
+  "entity": { "x": 1835, "y": 576, "heading": 180 }
+}

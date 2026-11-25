@@ -1,0 +1,461 @@
+{
+  "file": 1,
+  "title": "Every Time a Door Opens, It Gets Closer",
+  "revision": "R1 (review 1 applied)",
+  "date": "2024-03-12",
+  "site": "Route 9 Motel",
+  "type": "rules",
+  "approved": true,
+  "script": "script.md",
+  "cast": [
+    {
+      "id": "VANCE",
+      "appearance": "field"
+    },
+    {
+      "id": "ODA",
+      "appearance": "field"
+    },
+    {
+      "id": "REYES",
+      "appearance": "field"
+    },
+    {
+      "id": "DISPATCH",
+      "appearance": "offsite"
+    }
+  ],
+  "anomalies": [
+    {
+      "id": "UNK-1",
+      "rule": "each door that opens by itself advances it one zone toward the exit"
+    }
+  ],
+  "site_rules": [
+    {
+      "id": "site07_closure",
+      "text": "SITE 07 closes on a cycle; every door to the outside must be shut when it does",
+      "scope": "SITE 07 only",
+      "announced": "1:34",
+      "countdown_from": "01:50",
+      "closes": "3:24"
+    }
+  ],
+  "_doors": "01-03 = top rooms T1-T3, 04-06 = bottom rooms B1-B3. Room doors swing into their rooms; EXIT swings outward and has an automatic closer. t is minutes.seconds",
+  "zones": {
+    "T3": 3,
+    "B3": 3,
+    "CORR_E": 3,
+    "T2": 2,
+    "B2": 2,
+    "CORR_M": 2,
+    "T1": 1,
+    "T1_DOORWAY": 1,
+    "B1": 1,
+    "CORR_W": 1,
+    "EXIT_VESTIBULE": 0
+  },
+  "initial_doors": {
+    "01": "closed",
+    "02": "open",
+    "03": "closed",
+    "04": "closed",
+    "05": "claimed",
+    "06": "open",
+    "EXIT": "closed"
+  },
+  "initial_positions": {
+    "UNK-1": "T3"
+  },
+  "door_events": [
+    {
+      "t": 0.18,
+      "door": "EXIT",
+      "by": "personnel",
+      "who": "ODA"
+    },
+    {
+      "t": 0.22,
+      "door": "EXIT",
+      "by": "closed",
+      "who": "door closer"
+    },
+    {
+      "t": 0.38,
+      "door": "05",
+      "by": "unprompted",
+      "unk_from": "T3",
+      "unk_to": "B2"
+    },
+    {
+      "t": 0.4,
+      "door": "01",
+      "by": "claimed"
+    },
+    {
+      "t": 0.52,
+      "door": "01",
+      "by": "attempt",
+      "who": "ODA"
+    },
+    {
+      "t": 1.4,
+      "door": "01",
+      "by": "unprompted",
+      "unk_from": "B2",
+      "unk_to": "T1_DOORWAY"
+    },
+    {
+      "t": 1.42,
+      "door": "04",
+      "by": "claimed"
+    },
+    {
+      "t": 2.13,
+      "door": "04",
+      "by": "attempt",
+      "who": "VANCE"
+    },
+    {
+      "t": 2.31,
+      "door": "04",
+      "by": "held",
+      "who": "VANCE"
+    },
+    {
+      "t": 2.34,
+      "door": "EXIT",
+      "by": "propped",
+      "who": "ODA",
+      "prop": "SRS relay pack, outside, behind the door leaf"
+    },
+    {
+      "t": 2.37,
+      "door": "03",
+      "by": "personnel",
+      "who": "REYES"
+    },
+    {
+      "t": 2.59,
+      "door": "04",
+      "by": "released",
+      "who": "VANCE"
+    },
+    {
+      "t": 3.0,
+      "door": "04",
+      "by": "unprompted",
+      "unk_from": "T1_DOORWAY",
+      "unk_to": "EXIT_VESTIBULE"
+    },
+    {
+      "t": 3.02,
+      "door": "EXIT",
+      "by": "closed",
+      "who": "REYES"
+    },
+    {
+      "t": 3.04,
+      "door": "EXIT",
+      "by": "claimed"
+    },
+    {
+      "t": 3.05,
+      "door": "EXIT",
+      "by": "held",
+      "who": "VANCE+ODA+REYES"
+    }
+  ],
+  "non_advancing_motion": [
+    {
+      "t": "1:08",
+      "what": "head tilts a few degrees (insert 1)"
+    },
+    {
+      "t": "1:50",
+      "what": "arm reaches out of the room 1 doorway; frozen 2.1 s by gunfire at 1:53"
+    },
+    {
+      "t": "2:45",
+      "what": "head turns to look straight into REYES's bodycam (insert 2)"
+    }
+  ],
+  "equipment_used": [
+    {
+      "id": "ballistic_shield",
+      "by": "VANCE"
+    },
+    {
+      "id": "sidearm",
+      "by": "VANCE"
+    },
+    {
+      "id": "bodycam",
+      "by": "REYES"
+    },
+    {
+      "id": "srs_relay_pack",
+      "by": "ODA"
+    }
+  ],
+  "equipment_unlocked": [],
+  "salvage_used": [],
+  "salvage_changes": [],
+  "recovered_items": [
+    {
+      "id": "srs_beacon_rt04",
+      "label": "SRS BEACON",
+      "registered_to": "RT-04 / HOLLOWAY",
+      "official_record": "UNREGISTERED"
+    }
+  ],
+  "exposure_events": [
+    {
+      "who": "REYES",
+      "event": "direct_contact",
+      "count": 2,
+      "note": "insert 1 at 0:58-1:08 (head tilt), insert 2 at 2:41-2:49 (direct gaze)"
+    },
+    {
+      "who": "VANCE",
+      "event": "direct_contact",
+      "count": 1,
+      "note": "3:00, it advances into the exit vestibule one step behind him"
+    }
+  ],
+  "contact_rule": "its attention turns to the person and they are within about 2 m",
+  "mission_result": "COMPLETE",
+  "stabilizer_access": true,
+  "payment": 12600,
+  "personnel_results": [
+    {
+      "id": "VANCE",
+      "status": "RETURNED"
+    },
+    {
+      "id": "ODA",
+      "status": "RETURNED"
+    },
+    {
+      "id": "REYES",
+      "status": "RETURNED"
+    }
+  ],
+  "report": {
+    "VANCE": [
+      22,
+      33
+    ],
+    "ODA": [
+      52,
+      48
+    ],
+    "REYES": [
+      0,
+      26
+    ]
+  },
+  "report_note": "EXPOSURE shown as before -> after Stabilizer",
+  "reveals": [
+    "team04_exists"
+  ],
+  "dialogue": [
+    {
+      "t": "0:09",
+      "who": "DISPATCH",
+      "line": "Site Seven. Beacon's last signal: room six, east end. In and out."
+    },
+    {
+      "t": "0:15",
+      "who": "DISPATCH",
+      "line": "Reyes, first assignment. Stay on Vance's six."
+    },
+    {
+      "t": "0:21",
+      "who": "ODA",
+      "line": "Relay's up. You seeing us, Dispatch?"
+    },
+    {
+      "t": "0:24",
+      "who": "DISPATCH",
+      "line": "I've got you. Reconstruction's holding."
+    },
+    {
+      "t": "0:29",
+      "who": "REYES",
+      "line": "Is it always this quiet?"
+    },
+    {
+      "t": "0:32",
+      "who": "ODA",
+      "line": "Quiet's good. Don't count the doors, kid."
+    },
+    {
+      "t": "0:41",
+      "who": "VANCE",
+      "line": "Hold. Nobody moves."
+    },
+    {
+      "t": "0:45",
+      "who": "DISPATCH",
+      "line": "Don't engage. Beacon first."
+    },
+    {
+      "t": "0:48",
+      "who": "VANCE",
+      "line": "Slow. East end."
+    },
+    {
+      "t": "0:53",
+      "who": "ODA",
+      "line": "This one's ice cold. Won't turn."
+    },
+    {
+      "t": "0:56",
+      "who": "VANCE",
+      "line": "Leave it."
+    },
+    {
+      "t": "1:03",
+      "who": "REYES",
+      "line": "[whispers] It's just... standing there."
+    },
+    {
+      "t": "1:06",
+      "who": "VANCE",
+      "line": "Don't look at it. Keep walking."
+    },
+    {
+      "t": "1:17",
+      "who": "REYES",
+      "line": "Got it. It's registered to... RT-04?"
+    },
+    {
+      "t": "1:21",
+      "who": "VANCE",
+      "line": "Team 04."
+    },
+    {
+      "t": "1:24",
+      "who": "ODA",
+      "line": "[low] That's Holloway's."
+    },
+    {
+      "t": "1:28",
+      "who": "DISPATCH",
+      "line": "Confirm recovery, Vance."
+    },
+    {
+      "t": "1:31",
+      "who": "VANCE",
+      "line": "...Confirmed."
+    },
+    {
+      "t": "1:34",
+      "who": "DISPATCH",
+      "line": "Site Seven closes on a cycle. One minute fifty. Every door to the outside has to be shut when it does."
+    },
+    {
+      "t": "1:44",
+      "who": "REYES",
+      "line": "It's between us and the exit."
+    },
+    {
+      "t": "1:58",
+      "who": "VANCE",
+      "line": "Rounds don't stop it. They just buy seconds."
+    },
+    {
+      "t": "2:06",
+      "who": "REYES",
+      "line": "Two doors opened on their own. Both times, it got closer."
+    },
+    {
+      "t": "2:11",
+      "who": "ODA",
+      "line": "And that one's next."
+    },
+    {
+      "t": "2:15",
+      "who": "VANCE",
+      "line": "Won't open. It's got this one."
+    },
+    {
+      "t": "2:18",
+      "who": "ODA",
+      "line": "Then we don't let it open."
+    },
+    {
+      "t": "2:21",
+      "who": "VANCE",
+      "line": "I hold four. Lose four, it takes another door."
+    },
+    {
+      "t": "2:25",
+      "who": "VANCE",
+      "line": "Leave it nothing. Oda, the exit. Reyes, room three."
+    },
+    {
+      "t": "2:29",
+      "who": "REYES",
+      "line": "Three's where it started."
+    },
+    {
+      "t": "2:31",
+      "who": "VANCE",
+      "line": "Not anymore. Go."
+    },
+    {
+      "t": "2:45",
+      "who": "DISPATCH",
+      "line": "Reyes. Don't stop."
+    },
+    {
+      "t": "2:53",
+      "who": "VANCE",
+      "line": "When I let go, it opens. Be ready."
+    },
+    {
+      "t": "2:57",
+      "who": "ODA",
+      "line": "On you."
+    },
+    {
+      "t": "3:02",
+      "who": "REYES",
+      "line": "Pack's clear! Shut it, hold it!"
+    },
+    {
+      "t": "3:07",
+      "who": "DISPATCH",
+      "line": "Hold it. Seventeen seconds."
+    },
+    {
+      "t": "3:30",
+      "who": "REYES",
+      "line": "[breathing hard] ...Is it over?"
+    },
+    {
+      "t": "3:34",
+      "who": "ODA",
+      "line": "For tonight."
+    },
+    {
+      "t": "3:42",
+      "who": "DISPATCH",
+      "line": "Beacon's logged. Stabilizer's authorized for all three of you."
+    },
+    {
+      "t": "3:47",
+      "who": "VANCE",
+      "line": "That beacon was Holloway's. Why does the report say unregistered?"
+    },
+    {
+      "t": "3:52",
+      "who": "DISPATCH",
+      "line": "...Get some sleep, Vance."
+    }
+  ],
+  "approved_on": "2026-11-24",
+  "approved_revision": "R1 (review 1 applied)"
+}

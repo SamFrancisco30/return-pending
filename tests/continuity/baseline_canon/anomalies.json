@@ -1,0 +1,27 @@
+{
+  "_about": "Each anomaly's rule and the writer-only truth behind it (the 'reality' layer). An episode may not change a rule; a deliberate variant must be declared as rule_variant.",
+  "anomalies": [
+    {
+      "id": "UNK-1",
+      "nickname": "Tall One",
+      "species": "stalker",
+      "planned_file": 1,
+      "first_seen": null,
+      "rule": "each door that opens by itself advances it one zone toward the exit",
+      "reality": "It claims one closed door at a time (the door turns cold on SRS; its handle will not turn for people) and eventually pushes it open. Each time a claimed door opens by itself, it advances exactly one zone toward the exit and appears somewhere in that zone; it does not walk into the room whose door opened. Doors opened by people, doors already open, and claimed doors being held shut give it nothing to open. Moving its limbs, turning its head or reaching through a doorway is not advancing.",
+      "vulnerability": "a claimed door held shut; gunfire only makes it pause for about two seconds",
+      "mechanic": "door_threshold",
+      "zones_are_site_specific": "each episode defines its own zone map (episode.json 'zones'); zone 0 is the space at the exit"
+    },
+    {
+      "id": "UNK-2",
+      "nickname": "Underbelly",
+      "species": "underbelly",
+      "planned_file": 2,
+      "first_seen": null,
+      "rule": "it can only move while it is not being observed by SRS",
+      "reality": "SRS observation pins it in place; a feed dropout releases it (supports srs_core_is_salvage)",
+      "vulnerability": "a Relay Puck window keeps a room observed during a dropout"
+    }
+  ]
+}

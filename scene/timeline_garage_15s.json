@@ -1,0 +1,79 @@
+{
+  "_rule": "UNK-2 only moves while the overhead feed is down. Every dropout, it is closer.",
+  "scene": "../scene/garage.json",
+  "plates": { "xray": "../concepts/garage_plate_a.png", "fit": { "sx": 0.9804, "sy": 0.9764, "dx": 23.6, "dy": 23.9 } },
+  "feedLabel": "SITE 11 // HALVERSON PARKADE P2 // CAM-OVH",
+  "entityId": "UNK-2",
+  "species": "underbelly",
+  "duration": 15,
+  "fps": 30,
+  "clockStart": "03:41:52",
+  "shots": [
+    { "from": 0, "to": 8, "type": "map" },
+    { "from": 8, "to": 11, "type": "cctv", "label": "CAM P2-04 // LEVEL P2 // ROW C", "clip": "../concepts/cctv_garage_i2v.mp4", "still": "../concepts/cctv_garage_a.png", "clipOffset": 0.3 },
+    { "from": 11, "to": 15, "type": "map" }
+  ],
+  "feedLoss": [[4.0, 4.45], [6.2, 6.5], [14.2, 14.55]],
+  "static": [[4.0, 0.08], [4.45, 0.12], [6.2, 0.08], [6.5, 0.12], [8.0, 0.18], [11.0, 0.18], [14.2, 0.08], [14.55, 0.15]],
+
+  "doors": { "STAIR": [[0, 1]], "ELEC": [[0, 0]], "LIFT": [[0, 0]] },
+
+  "operators": {
+    "A": [[0, 220, 580, 0], [0.3, 220, 580, 0], [3.6, 980, 575, 0], [4.6, 980, 575, 0], [5.0, 980, 575, 30], [6.5, 980, 575, 30], [6.9, 980, 575, -55], [11.3, 980, 575, -55], [11.8, 980, 575, -20], [14.2, 720, 580, 0]],
+    "B": [[0, 220, 610, 0], [0.8, 220, 610, 0], [3.9, 820, 632, 5], [4.6, 820, 632, 5], [5.0, 820, 632, 30], [6.5, 820, 632, 30], [6.9, 820, 632, -45], [11.3, 820, 632, -45], [11.9, 820, 632, -15], [14.2, 600, 625, 0]],
+    "C": [[0, 220, 555, 0], [1.3, 220, 555, 0], [4.1, 680, 550, 0], [4.6, 680, 550, 0], [5.0, 680, 550, 25], [6.5, 680, 550, 25], [6.9, 680, 550, -35], [11.3, 680, 550, -35], [12.0, 680, 550, -10], [14.2, 500, 565, 0]]
+  },
+
+  "_entityKeys": "t, x, y, heading, visible, glitch, pose (0 tucked / 1 spread), look, hidden (under a car)",
+  "entity": [
+    [0, 1710, 265, 90, 1, 0, 0, 0, 1],
+    [4.2, 1710, 265, 90, 1, 0, 0, 0, 1],
+    [4.201, 1530, 895, -90, 1, 0, 0, 0, 1],
+    [6.35, 1530, 895, -90, 1, 0, 0, 0, 1],
+    [6.351, 1170, 265, 90, 1, 0, 0, 0, 1],
+    [14.38, 1170, 265, 90, 1, 0, 0, 0, 1],
+    [14.381, 375, 600, 0, 1, 0.8, 1, 0, 0],
+    [14.8, 375, 600, 0, 1, 0, 1, 0, 0]
+  ],
+
+  "camera": [[0, 914, 590, 1.12], [3.6, 1024, 590, 1.0], [11, 1024, 590, 1.0], [13.8, 900, 590, 1.12], [14.6, 790, 600, 1.3]],
+
+  "warn": [
+    { "from": 4.5, "to": 6.15, "text": "FEED LOST 0.45s  //  UNK-2 SIGNAL MOVED" },
+    { "from": 6.55, "to": 7.95, "text": "FEED LOST AGAIN  //  UNK-2 CLOSER" },
+    { "from": 11.2, "to": 14.15, "text": "PATTERN: FEED DROPS -> UNK-2 ADVANCES" },
+    { "from": 14.6, "to": 15, "text": "UNK-2 AT EXIT" }
+  ],
+  "events": [
+    { "from": 4.5, "to": 6.15, "x": 1530, "y": 730, "text": "HEAT UNDER VEHICLE" },
+    { "from": 6.55, "to": 15, "x": 1170, "y": 430, "text": "HEAT UNDER VEHICLE" }
+  ],
+  "evac": [[0, 0], [11.8, 0], [12.3, 1]],
+  "evacPath": [[1000, 585], [360, 585], [300, 585]],
+  "subtitles": [
+    { "from": 4.5, "to": 6.75, "who": "ODA", "text": "Feed's back... it moved.", "vo": "../audio/el2/g_oda2__ODA__t0.tight.wav" },
+    { "from": 6.95, "to": 9.4, "who": "REYES", "text": "Again... it's under the sedan.", "vo": "../audio/el2/g_reyes__REYES_veda__t2.tight.wav" },
+    { "from": 11.1, "to": 14.9, "who": "DISPATCH", "text": "Every time the feed drops, it gets closer. Get out. Now!", "vo": "../audio/el2/g_dispatch__DISPATCH__t2.tight.wav" }
+  ],
+
+  "samples": {
+    "ambience": "../audio/sfx/amb_garage.wav",
+    "step": "../audio/sfx/step_a.wav", "step_heavy": "../audio/sfx/step_b.wav", "step_light": "../audio/sfx/step_a.wav",
+    "fluoro": "../audio/sfx/fluoro.wav", "squelch": "../audio/sfx/squelch.wav"
+  },
+  "sfx": [
+    { "type": "ambience", "kind": "garage" },
+    { "type": "door_push", "t": 0.05, "sample": "../audio/sfx/fire_door.wav", "pan": -0.5 },
+    { "type": "feed_cut", "t": 4.0, "dur": 0.45 },
+    { "type": "scrape", "t": 4.05, "dur": 0.4, "sample": "../audio/sfx/scrape.wav", "pan": 0.4 },
+    { "type": "feed_back", "t": 4.45 },
+    { "type": "drone", "t": 4.45 },
+    { "type": "feed_cut", "t": 6.2, "dur": 0.3 },
+    { "type": "scrape", "t": 6.22, "dur": 0.3, "sample": "../audio/sfx/scrape.wav", "pan": 0.1 },
+    { "type": "feed_back", "t": 6.5 },
+    { "type": "insert_bed", "kind": "cctv", "from": 8.0, "to": 11.0 },
+    { "type": "scrape", "t": 9.6, "dur": 1.1, "gain": 0.7, "sample": "../audio/sfx/scrape.wav" },
+    { "type": "feed_cut", "t": 14.2, "dur": 0.35 },
+    { "type": "hit", "t": 14.55, "sample": "../audio/sfx/hit.wav" }
+  ]
+}

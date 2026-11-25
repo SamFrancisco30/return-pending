@@ -1,0 +1,24 @@
+[
+ {
+  "name": "deathrow_plate_a",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/deathrow_layout_nodoors.png",
+   "concepts/garage_plate_a.png"
+  ],
+  "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, cell partition, bunk and fixture must stay at the same pixel positions and proportions. Do not add, move or remove any wall, cell or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colors and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of the death row block of an old island penitentiary in an X-ray security scan style: a long central concrete corridor with seven small cells on each side, each cell with a steel bunk (thin mattress, translucent grey-white density layers), a small steel toilet and sink unit in the corner, worn concrete floor with drain grates, cracks, stains and faded painted floor lines along the corridor, a guard anteroom on the left with a desk and a locker; cold cyan glowing edges on the top faces of thick concrete walls. Every doorway is an EMPTY opening with no door leaf. No people, no creatures, no bodies. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+ },
+ {
+  "name": "deathrow_plate_b",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/deathrow_layout_nodoors.png",
+   "concepts/garage_plate_a.png"
+  ],
+  "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, cell partition, bunk and fixture must stay at the same pixel positions and proportions. Do not add, move or remove any wall, cell or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colors and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of the death row block of an old island penitentiary in an X-ray security scan style: a long central concrete corridor with seven small cells on each side, each cell with a steel bunk (thin mattress, translucent grey-white density layers), a small steel toilet and sink unit in the corner, worn concrete floor with drain grates, cracks, stains and faded painted floor lines along the corridor, a guard anteroom on the left with a desk and a locker; cold cyan glowing edges on the top faces of thick concrete walls. Every doorway is an EMPTY opening with no door leaf. No people, no creatures, no bodies. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+ }
+]

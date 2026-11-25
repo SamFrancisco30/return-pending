@@ -1,0 +1,66 @@
+{
+  "_rule": "Each time a door opens by itself, UNK-1 relocates one room closer to the exit.",
+  "duration": 15,
+  "fps": 30,
+  "clockStart": "02:14:07",
+  "shots": [
+    { "from": 0, "to": 8, "type": "map" },
+    { "from": 8, "to": 11, "type": "bodycam", "unit": "REYES", "clip": "../concepts/bodycam_b2_i2v.mp4", "still": "../concepts/bodycam_b2_b.png", "clipOffset": 0.4 },
+    { "from": 11, "to": 15, "type": "map" }
+  ],
+  "static": [[8.0, 0.18], [11.0, 0.18]],
+
+  "doors": {
+    "T2": [[0, 1]],
+    "B3": [[0, 1]],
+    "B2": [[0, 0], [4.5, 0], [5.4, 1]]
+  },
+
+  "operators": {
+    "A": [[0, 60, 560, 0], [0.4, 60, 560, 0], [3.2, 640, 552, 0], [4.6, 700, 548, -4], [11.6, 700, 548, 4], [15, 330, 560, 0]],
+    "B": [[0, 40, 610, 0], [0.9, 40, 610, 0], [3.6, 520, 618, 6], [11.8, 520, 616, 10], [15, 240, 604, 0]],
+    "C": [[0, 40, 578, 0], [1.4, 40, 578, 0], [4.0, 860, 580, 0], [4.7, 885, 584, 8], [5.2, 930, 595, 40], [6.6, 1040, 612, 63], [11.0, 1040, 612, 63], [11.7, 985, 600, 55], [15, 600, 575, 18]]
+  },
+
+  "_entityKeys": "t, x, y, heading, visible, glitch, pose (0 stand / 1 crawl), look (head turn vs body)",
+  "entity": [
+    [0, 1835, 576, 180, 1, 0, 1, 0],
+    [4.55, 1835, 576, 180, 1, 0, 1, 0],
+    [4.85, 1835, 576, 180, 1, 1, 1, 0],
+    [4.86, 1170, 862, 90, 1, 1, 0, 0],
+    [5.4, 1170, 862, 90, 1, 0, 0, 0],
+    [13.5, 1170, 862, 90, 1, 0, 0, 0],
+    [14.0, 1170, 862, 90, 1, 0, 0, -150],
+    [14.35, 1170, 862, 90, 1, 0, 0, -150],
+    [14.6, 1170, 862, -90, 1, 0.5, 1, 0],
+    [14.85, 1170, 862, -90, 1, 0, 1, 0]
+  ],
+
+  "camera": [[0, 1024, 576, 1.0], [3.5, 960, 576, 1.1], [4.4, 1000, 600, 1.12], [5.6, 1060, 640, 1.3], [8, 1080, 660, 1.38], [11, 1010, 630, 1.28], [12.2, 1000, 600, 1.12], [15, 900, 576, 1.06]],
+
+  "warn": [
+    { "from": 4.95, "to": 7.8, "text": "UNK-1 RELOCATED  //  ONE ROOM CLOSER TO EXIT" },
+    { "from": 11.2, "to": 15, "text": "PATTERN: DOOR OPENS -> UNK-1 ADVANCES" }
+  ],
+  "events": [
+    { "from": 4.55, "to": 15, "x": 1075, "y": 690, "text": "B2  OPEN" }
+  ],
+  "evac": [[0, 0], [12.0, 0], [12.5, 1]],
+  "samples": {
+    "ambience": "../audio/sfx/amb_motel.wav",
+    "step": "../audio/sfx/step_c.wav", "step_heavy": "../audio/sfx/step_b.wav", "step_light": "../audio/sfx/step_c.wav",
+    "breath": "../audio/sfx/breath.wav", "squelch": "../audio/sfx/squelch.wav"
+  },
+  "sfx": [
+    { "type": "ambience", "kind": "motel" },
+    { "type": "creak", "t": 4.45, "dur": 1.3, "sample": "../audio/sfx/door_creak.wav", "pan": 0.2 },
+    { "type": "relocate", "t": 4.8, "sample": "../audio/sfx/relocate.wav" },
+    { "type": "drone", "t": 4.86 },
+    { "type": "insert_bed", "kind": "bodycam", "from": 8.0, "to": 11.0 },
+    { "type": "hit", "t": 14.55, "sample": "../audio/sfx/hit.wav" }
+  ],
+  "subtitles": [
+    { "from": 5.2, "to": 8.5, "who": "REYES", "text": "Door two... it just opened. Nobody touched it.", "vo": "../audio/el2/m_reyes__REYES_veda__t2.tight.wav" },
+    { "from": 11.3, "to": 14.6, "who": "DISPATCH", "text": "Don't touch anything. Fall back to the exit. Now!", "vo": "../audio/el2/m_dispatch__DISPATCH__t0.tight.wav" }
+  ]
+}

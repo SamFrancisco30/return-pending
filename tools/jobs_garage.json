@@ -1,0 +1,32 @@
+[
+  {
+    "name": "garage_plate_a",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["scene/garage_layout_ref.png", "concepts/plate_xray_b.png"],
+    "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, pillar, parking stall line, parked car position and size, the stairwell on the left and the ramp on the right must stay at the same pixel positions and proportions. Do not add, move or remove any wall, car or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colors and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of an underground concrete parking garage level in an X-ray security scan style: realistic sedans and SUVs rendered as translucent grey-white density layers where the plan shows car shapes (visible roof, windshield, wheels and inner frame through the translucent body), painted stall lines, oil stains and tire marks on the concrete, a concrete staircase inside the stairwell, an electrical panel room top-left, an elevator lobby bottom-left, cold cyan glowing edges on the top faces of thick concrete walls and pillars. Every doorway is an EMPTY opening with no door leaf. No people, no creatures. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+  },
+  {
+    "name": "garage_plate_b",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["scene/garage_layout_ref.png", "concepts/plate_xray_b.png"],
+    "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, pillar, parking stall line, parked car position and size, the stairwell on the left and the ramp on the right must stay at the same pixel positions and proportions. Do not add, move or remove any wall, car or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colors and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of an underground concrete parking garage level in an X-ray security scan style: realistic sedans and SUVs rendered as translucent grey-white density layers where the plan shows car shapes (visible roof, windshield, wheels and inner frame through the translucent body), painted stall lines, oil stains and tire marks on the concrete, a concrete staircase inside the stairwell, an electrical panel room top-left, an elevator lobby bottom-left, cold cyan glowing edges on the top faces of thick concrete walls and pillars. Every doorway is an EMPTY opening with no door leaf. No people, no creatures. Subtle sensor noise. No text, no labels, no numbers, no UI, no perspective, no isometric view."
+  },
+  {
+    "name": "cctv_garage_a",
+    "model": "gpt-image-2",
+    "size": "16:9",
+    "resolution": "2k",
+    "prompt": "Grainy black-and-white CCTV security camera footage from a high corner of an underground concrete parking garage at night, wide lens looking down a row of parked cars under dim flickering fluorescent tube lights. The nearest car is a dark sedan about a third of the frame wide. In the black gap beneath the sedan, between the front tire and the concrete floor, two impossibly long, thin, pale fingers rest flat on the floor, reaching out from the darkness under the car. Everything else is still. Low resolution security footage, compression artifacts, slight interlacing, oil stains on concrete, painted stall lines. No text, no timestamp, no logos, no watermark, no people."
+  },
+  {
+    "name": "cctv_garage_b",
+    "model": "gpt-image-2",
+    "size": "16:9",
+    "resolution": "2k",
+    "prompt": "Grainy black-and-white CCTV security camera footage from a high corner of an underground concrete parking garage at night, wide lens looking down a row of parked cars under dim flickering fluorescent tube lights. The nearest car is a dark sedan about a third of the frame wide. In the black gap beneath the sedan, between the front tire and the concrete floor, two impossibly long, thin, pale fingers rest flat on the floor, reaching out from the darkness under the car. Everything else is still. Low resolution security footage, compression artifacts, slight interlacing, oil stains on concrete, painted stall lines. No text, no timestamp, no logos, no watermark, no people."
+  }
+]

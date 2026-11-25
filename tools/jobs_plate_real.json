@@ -1,0 +1,18 @@
+[
+  {
+    "name": "plate_real_a",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["concepts/plate_xray_b.png"],
+    "prompt": "Re-render this exact image as a realistic photograph, keeping the composition PIXEL-ALIGNED: every wall, doorway, bed, chair, toilet, nightstand, stain and piece of debris must stay at exactly the same position, size and angle. Only change the material rendering: replace the X-ray / cyan scan look with real physical materials as if lit evenly by a bright flashlight: stained beige-brown motel carpet in the bedrooms and corridor, dirty off-white bathroom tiles, white porcelain toilets, faded floral bedspreads, dark wood nightstands, worn vinyl chairs, painted drywall wall tops with chipped edges, cracked grey concrete walkway on the left. Muted, desaturated, dirty, abandoned. Strict orthographic top-down view, no perspective change, no added objects, no people, no text."
+  },
+  {
+    "name": "plate_real_b",
+    "model": "gpt-image-2",
+    "size": "2048x1152",
+    "resolution": "2k",
+    "refs": ["concepts/plate_xray_b.png"],
+    "prompt": "Re-render this exact image as a realistic photograph, keeping the composition PIXEL-ALIGNED: every wall, doorway, bed, chair, toilet, nightstand, stain and piece of debris must stay at exactly the same position, size and angle. Only change the material rendering: replace the X-ray / cyan scan look with real physical materials as if lit evenly by a bright flashlight: stained beige-brown motel carpet in the bedrooms and corridor, dirty off-white bathroom tiles, white porcelain toilets, faded floral bedspreads, dark wood nightstands, worn vinyl chairs, painted drywall wall tops with chipped edges, cracked grey concrete walkway on the left. Muted, desaturated, dirty, abandoned. Strict orthographic top-down view, no perspective change, no added objects, no people, no text."
+  }
+]

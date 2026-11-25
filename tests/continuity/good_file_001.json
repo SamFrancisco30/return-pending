@@ -1,0 +1,26 @@
+{
+  "_about": "Test fixture: a consistent FILE 001 skeleton. Should pass with no errors.",
+  "file": 1, "title": "Every Time a Door Opens, It Gets Closer", "date": "2024-03-12", "site": "Route 9 Motel", "type": "rules",
+  "approved": true,
+  "cast": [
+    { "id": "VANCE", "appearance": "field" }, { "id": "ODA", "appearance": "field" },
+    { "id": "REYES", "appearance": "field" }, { "id": "DISPATCH", "appearance": "offsite" }
+  ],
+  "anomalies": [{ "id": "UNK-1" }],
+  "zones": { "T3": 3, "B3": 3, "T2": 2, "B2": 2, "T1": 1, "B1": 1, "EXIT_VESTIBULE": 0 },
+  "initial_doors": { "01": "closed", "02": "open", "03": "closed", "04": "closed", "05": "claimed", "06": "open", "EXIT": "closed" },
+  "initial_positions": { "UNK-1": "T3" },
+  "door_events": [{ "t": 0.38, "door": "05", "by": "unprompted", "unk_from": "T3", "unk_to": "B2" }],
+  "equipment_used": [{ "id": "ballistic_shield", "by": "VANCE" }, { "id": "bodycam", "by": "REYES" }],
+  "exposure_events": [{ "who": "REYES", "event": "direct_contact" }],
+  "mission_result": "COMPLETE", "stabilizer_access": true, "payment": 4200,
+  "personnel_results": [{ "id": "VANCE", "status": "RETURNED" }, { "id": "ODA", "status": "RETURNED" }, { "id": "REYES", "status": "RETURNED" }],
+  "report": { "VANCE": [22, 18], "ODA": [52, 48], "REYES": [0, 11] },
+  "reveals": ["team04_exists"],
+  "dialogue": [
+    { "who": "VANCE", "line": "Nobody touches the doors. Copy?" },
+    { "who": "REYES", "line": "Door two... it just opened. Nobody touched it." },
+    { "who": "VANCE", "line": "That callsign. That's Team 04." },
+    { "who": "DISPATCH", "line": "Don't touch anything. Fall back to the exit. Now!" }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "_about": "State BEFORE the next unapproved file. hidden_motive and secret_* are writer-only; characters may not say them until mysteries.json marks them revealed.",
+  "characters": [
+    {
+      "id": "VANCE",
+      "callsign": "VANCE",
+      "field": true,
+      "role": "point / field lead",
+      "kit": "shield",
+      "color": "#6fdcff",
+      "icon": "tri",
+      "voice": "TxWZERZ5Hc6h9dGxVmXa",
+      "status": "RETURNED",
+      "exposure": 22,
+      "exposure_floor": 9,
+      "missions_completed": 9,
+      "standard_equipment": [
+        "ballistic_shield",
+        "sidearm",
+        "srs_node"
+      ],
+      "symptoms": [],
+      "known_anomalies": [],
+      "known_secrets": [
+        "team04_exists",
+        "team04_missing"
+      ],
+      "hidden_motive": "Former member of Recovery Team 04. The rest of Team 04 went missing on an assignment; only he came back. Their file was never closed.",
+      "first_appearance": null,
+      "last_appearance": null
+    },
+    {
+      "id": "ODA",
+      "callsign": "ODA",
+      "field": true,
+      "role": "support / radio and SRS main relay",
+      "kit": "radio",
+      "color": "#ffc15a",
+      "icon": "square",
+      "voice": "GLSWsaquVBsIPLPPRi2s",
+      "status": "RETURNED",
+      "exposure": 52,
+      "exposure_floor": 31,
+      "missions_completed": 43,
+      "standard_equipment": [
+        "carbine",
+        "srs_relay_pack",
+        "radio"
+      ],
+      "symptoms": [
+        "radio_calls_that_should_not_exist"
+      ],
+      "known_anomalies": [],
+      "known_secrets": [],
+      "hidden_motive": "Exposure already high; does not believe he can ever be normal again. Was told six jobs would clear him.",
+      "first_appearance": null,
+      "last_appearance": null
+    },
+    {
+      "id": "REYES",
+      "callsign": "REYES",
+      "field": true,
+      "role": "recon / bodycam",
+      "kit": "recon",
+      "color": "#b9a4ff",
+      "icon": "diamond",
+      "voice": "1rnYMVDXZksVr6x7pZPX",
+      "status": "RETURNED",
+      "exposure": 0,
+      "exposure_floor": 0,
+      "missions_completed": 0,
+      "standard_equipment": [
+        "carbine",
+        "bodycam",
+        "headlamp",
+        "srs_node"
+      ],
+      "symptoms": [],
+      "known_anomalies": [],
+      "known_secrets": [],
+      "hidden_motive": "Joined on purpose to find a missing family member whose name appears in an old Wayfarer file.",
+      "first_appearance": null,
+      "last_appearance": null
+    },
+    {
+      "id": "DISPATCH",
+      "callsign": "DISPATCH",
+      "field": false,
+      "role": "off-site coordinator, voice only",
+      "voice": "wa4sQVgbDDzUDEzJwch3",
+      "status": "RETURNED",
+      "exposure": null,
+      "exposure_floor": null,
+      "missions_completed": null,
+      "known_anomalies": [],
+      "known_secrets": [
+        "program_true_purpose",
+        "srs_core_is_salvage",
+        "stabilizer_from_salvage"
+      ],
+      "hidden_motive": "Knows what the program is really for and cannot tell the crew.",
+      "first_appearance": null,
+      "last_appearance": null
+    }
+  ]
+}

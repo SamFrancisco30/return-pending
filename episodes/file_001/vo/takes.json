@@ -1,0 +1,1175 @@
+{
+ "1": {
+  "who": "DISPATCH",
+  "t": "0:09",
+  "window": 5.75,
+  "subtitle": "Site Seven. Beacon's last signal: room six, east end. In and out.",
+  "takes": [
+   {
+    "file": "vo/takes/01_DISPATCH_t1.tight.wav",
+    "dur": 4.83,
+    "pitch_sd": 4.35,
+    "loud_sd": 7.5,
+    "score": 8.1
+   },
+   {
+    "file": "vo/takes/01_DISPATCH_t0.tight.wav",
+    "dur": 4.41,
+    "pitch_sd": 4.38,
+    "loud_sd": 6.77,
+    "score": 7.76
+   },
+   {
+    "file": "vo/takes/01_DISPATCH_t2.tight.wav",
+    "dur": 4.58,
+    "pitch_sd": 3.84,
+    "loud_sd": 6.78,
+    "score": 7.23
+   }
+  ]
+ },
+ "2": {
+  "who": "DISPATCH",
+  "t": "0:15",
+  "window": 5.75,
+  "subtitle": "Reyes, first assignment. Stay on Vance's six.",
+  "takes": [
+   {
+    "file": "vo/takes/02_DISPATCH_t1.tight.wav",
+    "dur": 3.48,
+    "pitch_sd": 4.07,
+    "loud_sd": 7.07,
+    "score": 7.61
+   },
+   {
+    "file": "vo/takes/02_DISPATCH_t0.tight.wav",
+    "dur": 3.76,
+    "pitch_sd": 3.59,
+    "loud_sd": 6.37,
+    "score": 6.78
+   },
+   {
+    "file": "vo/takes/02_DISPATCH_t2.tight.wav",
+    "dur": 3.36,
+    "pitch_sd": 3.41,
+    "loud_sd": 6.21,
+    "score": 6.52
+   }
+  ]
+ },
+ "3": {
+  "who": "ODA",
+  "t": "0:21",
+  "window": 2.75,
+  "subtitle": "Relay's up. You seeing us, Dispatch?",
+  "takes": [
+   {
+    "file": "vo/takes/03_ODA_t1.tight.wav",
+    "dur": 2.16,
+    "pitch_sd": 4.8,
+    "loud_sd": 7.21,
+    "score": 8.4
+   },
+   {
+    "file": "vo/takes/03_ODA_t2.tight.wav",
+    "dur": 2.12,
+    "pitch_sd": 4.57,
+    "loud_sd": 5.93,
+    "score": 7.54
+   },
+   {
+    "file": "vo/takes/03_ODA_t0.tight.wav",
+    "dur": 2.17,
+    "pitch_sd": 1.79,
+    "loud_sd": 6.08,
+    "score": 4.83
+   }
+  ]
+ },
+ "4": {
+  "who": "DISPATCH",
+  "t": "0:24",
+  "window": 4.75,
+  "subtitle": "I've got you. Reconstruction's holding.",
+  "takes": [
+   {
+    "file": "vo/takes/04_DISPATCH_t0.tight.wav",
+    "dur": 2.06,
+    "pitch_sd": 3.52,
+    "loud_sd": 6.03,
+    "score": 6.54
+   },
+   {
+    "file": "vo/takes/04_DISPATCH_t2.tight.wav",
+    "dur": 1.93,
+    "pitch_sd": 3.1,
+    "loud_sd": 6.0,
+    "score": 6.1
+   },
+   {
+    "file": "vo/takes/04_DISPATCH_t1.tight.wav",
+    "dur": 2.14,
+    "pitch_sd": 2.24,
+    "loud_sd": 6.17,
+    "score": 5.33
+   }
+  ]
+ },
+ "5": {
+  "who": "REYES",
+  "t": "0:29",
+  "window": 2.75,
+  "subtitle": "Is it always this quiet?",
+  "takes": [
+   {
+    "file": "vo/takes/05_REYES_t1.tight.wav",
+    "dur": 1.87,
+    "pitch_sd": 3.21,
+    "loud_sd": 4.22,
+    "score": 5.32
+   },
+   {
+    "file": "vo/takes/05_REYES_t0.tight.wav",
+    "dur": 1.86,
+    "pitch_sd": 2.59,
+    "loud_sd": 4.47,
+    "score": 4.82
+   },
+   {
+    "file": "vo/takes/05_REYES_t2.tight.wav",
+    "dur": 1.52,
+    "pitch_sd": 2.95,
+    "loud_sd": 3.7,
+    "score": 4.8
+   }
+  ]
+ },
+ "6": {
+  "who": "ODA",
+  "t": "0:32",
+  "window": 8.75,
+  "subtitle": "Quiet's good. Don't count the doors, kid.",
+  "takes": [
+   {
+    "file": "vo/takes/06_ODA_t2.tight.wav",
+    "dur": 3.06,
+    "pitch_sd": 8.43,
+    "loud_sd": 6.21,
+    "score": 11.54
+   },
+   {
+    "file": "vo/takes/06_ODA_t1.tight.wav",
+    "dur": 3.02,
+    "pitch_sd": 8.05,
+    "loud_sd": 5.83,
+    "score": 10.96
+   },
+   {
+    "file": "vo/takes/06_ODA_t0.tight.wav",
+    "dur": 2.79,
+    "pitch_sd": 6.96,
+    "loud_sd": 6.27,
+    "score": 10.09
+   }
+  ]
+ },
+ "7": {
+  "who": "VANCE",
+  "t": "0:41",
+  "window": 3.75,
+  "subtitle": "Hold. Nobody moves.",
+  "takes": [
+   {
+    "file": "vo/takes/07_VANCE_t2.tight.wav",
+    "dur": 2.07,
+    "pitch_sd": 5.37,
+    "loud_sd": 7.46,
+    "score": 9.1
+   },
+   {
+    "file": "vo/takes/07_VANCE_t1.tight.wav",
+    "dur": 1.97,
+    "pitch_sd": 4.79,
+    "loud_sd": 6.14,
+    "score": 7.86
+   },
+   {
+    "file": "vo/takes/07_VANCE_t0.tight.wav",
+    "dur": 2.12,
+    "pitch_sd": 4.25,
+    "loud_sd": 6.4,
+    "score": 7.45
+   }
+  ]
+ },
+ "8": {
+  "who": "DISPATCH",
+  "t": "0:45",
+  "window": 2.75,
+  "subtitle": "Don't engage. Beacon first.",
+  "takes": [
+   {
+    "file": "vo/takes/08_DISPATCH_t1.tight.wav",
+    "dur": 2.15,
+    "pitch_sd": 4.0,
+    "loud_sd": 7.39,
+    "score": 7.7
+   },
+   {
+    "file": "vo/takes/08_DISPATCH_t0.tight.wav",
+    "dur": 2.12,
+    "pitch_sd": 3.84,
+    "loud_sd": 7.21,
+    "score": 7.45
+   },
+   {
+    "file": "vo/takes/08_DISPATCH_t2.tight.wav",
+    "dur": 2.0,
+    "pitch_sd": 3.37,
+    "loud_sd": 7.03,
+    "score": 6.88
+   }
+  ]
+ },
+ "9": {
+  "who": "VANCE",
+  "t": "0:48",
+  "window": 4.75,
+  "subtitle": "Slow. East end.",
+  "takes": [
+   {
+    "file": "vo/takes/09_VANCE_t1.tight.wav",
+    "dur": 1.57,
+    "pitch_sd": 6.32,
+    "loud_sd": 6.83,
+    "score": 9.73
+   },
+   {
+    "file": "vo/takes/09_VANCE_t2.tight.wav",
+    "dur": 1.51,
+    "pitch_sd": 5.78,
+    "loud_sd": 7.27,
+    "score": 9.41
+   },
+   {
+    "file": "vo/takes/09_VANCE_t0.tight.wav",
+    "dur": 1.72,
+    "pitch_sd": 5.41,
+    "loud_sd": 6.49,
+    "score": 8.66
+   }
+  ]
+ },
+ "10": {
+  "who": "ODA",
+  "t": "0:53",
+  "window": 2.75,
+  "subtitle": "This one's ice cold. Won't turn.",
+  "takes": [
+   {
+    "file": "vo/takes/10_ODA_t1.tight.wav",
+    "dur": 2.42,
+    "pitch_sd": 6.31,
+    "loud_sd": 5.83,
+    "score": 9.22
+   },
+   {
+    "file": "vo/takes/10_ODA_t0.tight.wav",
+    "dur": 2.79,
+    "pitch_sd": 6.5,
+    "loud_sd": 5.45,
+    "score": 9.06
+   },
+   {
+    "file": "vo/takes/10_ODA_t2.tight.wav",
+    "dur": 3.17,
+    "pitch_sd": 5.83,
+    "loud_sd": 5.02,
+    "score": 6.66
+   }
+  ]
+ },
+ "11": {
+  "who": "VANCE",
+  "t": "0:56",
+  "window": 6.75,
+  "subtitle": "Leave it.",
+  "takes": [
+   {
+    "file": "vo/takes/11_VANCE_t1.tight.wav",
+    "dur": 0.71,
+    "pitch_sd": 4.81,
+    "loud_sd": 5.76,
+    "score": 7.69
+   },
+   {
+    "file": "vo/takes/11_VANCE_t2.tight.wav",
+    "dur": 0.67,
+    "pitch_sd": 4.43,
+    "loud_sd": 5.94,
+    "score": 7.4
+   },
+   {
+    "file": "vo/takes/11_VANCE_t0.tight.wav",
+    "dur": 0.46,
+    "pitch_sd": 3.27,
+    "loud_sd": 5.06,
+    "score": 5.8
+   }
+  ]
+ },
+ "12": {
+  "who": "REYES",
+  "t": "1:03",
+  "window": 2.75,
+  "subtitle": "It's just... standing there.",
+  "takes": [
+   {
+    "file": "vo/takes/12_REYES_t0.tight.wav",
+    "dur": 2.37,
+    "pitch_sd": 3.8,
+    "loud_sd": 4.94,
+    "score": 6.27
+   },
+   {
+    "file": "vo/takes/12_REYES_t2.tight.wav",
+    "dur": 2.75,
+    "pitch_sd": 2.67,
+    "loud_sd": 5.2,
+    "score": 5.27
+   },
+   {
+    "file": "vo/takes/12_REYES_t1.tight.wav",
+    "dur": 1.89,
+    "pitch_sd": 2.76,
+    "loud_sd": 3.99,
+    "score": 4.75
+   }
+  ]
+ },
+ "13": {
+  "who": "VANCE",
+  "t": "1:06",
+  "window": 10.75,
+  "subtitle": "Don't look at it. Keep walking.",
+  "takes": [
+   {
+    "file": "vo/takes/13_VANCE_t0.tight.wav",
+    "dur": 1.61,
+    "pitch_sd": 5.02,
+    "loud_sd": 6.33,
+    "score": 8.18
+   },
+   {
+    "file": "vo/takes/13_VANCE_t2.tight.wav",
+    "dur": 1.57,
+    "pitch_sd": 4.32,
+    "loud_sd": 6.83,
+    "score": 7.74
+   },
+   {
+    "file": "vo/takes/13_VANCE_t1.tight.wav",
+    "dur": 1.53,
+    "pitch_sd": 4.69,
+    "loud_sd": 5.37,
+    "score": 7.38
+   }
+  ]
+ },
+ "14": {
+  "who": "REYES",
+  "t": "1:17",
+  "window": 3.75,
+  "subtitle": "Got it. It's registered to... RT-04?",
+  "takes": [
+   {
+    "file": "vo/takes/14_REYES_t5.tight.wav",
+    "dur": 3.95,
+    "pitch_sd": 4.09,
+    "loud_sd": 6.69,
+    "score": 6.63
+   },
+   {
+    "file": "vo/takes/14_REYES_t0.tight.wav",
+    "dur": 4.13,
+    "pitch_sd": 3.67,
+    "loud_sd": 6.09,
+    "score": 5.2
+   },
+   {
+    "file": "vo/takes/14_REYES_t1.tight.wav",
+    "dur": 4.46,
+    "pitch_sd": 4.6,
+    "loud_sd": 6.29,
+    "score": 4.9
+   },
+   {
+    "file": "vo/takes/14_REYES_t4.tight.wav",
+    "dur": 4.84,
+    "pitch_sd": 3.93,
+    "loud_sd": 6.45,
+    "score": 2.8
+   },
+   {
+    "file": "vo/takes/14_REYES_t3.tight.wav",
+    "dur": 5.16,
+    "pitch_sd": 4.18,
+    "loud_sd": 6.59,
+    "score": 1.83
+   },
+   {
+    "file": "vo/takes/14_REYES_t2.tight.wav",
+    "dur": 5.1,
+    "pitch_sd": 3.66,
+    "loud_sd": 5.94,
+    "score": 1.23
+   }
+  ]
+ },
+ "15": {
+  "who": "VANCE",
+  "t": "1:21",
+  "window": 2.75,
+  "subtitle": "Team 04.",
+  "takes": [
+   {
+    "file": "vo/takes/15_VANCE_t1.tight.wav",
+    "dur": 1.53,
+    "pitch_sd": 9.32,
+    "loud_sd": 5.17,
+    "score": 11.91
+   },
+   {
+    "file": "vo/takes/15_VANCE_t0.tight.wav",
+    "dur": 0.83,
+    "pitch_sd": 4.0,
+    "loud_sd": 5.85,
+    "score": 6.92
+   },
+   {
+    "file": "vo/takes/15_VANCE_t2.tight.wav",
+    "dur": 0.78,
+    "pitch_sd": 3.69,
+    "loud_sd": 5.85,
+    "score": 6.62
+   }
+  ]
+ },
+ "16": {
+  "who": "ODA",
+  "t": "1:24",
+  "window": 3.75,
+  "subtitle": "That's Holloway's.",
+  "takes": [
+   {
+    "file": "vo/takes/16_ODA_t1.tight.wav",
+    "dur": 1.13,
+    "pitch_sd": 9.56,
+    "loud_sd": 4.64,
+    "score": 11.88
+   },
+   {
+    "file": "vo/takes/16_ODA_t0.tight.wav",
+    "dur": 1.11,
+    "pitch_sd": 7.43,
+    "loud_sd": 5.99,
+    "score": 10.43
+   },
+   {
+    "file": "vo/takes/16_ODA_t2.tight.wav",
+    "dur": 1.17,
+    "pitch_sd": 7.12,
+    "loud_sd": 5.61,
+    "score": 9.93
+   }
+  ]
+ },
+ "17": {
+  "who": "DISPATCH",
+  "t": "1:28",
+  "window": 2.75,
+  "subtitle": "Confirm recovery, Vance.",
+  "takes": [
+   {
+    "file": "vo/takes/17_DISPATCH_t1.tight.wav",
+    "dur": 1.57,
+    "pitch_sd": 4.01,
+    "loud_sd": 6.39,
+    "score": 7.21
+   },
+   {
+    "file": "vo/takes/17_DISPATCH_t0.tight.wav",
+    "dur": 1.42,
+    "pitch_sd": 3.74,
+    "loud_sd": 6.88,
+    "score": 7.18
+   },
+   {
+    "file": "vo/takes/17_DISPATCH_t2.tight.wav",
+    "dur": 1.36,
+    "pitch_sd": 3.62,
+    "loud_sd": 6.78,
+    "score": 7.01
+   }
+  ]
+ },
+ "18": {
+  "who": "VANCE",
+  "t": "1:31",
+  "window": 2.75,
+  "subtitle": "...Confirmed.",
+  "takes": [
+   {
+    "file": "vo/takes/18_VANCE_t1.tight.wav",
+    "dur": 0.6,
+    "pitch_sd": 5.8,
+    "loud_sd": 6.94,
+    "score": 9.27
+   },
+   {
+    "file": "vo/takes/18_VANCE_t0.tight.wav",
+    "dur": 0.59,
+    "pitch_sd": 4.35,
+    "loud_sd": 6.51,
+    "score": 7.6
+   },
+   {
+    "file": "vo/takes/18_VANCE_t2.tight.wav",
+    "dur": 0.6,
+    "pitch_sd": 3.95,
+    "loud_sd": 6.37,
+    "score": 7.13
+   }
+  ]
+ },
+ "19": {
+  "who": "DISPATCH",
+  "t": "1:34",
+  "window": 9.75,
+  "subtitle": "Site Seven closes on a cycle. One minute fifty. Every door to the outside has to be shut when it does.",
+  "takes": [
+   {
+    "file": "vo/takes/19_DISPATCH_t0.tight.wav",
+    "dur": 6.42,
+    "pitch_sd": 3.7,
+    "loud_sd": 7.23,
+    "score": 7.32
+   },
+   {
+    "file": "vo/takes/19_DISPATCH_t2.tight.wav",
+    "dur": 6.62,
+    "pitch_sd": 3.41,
+    "loud_sd": 6.6,
+    "score": 6.71
+   },
+   {
+    "file": "vo/takes/19_DISPATCH_t1.tight.wav",
+    "dur": 7.42,
+    "pitch_sd": 3.06,
+    "loud_sd": 7.16,
+    "score": 6.64
+   }
+  ]
+ },
+ "20": {
+  "who": "REYES",
+  "t": "1:44",
+  "window": 13.75,
+  "subtitle": "It's between us and the exit.",
+  "takes": [
+   {
+    "file": "vo/takes/20_REYES_t2.tight.wav",
+    "dur": 2.21,
+    "pitch_sd": 6.14,
+    "loud_sd": 5.18,
+    "score": 8.73
+   },
+   {
+    "file": "vo/takes/20_REYES_t0.tight.wav",
+    "dur": 2.31,
+    "pitch_sd": 4.94,
+    "loud_sd": 5.9,
+    "score": 7.89
+   },
+   {
+    "file": "vo/takes/20_REYES_t1.tight.wav",
+    "dur": 2.47,
+    "pitch_sd": 4.34,
+    "loud_sd": 6.4,
+    "score": 7.54
+   }
+  ]
+ },
+ "21": {
+  "who": "VANCE",
+  "t": "1:58",
+  "window": 7.75,
+  "subtitle": "Rounds don't stop it. They just buy seconds.",
+  "takes": [
+   {
+    "file": "vo/takes/21_VANCE_t0.tight.wav",
+    "dur": 3.97,
+    "pitch_sd": 5.67,
+    "loud_sd": 7.34,
+    "score": 9.34
+   },
+   {
+    "file": "vo/takes/21_VANCE_t1.tight.wav",
+    "dur": 3.12,
+    "pitch_sd": 5.08,
+    "loud_sd": 7.93,
+    "score": 9.04
+   },
+   {
+    "file": "vo/takes/21_VANCE_t2.tight.wav",
+    "dur": 2.7,
+    "pitch_sd": 5.15,
+    "loud_sd": 6.93,
+    "score": 8.62
+   }
+  ]
+ },
+ "22": {
+  "who": "REYES",
+  "t": "2:06",
+  "window": 4.75,
+  "subtitle": "Two doors opened on their own. Both times, it got closer.",
+  "takes": [
+   {
+    "file": "vo/takes/22_REYES_t0.tight.wav",
+    "dur": 4.05,
+    "pitch_sd": 4.56,
+    "loud_sd": 5.1,
+    "score": 7.11
+   },
+   {
+    "file": "vo/takes/22_REYES_t2.tight.wav",
+    "dur": 4.12,
+    "pitch_sd": 3.69,
+    "loud_sd": 6.03,
+    "score": 6.71
+   },
+   {
+    "file": "vo/takes/22_REYES_t1.tight.wav",
+    "dur": 3.81,
+    "pitch_sd": 3.14,
+    "loud_sd": 5.88,
+    "score": 6.08
+   }
+  ]
+ },
+ "23": {
+  "who": "ODA",
+  "t": "2:11",
+  "window": 3.75,
+  "subtitle": "And that one's next.",
+  "takes": [
+   {
+    "file": "vo/takes/23_ODA_t0.tight.wav",
+    "dur": 1.14,
+    "pitch_sd": 8.49,
+    "loud_sd": 5.81,
+    "score": 11.39
+   },
+   {
+    "file": "vo/takes/23_ODA_t1.tight.wav",
+    "dur": 1.54,
+    "pitch_sd": 7.77,
+    "loud_sd": 5.48,
+    "score": 10.51
+   },
+   {
+    "file": "vo/takes/23_ODA_t2.tight.wav",
+    "dur": 1.42,
+    "pitch_sd": 6.86,
+    "loud_sd": 5.44,
+    "score": 9.58
+   }
+  ]
+ },
+ "24": {
+  "who": "VANCE",
+  "t": "2:15",
+  "window": 2.75,
+  "subtitle": "Won't open. It's got this one.",
+  "takes": [
+   {
+    "file": "vo/takes/24_VANCE_t4.tight.wav",
+    "dur": 1.91,
+    "pitch_sd": 6.19,
+    "loud_sd": 6.92,
+    "score": 9.65
+   },
+   {
+    "file": "vo/takes/24_VANCE_t0.tight.wav",
+    "dur": 3.02,
+    "pitch_sd": 6.41,
+    "loud_sd": 7.07,
+    "score": 8.87
+   },
+   {
+    "file": "vo/takes/24_VANCE_t1.tight.wav",
+    "dur": 2.03,
+    "pitch_sd": 5.73,
+    "loud_sd": 6.28,
+    "score": 8.87
+   },
+   {
+    "file": "vo/takes/24_VANCE_t5.tight.wav",
+    "dur": 2.56,
+    "pitch_sd": 4.62,
+    "loud_sd": 6.51,
+    "score": 7.88
+   },
+   {
+    "file": "vo/takes/24_VANCE_t3.tight.wav",
+    "dur": 2.97,
+    "pitch_sd": 5.04,
+    "loud_sd": 6.4,
+    "score": 7.36
+   },
+   {
+    "file": "vo/takes/24_VANCE_t2.tight.wav",
+    "dur": 3.13,
+    "pitch_sd": 5.32,
+    "loud_sd": 6.69,
+    "score": 7.15
+   }
+  ]
+ },
+ "25": {
+  "who": "ODA",
+  "t": "2:18",
+  "window": 2.75,
+  "subtitle": "Then we don't let it open.",
+  "takes": [
+   {
+    "file": "vo/takes/25_ODA_t0.tight.wav",
+    "dur": 1.73,
+    "pitch_sd": 5.29,
+    "loud_sd": 5.18,
+    "score": 7.88
+   },
+   {
+    "file": "vo/takes/25_ODA_t1.tight.wav",
+    "dur": 2.05,
+    "pitch_sd": 4.94,
+    "loud_sd": 5.53,
+    "score": 7.71
+   },
+   {
+    "file": "vo/takes/25_ODA_t2.tight.wav",
+    "dur": 1.8,
+    "pitch_sd": 4.93,
+    "loud_sd": 5.4,
+    "score": 7.63
+   }
+  ]
+ },
+ "26": {
+  "who": "VANCE",
+  "t": "2:21",
+  "window": 3.75,
+  "subtitle": "I hold four. Lose four, it takes another door.",
+  "takes": [
+   {
+    "file": "vo/takes/26_VANCE_t1.tight.wav",
+    "dur": 2.89,
+    "pitch_sd": 6.54,
+    "loud_sd": 6.83,
+    "score": 9.96
+   },
+   {
+    "file": "vo/takes/26_VANCE_t0.tight.wav",
+    "dur": 3.2,
+    "pitch_sd": 5.97,
+    "loud_sd": 6.6,
+    "score": 9.27
+   },
+   {
+    "file": "vo/takes/26_VANCE_t2.tight.wav",
+    "dur": 3.38,
+    "pitch_sd": 5.27,
+    "loud_sd": 6.94,
+    "score": 8.74
+   }
+  ]
+ },
+ "27": {
+  "who": "VANCE",
+  "t": "2:25",
+  "window": 3.75,
+  "subtitle": "Leave it nothing. Oda, the exit. Reyes, room three.",
+  "takes": [
+   {
+    "file": "vo/takes/27_VANCE_t2.tight.wav",
+    "dur": 3.16,
+    "pitch_sd": 6.86,
+    "loud_sd": 7.26,
+    "score": 10.49
+   },
+   {
+    "file": "vo/takes/27_VANCE_t0.tight.wav",
+    "dur": 3.03,
+    "pitch_sd": 5.84,
+    "loud_sd": 6.65,
+    "score": 9.16
+   },
+   {
+    "file": "vo/takes/27_VANCE_t1.tight.wav",
+    "dur": 3.8,
+    "pitch_sd": 5.3,
+    "loud_sd": 6.87,
+    "score": 8.54
+   }
+  ]
+ },
+ "28": {
+  "who": "REYES",
+  "t": "2:29",
+  "window": 1.75,
+  "subtitle": "Three's where it started.",
+  "takes": [
+   {
+    "file": "vo/takes/28_REYES_t2.tight.wav",
+    "dur": 1.41,
+    "pitch_sd": 5.64,
+    "loud_sd": 5.08,
+    "score": 8.18
+   },
+   {
+    "file": "vo/takes/28_REYES_t1.tight.wav",
+    "dur": 1.32,
+    "pitch_sd": 4.87,
+    "loud_sd": 5.65,
+    "score": 7.7
+   },
+   {
+    "file": "vo/takes/28_REYES_t0.tight.wav",
+    "dur": 1.34,
+    "pitch_sd": 2.92,
+    "loud_sd": 7.9,
+    "score": 6.87
+   }
+  ]
+ },
+ "29": {
+  "who": "VANCE",
+  "t": "2:31",
+  "window": 13.75,
+  "subtitle": "Not anymore. Go.",
+  "takes": [
+   {
+    "file": "vo/takes/29_VANCE_t2.tight.wav",
+    "dur": 1.75,
+    "pitch_sd": 6.0,
+    "loud_sd": 6.81,
+    "score": 9.4
+   },
+   {
+    "file": "vo/takes/29_VANCE_t0.tight.wav",
+    "dur": 1.46,
+    "pitch_sd": 5.17,
+    "loud_sd": 5.74,
+    "score": 8.04
+   },
+   {
+    "file": "vo/takes/29_VANCE_t1.tight.wav",
+    "dur": 1.6,
+    "pitch_sd": 5.18,
+    "loud_sd": 5.51,
+    "score": 7.93
+   }
+  ]
+ },
+ "30": {
+  "who": "DISPATCH",
+  "t": "2:45",
+  "window": 7.75,
+  "subtitle": "Reyes. Don't stop.",
+  "takes": [
+   {
+    "file": "vo/takes/30_DISPATCH_t2.tight.wav",
+    "dur": 1.82,
+    "pitch_sd": 2.81,
+    "loud_sd": 8.13,
+    "score": 6.88
+   },
+   {
+    "file": "vo/takes/30_DISPATCH_t0.tight.wav",
+    "dur": 1.46,
+    "pitch_sd": 2.56,
+    "loud_sd": 7.69,
+    "score": 6.41
+   },
+   {
+    "file": "vo/takes/30_DISPATCH_t1.tight.wav",
+    "dur": 1.65,
+    "pitch_sd": 2.18,
+    "loud_sd": 7.83,
+    "score": 6.1
+   }
+  ]
+ },
+ "31": {
+  "who": "VANCE",
+  "t": "2:53",
+  "window": 3.75,
+  "subtitle": "When I let go, it opens. Be ready.",
+  "takes": [
+   {
+    "file": "vo/takes/31_VANCE_t2.tight.wav",
+    "dur": 2.92,
+    "pitch_sd": 5.41,
+    "loud_sd": 7.48,
+    "score": 9.15
+   },
+   {
+    "file": "vo/takes/31_VANCE_t1.tight.wav",
+    "dur": 2.47,
+    "pitch_sd": 5.24,
+    "loud_sd": 7.18,
+    "score": 8.83
+   },
+   {
+    "file": "vo/takes/31_VANCE_t0.tight.wav",
+    "dur": 3.25,
+    "pitch_sd": 4.99,
+    "loud_sd": 6.84,
+    "score": 8.41
+   }
+  ]
+ },
+ "32": {
+  "who": "ODA",
+  "t": "2:57",
+  "window": 4.75,
+  "subtitle": "On you.",
+  "takes": [
+   {
+    "file": "vo/takes/32_ODA_t2.tight.wav",
+    "dur": 0.84,
+    "pitch_sd": 8.76,
+    "loud_sd": 4.3,
+    "score": 10.91
+   },
+   {
+    "file": "vo/takes/32_ODA_t1.tight.wav",
+    "dur": 1.14,
+    "pitch_sd": 8.65,
+    "loud_sd": 3.5,
+    "score": 10.4
+   },
+   {
+    "file": "vo/takes/32_ODA_t0.tight.wav",
+    "dur": 1.35,
+    "pitch_sd": 7.45,
+    "loud_sd": 5.27,
+    "score": 10.09
+   }
+  ]
+ },
+ "33": {
+  "who": "REYES",
+  "t": "3:02",
+  "window": 4.75,
+  "subtitle": "Pack's clear! Shut it, hold it!",
+  "takes": [
+   {
+    "file": "vo/takes/33_REYES_t2.tight.wav",
+    "dur": 2.02,
+    "pitch_sd": 5.31,
+    "loud_sd": 7.57,
+    "score": 9.09
+   },
+   {
+    "file": "vo/takes/33_REYES_t0.tight.wav",
+    "dur": 2.05,
+    "pitch_sd": 4.85,
+    "loud_sd": 7.41,
+    "score": 8.55
+   },
+   {
+    "file": "vo/takes/33_REYES_t1.tight.wav",
+    "dur": 2.27,
+    "pitch_sd": 3.49,
+    "loud_sd": 8.31,
+    "score": 7.65
+   }
+  ]
+ },
+ "34": {
+  "who": "DISPATCH",
+  "t": "3:07",
+  "window": 22.75,
+  "subtitle": "Hold it. Seventeen seconds.",
+  "takes": [
+   {
+    "file": "vo/takes/34_DISPATCH_t1.tight.wav",
+    "dur": 1.75,
+    "pitch_sd": 4.98,
+    "loud_sd": 8.35,
+    "score": 9.16
+   },
+   {
+    "file": "vo/takes/34_DISPATCH_t0.tight.wav",
+    "dur": 1.84,
+    "pitch_sd": 4.74,
+    "loud_sd": 8.64,
+    "score": 9.06
+   },
+   {
+    "file": "vo/takes/34_DISPATCH_t2.tight.wav",
+    "dur": 1.65,
+    "pitch_sd": 3.34,
+    "loud_sd": 6.93,
+    "score": 6.8
+   }
+  ]
+ },
+ "35": {
+  "who": "REYES",
+  "t": "3:30",
+  "window": 3.75,
+  "subtitle": "...Is it over?",
+  "takes": [
+   {
+    "file": "vo/takes/35_REYES_t2.tight.wav",
+    "dur": 0.77,
+    "pitch_sd": 5.21,
+    "loud_sd": 5.47,
+    "score": 7.95
+   },
+   {
+    "file": "vo/takes/35_REYES_t1.tight.wav",
+    "dur": 1.7,
+    "pitch_sd": 2.99,
+    "loud_sd": 7.0,
+    "score": 6.49
+   },
+   {
+    "file": "vo/takes/35_REYES_t0.tight.wav",
+    "dur": 0.9,
+    "pitch_sd": 1.76,
+    "loud_sd": 6.79,
+    "score": 5.16
+   }
+  ]
+ },
+ "36": {
+  "who": "ODA",
+  "t": "3:34",
+  "window": 7.75,
+  "subtitle": "For tonight.",
+  "takes": [
+   {
+    "file": "vo/takes/36_ODA_t0.tight.wav",
+    "dur": 0.99,
+    "pitch_sd": 3.67,
+    "loud_sd": 3.38,
+    "score": 5.36
+   },
+   {
+    "file": "vo/takes/36_ODA_t2.tight.wav",
+    "dur": 0.69,
+    "pitch_sd": 1.78,
+    "loud_sd": 4.52,
+    "score": 4.04
+   },
+   {
+    "file": "vo/takes/36_ODA_t1.tight.wav",
+    "dur": 0.6,
+    "pitch_sd": 1.08,
+    "loud_sd": 3.39,
+    "score": 2.78
+   }
+  ]
+ },
+ "37": {
+  "who": "DISPATCH",
+  "t": "3:42",
+  "window": 4.75,
+  "subtitle": "Beacon's logged. Stabilizer's authorized for all three of you.",
+  "takes": [
+   {
+    "file": "vo/takes/37_DISPATCH_t0.tight.wav",
+    "dur": 3.53,
+    "pitch_sd": 3.88,
+    "loud_sd": 6.74,
+    "score": 7.25
+   },
+   {
+    "file": "vo/takes/37_DISPATCH_t1.tight.wav",
+    "dur": 3.26,
+    "pitch_sd": 3.08,
+    "loud_sd": 7.01,
+    "score": 6.58
+   },
+   {
+    "file": "vo/takes/37_DISPATCH_t2.tight.wav",
+    "dur": 3.49,
+    "pitch_sd": 2.23,
+    "loud_sd": 6.87,
+    "score": 5.67
+   }
+  ]
+ },
+ "38": {
+  "who": "VANCE",
+  "t": "3:47",
+  "window": 4.75,
+  "subtitle": "That beacon was Holloway's. Why does the report say unregistered?",
+  "takes": [
+   {
+    "file": "vo/takes/38_VANCE_t2.tight.wav",
+    "dur": 3.91,
+    "pitch_sd": 6.18,
+    "loud_sd": 6.85,
+    "score": 9.61
+   },
+   {
+    "file": "vo/takes/38_VANCE_t1.tight.wav",
+    "dur": 4.28,
+    "pitch_sd": 6.06,
+    "loud_sd": 6.64,
+    "score": 9.38
+   },
+   {
+    "file": "vo/takes/38_VANCE_t0.tight.wav",
+    "dur": 4.07,
+    "pitch_sd": 5.53,
+    "loud_sd": 6.62,
+    "score": 8.84
+   }
+  ]
+ },
+ "39": {
+  "who": "DISPATCH",
+  "t": "3:52",
+  "window": 7.75,
+  "subtitle": "...Get some sleep, Vance.",
+  "takes": [
+   {
+    "file": "vo/takes/39_DISPATCH_t2.tight.wav",
+    "dur": 1.24,
+    "pitch_sd": 3.91,
+    "loud_sd": 7.63,
+    "score": 7.72
+   },
+   {
+    "file": "vo/takes/39_DISPATCH_t1.tight.wav",
+    "dur": 1.52,
+    "pitch_sd": 3.73,
+    "loud_sd": 7.11,
+    "score": 7.29
+   },
+   {
+    "file": "vo/takes/39_DISPATCH_t0.tight.wav",
+    "dur": 1.15,
+    "pitch_sd": 2.69,
+    "loud_sd": 8.05,
+    "score": 6.71
+   }
+  ]
+ }
+}

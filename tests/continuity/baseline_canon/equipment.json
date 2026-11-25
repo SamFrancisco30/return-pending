@@ -1,0 +1,109 @@
+{
+  "_about": "Standard (replenishable) equipment. 'unlocked_in' = the file whose loadout scene first issues it; it must be used in that file (bible V2.1 section 9).",
+  "items": [
+    {
+      "id": "ballistic_shield",
+      "name": "Ballistic shield",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "sidearm",
+      "name": "Sidearm",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "carbine",
+      "name": "Carbine",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "radio",
+      "name": "Radio",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "bodycam",
+      "name": "Bodycam",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "headlamp",
+      "name": "Headlamp",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "srs_node",
+      "name": "SRS node",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": null,
+      "status": "available"
+    },
+    {
+      "id": "srs_relay_pack",
+      "name": "SRS main relay pack",
+      "standard_kit": true,
+      "unlocked_in": 0,
+      "quantity": 1,
+      "status": "available"
+    },
+    {
+      "id": "relay_puck",
+      "name": "Relay Puck",
+      "standard_kit": false,
+      "planned_unlock": 2,
+      "unlocked_in": null,
+      "quantity": 2,
+      "status": "locked",
+      "effect": "keeps a one-room window of SRS feed alive during a dropout"
+    },
+    {
+      "id": "door_wedge",
+      "name": "Door Wedge",
+      "standard_kit": false,
+      "planned_unlock": null,
+      "unlocked_in": null,
+      "quantity": 2,
+      "status": "locked",
+      "effect": "locks one door shut; 3 s to place"
+    },
+    {
+      "id": "pulse_scanner",
+      "name": "Pulse Scanner",
+      "standard_kit": false,
+      "planned_unlock": null,
+      "unlocked_in": null,
+      "quantity": 1,
+      "status": "locked",
+      "effect": "one-shot reveal of heat signatures in the next room; 20 s cooldown; may agitate anomalies"
+    },
+    {
+      "id": "chalk_line",
+      "name": "Chalk Line",
+      "standard_kit": false,
+      "planned_unlock": null,
+      "unlocked_in": null,
+      "quantity": null,
+      "status": "locked",
+      "effect": "fluorescent floor line that breaks when space shifts"
+    }
+  ]
+}

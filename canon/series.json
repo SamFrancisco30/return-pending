@@ -1,0 +1,26 @@
+{
+  "_about": "Series-level canon. Only approved episodes change files in canon/ (tools/continuity_check.py --apply). Writer-only fields are prefixed with 'secret_' or live in mysteries.json.",
+  "title": "RETURN PENDING",
+  "theme": "The better they get at surviving, the less human they become.",
+  "logline": "Three contractors enter places that stopped following the rules. A dispatcher watches from the other side. Every assignment changes them. Not everyone comes back.",
+  "bible": "https://claude.ai/artifact/SpkmKNhGzDZcpyoLj6yTgg",
+  "bible_version": "V2.1",
+  "program": "Wayfarer Recovery Program",
+  "anomaly_zone_term": "Lapse",
+  "overhead_system": "SRS (Spatial Reconstruction System)",
+  "status_values": [
+    "RETURNED",
+    "RETURN PENDING",
+    "LOST",
+    "DECEASED"
+  ],
+  "mission_results": [
+    "COMPLETE",
+    "FAILED",
+    "ABORTED"
+  ],
+  "last_approved_file": 1,
+  "approved_files": [
+    1
+  ]
+}
