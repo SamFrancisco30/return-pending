@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import ffmpegPath from "ffmpeg-static";
-import { loadImage, type Image } from "@napi-rs/canvas";
+import { loadImage, createCanvas, type Image } from "@napi-rs/canvas";
 import { loadScene } from "./geometry.ts";
 import { loadPlates, renderFrame, renderBodycam, renderSignalLost, type FrameState, type Style } from "./compose.ts";
 import { doorFxAt } from "./fx.ts";
@@ -24,12 +24,12 @@ const debugPlan = process.argv.includes("--debug-plan");
 // ---------- pre-rendered character sprites (library/characters/<who>/<action>/NNNN.png + meta.json) ----------
 // tl.sprites = { <operator id or "ENTITY">: { dir, pxPerM, clips: [{ from, action, loop?, rate? }] } }. Whoever has an entry is
 // drawn from the sequence instead of the procedural figure. The art faces +x, so turning is just rotating the image.
-const spriteClips: Record<string, { imgs: any[]; fps: number; span: number; muzzle?: number[][]; speed?: number }> = {};
+const spriteClips: Record<string, { imgs: any[]; fps: number; span: number; muzzle?: number[][]; speed?: number; tip?: number[][] }> = {};
 for (const cfg of Object.values(tl.sprites ?? {}) as any[]) for (const c of cfg.clips) {
   const dir = path.join(cfg.dir, c.action); if (spriteClips[dir]) continue;
   const meta = JSON.parse(fs.readFileSync(path.join(dir, "meta.json"), "utf8")), imgs: any[] = [];
   for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".png")).sort()) imgs.push(await loadImage(path.join(dir, f)));
-  spriteClips[dir] = { imgs, fps: meta.fps, span: meta.span_m, muzzle: meta.muzzle_m, speed: meta.speed_mps };
+  spriteClips[dir] = { imgs, fps: meta.fps, span: meta.span_m, muzzle: meta.muzzle_m, speed: meta.speed_mps, tip: meta.tip_m };
 }
 function spriteAt(who: string, t: number, clipSpeed?: (from: number) => number) {
   const cfg = (tl.sprites ?? {})[who]; if (!cfg) return undefined;
@@ -39,7 +39,9 @@ function spriteAt(who: string, t: number, clipSpeed?: (from: number) => number) 
   const auto = clip.loop && s.speed && clipSpeed ? Math.max(0.55, Math.min(2.0, clipSpeed(clip.from) / cfg.pxPerM / s.speed)) : 1;
   const k = Math.max(0, (t - clip.from) * s.fps * (clip.rate ?? auto));
   const fi = clip.loop ? Math.floor(k) % n : Math.min(n - 1, Math.floor(k)), u = cfg.pxPerM * (cfg.scale ?? 1), mz = s.muzzle?.[fi];
-  return { img: s.imgs[fi], size: s.span * u, muzzle: mz ? [mz[0] * u, mz[1] * u] : undefined };
+  // the blade's last few positions in a one-shot swing: the compositor draws the cut through them
+  const trail = !clip.loop && s.tip ? s.tip.slice(Math.max(0, fi - 4), fi + 1).map(p => [p[0] * u, p[1] * u]) : undefined;
+  return { img: s.imgs[fi], size: s.span * u, muzzle: mz ? [mz[0] * u, mz[1] * u] : undefined, trail };
 }
 const feedLabel = tl.feedLabel ?? "SITE 07 // ROUTE 9 MOTEL // CAM-OVH";
 const W = 1920, H = 1080, FPS = tl.fps, N = Math.round(tl.duration * FPS);
@@ -140,10 +142,41 @@ function countdownAt(t: number) {
   return c ? { label: c.label, remaining: c.seconds - (t - c.start) } : undefined;
 }
 const idOf = (who: string) => Object.entries(tl.operatorIds ?? {}).find(([, cs]) => cs === who)?.[0] ?? who;
+// ---------- things that lodge in a target (a crossbow bolt) ----------
+// Nothing here knows what the target is. The bolt is followed along its line until it meets the target's own picture
+// (the first pixel of its current sprite that is not empty); that is where it goes in. From then on the shaft is kept in
+// the target's own frame, so it turns and travels with it. Any creature with sprites gets this for free.
+const alphaOf = new Map<any, { d: Uint8ClampedArray; w: number; h: number }>();
+function solidAt(img: any, u: number, v: number) {
+  let a = alphaOf.get(img);
+  if (!a) { const c = createCanvas(img.width, img.height), x = c.getContext("2d"); x.drawImage(img, 0, 0); a = { d: x.getImageData(0, 0, img.width, img.height).data, w: img.width, h: img.height }; alphaOf.set(img, a); }
+  const px = Math.round(u * a.w), py = Math.round(v * a.h);
+  return px >= 0 && py >= 0 && px < a.w && py < a.h && a.d[(py * a.w + px) * 4 + 3] > 150;
+}
+let STICKS: any[] | null = null;
+function sticks() {
+  if (STICKS) return STICKS; STICKS = [];
+  for (const f of tl.fire ?? []) {
+    if (f.kind === "melee" || f.target !== "ENTITY" || !(tl.sprites ?? {}).ENTITY) continue;
+    const id = idOf(f.who), keys = tl.operators[id]; if (!keys) continue;
+    const [ox, oy] = sample(keys as Track, f.t), L0 = Math.hypot(f.at[0] - ox, f.at[1] - oy) || 1, cx = (f.at[0] - ox) / L0, sy = (f.at[1] - oy) / L0;
+    const mz = spriteAt(id, f.t + 0.001)?.muzzle ?? [38, 0], mx = ox + cx * mz[0] - sy * mz[1], my = oy + sy * mz[0] + cx * mz[1];
+    const tHit = f.t + Math.max(0.05, (L0 - mz[0]) / (f.kind === "bolt" ? 5200 : 9000)), [ex, ey, eh] = sample(tl.entity as Track, tHit, [2, 6]), sp = spriteAt("ENTITY", tHit); if (!sp) continue;
+    const r = eh * Math.PI / 180, cr = Math.cos(r), sr = Math.sin(r);
+    for (let s = 0; s < L0 + 160; s += 2) {
+      const px = mx + cx * s, py = my + sy * s, lx = (px - ex) * cr + (py - ey) * sr, ly = -(px - ex) * sr + (py - ey) * cr;
+      if (!solidAt(sp.img, lx / sp.size + 0.5, ly / sp.size + 0.5)) continue;
+      STICKS.push({ f, tHit, until: tHit + (f.stay ?? 0), x: px, y: py, lx, ly, la: Math.atan2(sy, cx) - r, color: scene.roster?.find((q: any) => q.id === id)?.color ?? "#e6f6fa" }); break;
+    }
+  }
+  return STICKS;
+}
+
 function shotsAt(t: number, ops: { id: string; x: number; y: number }[]) {
-  const out: { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number }[] = [];
+  const out: { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number; color?: string; lodged?: boolean }[] = [];
   for (const f of tl.fire ?? []) for (let k = 0; k < 3; k++) {
-    const age = t - (f.t + k * 0.085); if (age < 0 || age > (f.kind === "shotgun" ? 0.95 : 0.45)) continue;
+    const age = t - (f.t + k * 0.085); if (age < 0 || age > (f.kind === "shotgun" ? 0.95 : f.kind === "bolt" ? 1.7 : 0.62)) continue;
+    const lodged = sticks().find(q => q.f === f);
     const o = ops.find(o => o.id === idOf(f.who)); if (!o) continue;
     const dx = f.at[0] - o.x, dy = f.at[1] - o.y, L = Math.hypot(dx, dy) || 1;
     if (f.kind === "melee") continue;
@@ -152,7 +185,7 @@ function shotsAt(t: number, ops: { id: string; x: number; y: number }[]) {
     const sp = spriteAt(o.id, f.t + 0.001)?.muzzle ?? (o as any).sprite?.muzzle, hd = ((o as any).heading ?? 0) * Math.PI / 180;
     if (sp && k) continue;                                   // a sprite fires one round per trigger pull, not the old three-line burst
     if (sp) { const cx = Math.cos(hd), sy = Math.sin(hd), mx = o.x + cx * sp[0] - sy * sp[1], my = o.y + sy * sp[0] + cx * sp[1], D = Math.max(60, L - sp[0]);
-      out.push({ x0: mx, y0: my, x1: mx + cx * D, y1: my + sy * D, age, kind: f.kind, seed: Math.floor(f.t * 1000) }); continue; }
+      out.push({ x0: mx, y0: my, x1: lodged ? lodged.x : mx + cx * D, y1: lodged ? lodged.y : my + sy * D, age, kind: f.kind, seed: Math.floor(f.t * 1000), color: scene.roster?.find((r: any) => r.id === o.id)?.color, lodged: !!lodged }); continue; }
     const fw = f.muzzle?.[0] ?? 38, rt = f.muzzle?.[1] ?? 0;
     out.push({ x0: o.x + dx / L * fw - dy / L * rt, y0: o.y + dy / L * fw + dx / L * rt, x1: f.at[0] + (f.kind ? 0 : (k - 1) * 9), y1: f.at[1] + (f.kind ? 0 : ((k * 7) % 5 - 2) * 5), age, kind: f.kind });
   }
@@ -229,8 +262,10 @@ function mapState(t: number): FrameState {
     pulseHud = { remaining: rem, period: P.period, alert: Math.max(0, Math.min(1, (t - (P.alertFrom ?? 1e9)) / 0.6)), count: Math.max(0, n + 1) };
   }
   const swaps = (tl.swaps ?? []).map((s: any) => ({ a: s.a, b: s.b, age: t - s.t })).filter((s: any) => s.age >= 0 && s.age < 1.2);
-  const impacts = (tl.impacts ?? []).map((s: any) => ({ x: s.x, y: s.y, r: s.r ?? 60, age: t - s.t })).filter((s: any) => s.age >= 0 && s.age < 0.4);
-  const impShake = impacts.reduce((m: number, s: any) => Math.max(m, (s.r / 60) * 7 * (1 - s.age / 0.4)), 0);
+  const MELEE = new Set(["chop", "body"]);            // a blade or a fist landing throws no sparks: the one struck flares instead (see flash), and the picture still jolts
+  const impactsAll = (tl.impacts ?? []).map((s: any) => ({ x: s.x, y: s.y, r: s.r ?? 60, age: t - s.t, kind: s.kind })).filter((s: any) => s.age >= 0 && s.age < 0.4);
+  const impacts = impactsAll.filter((s: any) => !MELEE.has(s.kind));
+  const impShake = impactsAll.reduce((m: number, s: any) => Math.max(m, (s.r / 60) * 7 * (1 - s.age / 0.4)), 0);
   const swapShake = swaps.reduce((m: number, s: any) => Math.max(m, s.age < 0.35 ? 12 * (1 - s.age / 0.35) : 0), 0);
   const unitTags = (tl.unitTags ?? []).filter((g: any) => t >= g.from && t <= g.to).map((g: any) => {
     const o = operators.find(o => o.id === idOf(g.who)); return o ? { x: o.x, y: o.y - 34, text: g.text, alpha: windowAlpha(t, g.from, g.to, 0.2) } : null; }).filter(Boolean);
@@ -239,7 +274,11 @@ function mapState(t: number): FrameState {
     mobs: (tl.mobs ?? []).map((m: any) => { const [x, y, heading, visible, glitch, pose, look, , reach] = sample(m.track as Track, t, [2, 6]); return { x, y, heading, visible, glitch, pose, look, hidden: 0, reach, species: m.species ?? "inmate" }; }).filter((m: any) => m.visible > 0.01),
     sounds: (tl.sounds ?? []).map((q: any) => ({ x: q.x, y: q.y, r: q.r, loud: !!q.loud, age: t - q.t })).filter((q: any) => q.age >= 0 && q.age < 1.2),
     t, doors, operators, footprints, residues, roster: scene.roster,
-    entity: { id: tl.entityId ?? "UNK-1", x: ex, y: ey, heading: eh, visible: ev, glitch: eg, pose: epose ?? 1, look: elook ?? 0, hidden: ehid ?? 0, reach: ereach ?? 0, sprite: spriteAt("ENTITY", t) },
+    entity: { id: tl.entityId ?? "UNK-1", x: ex, y: ey, heading: eh, visible: ev, glitch: eg, pose: epose ?? 1, look: elook ?? 0, hidden: ehid ?? 0, reach: ereach ?? 0, sprite: spriteAt("ENTITY", t),
+      // struck: the whole figure flares white for a few frames. Works on anything that has a sprite.
+      flash: Math.max(0, ...sticks().map(q => t >= q.tHit && t < q.tHit + 0.16 ? 1 - (t - q.tHit) / 0.16 : 0), ...(tl.impacts ?? []).filter((q: any) => q.kind === "chop").map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0), ...(tl.flashes ?? []).map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0)) },
+    stuck: sticks().filter(q => t >= q.tHit && t < q.until).map(q => { const r = eh * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+      return { x: ex + q.lx * c - q.ly * s, y: ey + q.lx * s + q.ly * c, ang: q.la + r, alpha: Math.min(1, (q.until - t) / 0.5), color: q.color }; }),
     doorFx: Object.fromEntries(Object.entries(tl.doorFx ?? {}).map(([id, tr]) => [id, doorFxAt(tr as [number, string][], t)!])),
     shots, shake: Math.max(impShake, swapShake, shots.reduce((m, s) => Math.max(m, s.age < 0.25 ? 5 * (1 - s.age / 0.25) : 0), 0)),
     frozenAt: freeze ? freeze.from : null,

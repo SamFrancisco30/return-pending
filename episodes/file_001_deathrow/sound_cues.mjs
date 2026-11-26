@@ -7,7 +7,7 @@ export function addSound(tl, { ambience = "garage", typing = [] } = {}) {
     step: S + "step_a.wav", step_heavy: S + "step_b.wav", step_light: S + "step_a.wav",
     gunfire: S + "f01/gunfire_burst.wav", hit: S + "hit.wav", relocate: S + "relocate.wav", glitch: S + "f01/glitch_burst.wav",
     door_slam: S + "f01/door_slam.wav", door_latch: S + "f01/door_latch.wav", thump: S + "f01/door_thump.wav",
-    shotgun: S + "f001/shotgun.wav", rifle: S + "f001/rifle.wav", pistol: S + "f001/pistol.wav", crossbow: S + "f001/crossbow.wav", axe: S + "f001/axe.wav",
+    shotgun: S + "f001/shotgun.wav", rifle: S + "f001/rifle.wav", sniper: S + "f001/sniper.wav", pistol_s: S + "f001/pistol_s.wav", pistol: S + "f001/pistol.wav", crossbow: S + "f001/crossbow.wav", axe: S + "f001/axe.wav",
     shield_hit: S + "f001/shield_hit.wav", punch: S + "f001/punch.wav", door_pound: S + "f001/door_pound.wav", pulse: S + "f001/pulse.wav",
     door_open: S + "fire_door.wav", stamp: S + "f01/stamp.wav", beacon_chirp: S + "f01/beacon_chirp.wav", pack_drag: S + "f01/pack_drag.wav",
   };
@@ -15,9 +15,9 @@ export function addSound(tl, { ambience = "garage", typing = [] } = {}) {
   const W = 2048, pan = x => Math.max(-0.8, Math.min(0.8, (x - W / 2) / (W / 2)));
   const cues = [{ type: "ambience", kind: ambience }];
   // every shot is one cue, with the sound of the weapon that person carries
-  const GUN = { KNOX: "shotgun", MILLER: "rifle", REYES: "pistol", COLE: "pistol" };
+  const GUN = { KNOX: "shotgun", MILLER: "rifle", REYES: "pistol_s", COLE: "pistol" };
   for (const f of tl.fire ?? []) {
-    const sample = f.kind === "melee" ? "axe" : f.kind === "bolt" ? "crossbow" : GUN[f.who] ?? "rifle";
+    const sample = f.kind === "melee" ? "axe" : f.kind === "bolt" ? "crossbow" : f.kind === "sniper" ? "sniper" : GUN[f.who] ?? "rifle";
     cues.push({ type: "oneshot", t: f.t, sample: f.sample ?? sample, vary: f.sample ? 0 : 50, pan: pan(f.at[0]) });   // f.sample: an audition can name the file itself
   }
   // blows: what was hit decides the sound. An axe chop already carries its own impact.

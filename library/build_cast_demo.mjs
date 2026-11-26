@@ -14,14 +14,14 @@ for (const [id, [name, dir, y, dx]] of Object.entries(WHO)) {
   const clips = [{ from: 0, action: "idle", loop: true }, { from: 2, action: "walk", loop: true }, { from: 5, action: "run", loop: true }, { from: 6.5, action: "aim", loop: true },
     ...SHOTS.flatMap(t => [{ from: t - 0.08, action: "shoot" }, { from: t + 0.6, action: "aim", loop: true }])];
   if (id === "A") clips.push({ from: T2, action: "guard", loop: true }, { from: 12.2, action: "bash" }, { from: 13.1, action: "guard", loop: true });
-  if (id === "B") clips.push({ from: T2, action: "axe_idle", loop: true }, { from: 11.6, action: "chop" }, { from: 13.1, action: "axe_idle", loop: true }, { from: 13.6, action: "chop" }, { from: 15.1, action: "axe_idle", loop: true });
+  if (id === "B") clips.push({ from: T2, action: "idle", loop: true }, { from: 11.6, action: "chop" }, { from: 12.48, action: "idle", loop: true }, { from: 13.6, action: "chop" }, { from: 14.48, action: "idle", loop: true });
   if (id === "C") clips.push({ from: T2, action: "crouch", loop: true });
   if (id === "D") clips.push({ from: T2, action: "idle", loop: true }, { from: 12.0, action: "hit" }, { from: 12.35, action: "death" });
   if (id === "E") clips.push({ from: T2, action: "kneel", loop: true });
   sprites[id] = { dir: "../library/characters/" + dir, pxPerM: M, scale: 1.3, clips };
   for (const t of SHOTS) fire.push({ t, who: name, at: P(16.4 + dx * 0.7, y), ...(id === "A" ? { kind: "shotgun" } : id === "B" ? { kind: "bolt" } : {}) });
 }
-for (const t of [11.6 + 0.75, 13.6 + 0.75]) fire.push({ t, who: "HOUND", at: P(14.3, -1.05), kind: "melee" });
+for (const t of [11.6 + 11 / 24, 13.6 + 11 / 24]) fire.push({ t, who: "HOUND", at: P(14.3, -1.05), kind: "melee" });
 const tl = {
   scene: "../scene/deathrow.json", plates, feedLabel: "SPRITE LIBRARY // CAST DEMO", entityId: "UNK-01", species: "prisoner",
   duration: DUR, fps: 30, clockStart: "00:00:00", shots: [{ from: 0, to: DUR, type: "map" }],

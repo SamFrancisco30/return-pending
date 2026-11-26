@@ -8,12 +8,16 @@ import { drawOperatorThermal, drawCallsign, callsignWidth, drawEntityThermal, dr
 GlobalFonts.registerFromPath("C:/Windows/Fonts/consola.ttf", "Consolas");
 
 export type Style = "S2" | "S3";
-function drawSprite(ctx: SKRSContext2D, u: { x: number; y: number; heading: number; sprite?: { img: Image; size: number } }) {
+function drawSprite(ctx: SKRSContext2D, u: { x: number; y: number; heading: number; sprite?: { img: Image; size: number; trail?: number[][] } }, color = "#eafcff", flash = 0) {
   const s = u.sprite!; ctx.save(); ctx.translate(u.x, u.y); ctx.rotate(u.heading * Math.PI / 180); ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.restore();
+  ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size);
+  if (flash > 0) { ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = Math.min(1, flash); ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.restore(); }
+  // (no light streak behind a swung blade: the swing itself and the hit burst carry it. The tip path is still in meta.json as tip_m.)
+  ctx.restore();
 }
-export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number; stow?: number; swing?: number; slash?: number; sprite?: { img: Image; size: number } };
+export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number; stow?: number; swing?: number; slash?: number; sprite?: { img: Image; size: number; trail?: number[][] }; color?: string };
 export type FrameState = {
+  stuck?: { x: number; y: number; ang: number; alpha: number; color: string }[];
   t: number;                       // seconds, drives noise/flicker
   doors: Record<string, number>;   // id -> open fraction 0..1
   operators: Unit[];
@@ -497,12 +501,25 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   } else {
     if (!closedLapse) {
       for (const m of st.mobs ?? []) drawEntityThermal(ctx, m, st.t + m.x * 0.013, false, m.species, st.unitScale ?? 1);
-      if (st.entity.sprite) { if (st.entity.visible > 0.01) drawSprite(ctx, st.entity); } else drawEntityThermal(ctx, st.entity, st.frozenAt ?? st.t, false, st.species, st.unitScale ?? 1);
+      if (st.entity.sprite) {
+        if (st.entity.visible > 0.01) {
+          drawSprite(ctx, st.entity, "#eafcff", (st.entity as any).flash ?? 0);
+          for (const q of st.stuck ?? []) {                    // a shaft standing out of it: only the part outside the body is drawn, the head is buried
+            const c = Math.cos(q.ang), s = Math.sin(q.ang), n = 30;
+            ctx.save(); ctx.globalAlpha = q.alpha; ctx.lineCap = "butt";
+            ctx.strokeStyle = "rgba(6,14,16,0.75)"; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(q.x + c * 5, q.y + s * 5); ctx.lineTo(q.x - c * n, q.y - s * n); ctx.stroke();
+            ctx.strokeStyle = rgba(q.color, 1); ctx.lineWidth = 2.8; ctx.shadowColor = q.color; ctx.shadowBlur = 6; ctx.beginPath(); ctx.moveTo(q.x + c * 5, q.y + s * 5); ctx.lineTo(q.x - c * n, q.y - s * n); ctx.stroke(); ctx.shadowBlur = 0;
+            ctx.strokeStyle = "rgba(240,252,255,0.95)"; ctx.lineWidth = 1.6;
+            for (const k of [0, 5]) for (const sg of [-1, 1]) { ctx.beginPath(); ctx.moveTo(q.x - c * (n - k), q.y - s * (n - k)); ctx.lineTo(q.x - c * (n + 7 - k) - s * 5.5 * sg, q.y - s * (n + 7 - k) + c * 5.5 * sg); ctx.stroke(); }
+            ctx.restore();
+          }
+        }
+      } else drawEntityThermal(ctx, st.entity, st.frozenAt ?? st.t, false, st.species, st.unitScale ?? 1);
       drawEntityMarker(ctx, st.entity, st.t);
     }
     const spec = (id: string): OperatorSpec => st.roster?.find(r => r.id === id) ?? { id, callsign: id, kit: "recon", build: 1 };
     for (const o of st.operators) if (!o.down && !o.sprite) drawIdentityArc(ctx, o, spec(o.id), st.unitScale ?? 1);
-    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; if (o.sprite) drawSprite(ctx, o); else drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
+    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; if (o.sprite) drawSprite(ctx, o, spec(o.id).color ?? "#eafcff"); else drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
     // callsign labels: stack downward instead of overlapping
     const placed: Rect[] = [];
     for (const o of [...st.operators].sort((p, q) => p.y - q.y)) {

@@ -7,6 +7,7 @@
 import { createCanvas, type SKRSContext2D, type Canvas } from "@napi-rs/canvas";
 
 const TAU = Math.PI * 2;
+const hexA = (hex: string, a: number) => { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; };
 const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 function rng(seed: number) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
@@ -108,10 +109,47 @@ export function drawDoorFx(ctx: SKRSContext2D, d: { id: string; hx: number; hy: 
 }
 
 // ---------------- gunfire ----------------
-export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number };
+export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number; color?: string; lodged?: boolean };
 // A short shotgun going off, seen from above. Five things, each on its own clock, all keyed to the seed of the shot so nothing
 // flickers from frame to frame: a white-hot flash with a forward tongue and two side jets; a dozen pellets that actually
 // travel; flecks where they land; a puff of smoke that hangs and drifts; and the spent shell kicked out to the right.
+// One round from a pistol, a rifle or a long rifle. Same parts each time, scaled by the weapon: a short tongue of flame at the muzzle,
+// the round itself as a streak that crosses the room in a couple of frames, a few flecks where it lands, a wisp of smoke,
+// and (self-loaders only) a spent case thrown out to the right. Everything is seeded by the shot, so it does not flicker.
+function drawGunshot(ctx: SKRSContext2D, s: Shot) {
+  const K = s.kind === "sniper" ? 1.55 : s.kind === "rifle" ? 1.0 : 0.72, age = s.age, quiet = s.kind === "pistol_s";      // suppressed: almost no flash, a little more smoke
+  const L = Math.hypot(s.x1 - s.x0, s.y1 - s.y0) || 1, cs = (s.x1 - s.x0) / L, sn = (s.y1 - s.y0) / L;
+  const r = rng((s.seed ?? Math.floor(s.x1 * 7 + s.y1 * 3)) + 5), Q = Array.from({ length: 28 }, () => r());
+  const at = (d: number, off = 0): [number, number] => [s.x0 + cs * d - sn * off, s.y0 + sn * d + cs * off];
+  ctx.save();
+  ctx.globalCompositeOperation = "source-over";                       // smoke: greys the floor, adds no light
+  if (age > 0.05 && age < 0.6) { const u = (age - 0.05) / 0.55;
+    for (let k = 0; k < 3; k++) { const [x, y] = at((8 + u * (16 + Q[k] * 26)) * K, (Q[k + 3] - 0.5) * 16 * K * (0.4 + u));
+      ctx.fillStyle = `rgba(186,198,204,${(quiet ? 0.24 : 0.15) * (1 - u)})`; ctx.beginPath(); ctx.arc(x, y, (5 + u * 11) * K * (0.7 + Q[k + 6] * 0.6), 0, TAU); ctx.fill(); } }
+  ctx.globalCompositeOperation = "lighter";
+  const FL = 0.07;
+  if (age < FL && quiet) { const a = 1 - age / FL, [gx, gy] = at(3); ctx.fillStyle = `rgba(255,236,200,${0.75 * a})`; ctx.beginPath(); ctx.arc(gx, gy, 3.2, 0, TAU); ctx.fill(); }
+  else if (age < FL) { const a = 1 - age / FL, [gx, gy] = at(6 * K), g = ctx.createRadialGradient(gx, gy, 0, gx, gy, 30 * K);   // the flash: two frames
+    g.addColorStop(0, `rgba(255,240,205,${0.6 * a})`); g.addColorStop(1, "rgba(255,190,110,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(gx, gy, 30 * K, 0, TAU); ctx.fill();
+    const tip = (30 + 18 * Q[9]) * K * (0.65 + 0.35 * a), P = [at(0, -3.5 * K), at(10 * K, -6.5 * K), at(tip, 0), at(10 * K, 6.5 * K), at(0, 3.5 * K)];
+    ctx.fillStyle = `rgba(255,246,222,${a})`; ctx.beginPath(); ctx.moveTo(P[0][0], P[0][1]); for (const p of P.slice(1)) ctx.lineTo(p[0], p[1]); ctx.closePath(); ctx.fill();
+    if (K >= 1) { ctx.strokeStyle = `rgba(255,232,190,${0.9 * a})`; ctx.lineWidth = 2.4 * K; ctx.lineCap = "round";                      // a braked barrel vents to both sides
+      for (const sg of [-1, 1]) { const p0 = at(2 * K, sg * 3 * K), p1 = at(9 * K, sg * (16 + 8 * Q[10]) * K); ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); } } }
+  const T = Math.max(0.035, L / 9000);                                // the round
+  if (age < T + 0.06) { const u = clamp(age / T), fade = age < T ? 1 : 1 - (age - T) / 0.06, tail = Math.min(L * u, 170 * K), p1 = at(L * u), p0 = at(L * u - tail);
+    const g = ctx.createLinearGradient(p0[0], p0[1], p1[0], p1[1]); g.addColorStop(0, "rgba(255,225,170,0)"); g.addColorStop(1, `rgba(255,246,225,${0.95 * fade})`);
+    ctx.strokeStyle = g; ctx.lineWidth = 1.6 + 1.1 * K; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); }
+  if (s.kind === "sniper" && age < 0.45) { const p1 = at(L * clamp(age / T));                         // a long rifle leaves the air it went through hanging for a moment
+    ctx.strokeStyle = `rgba(215,232,240,${0.3 * (1 - age / 0.45)})`; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(p1[0], p1[1]); ctx.stroke(); }
+  if (age > T && age < T + 0.24) { const v = (age - T) / 0.24, back = Math.atan2(-sn, -cs);         // where it lands: a pinpoint and a few flecks thrown back
+    if (v < 0.3) { ctx.fillStyle = `rgba(255,246,225,${1 - v / 0.3})`; ctx.beginPath(); ctx.arc(s.x1, s.y1, 3.2 * K, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = `rgba(255,236,205,${1 - v})`;
+    for (let k = 0; k < 5; k++) { const an = back + (Q[11 + k] - 0.5) * 2.0, d = (3 + v * (16 + Q[16 + k] * 26)) * K; ctx.beginPath(); ctx.arc(s.x1 + Math.cos(an) * d, s.y1 + Math.sin(an) * d, 1.3, 0, TAU); ctx.fill(); } }
+  if (s.kind !== "sniper" && age > 0.03 && age < 0.5) { const v = (age - 0.03) / 0.47, e = 1 - (1 - v) * (1 - v);     // the spent case, out to the right and a little back
+    const [x, y] = at(-(12 + e * (8 + 10 * Q[21])) * K, (6 + e * (20 + 14 * Q[22])) * K);
+    ctx.globalCompositeOperation = "source-over"; ctx.translate(x, y); ctx.rotate(Q[23] * TAU + v * 9); ctx.fillStyle = `rgba(232,204,132,${1 - v * v * v})`; ctx.fillRect(-2.6 * K, -1.1 * K, 5.2 * K, 2.2 * K); }
+  ctx.restore();
+}
 function drawShotgunBlast(ctx: SKRSContext2D, s: Shot) {
   const th = Math.atan2(s.y1 - s.y0, s.x1 - s.x0), D = Math.min(Math.hypot(s.x1 - s.x0, s.y1 - s.y0), 360), H = 0.19, age = s.age;
   const r = rng((s.seed ?? Math.floor(s.x1 * 7 + s.y1 * 3)) + 17), cs = Math.cos(th), sn = Math.sin(th);
@@ -175,32 +213,31 @@ function drawShotgunBlast(ctx: SKRSContext2D, s: Shot) {
 export function drawGunfire(ctx: SKRSContext2D, shots: Shot[]) {
   ctx.save(); ctx.globalCompositeOperation = "lighter";
   for (const s of shots) {
-    if (s.kind === "bolt") {           // a crossbow bolt: no flash, a thin pale streak
-      const u = clamp(s.age / 0.11), tx = s.x0 + (s.x1 - s.x0) * u, ty = s.y0 + (s.y1 - s.y0) * u;
-      const L = Math.hypot(s.x1 - s.x0, s.y1 - s.y0) || 1, ux = (s.x1 - s.x0) / L, uy = (s.y1 - s.y0) / L;
-      ctx.strokeStyle = `rgba(230,246,250,${u < 1 ? 0.95 : Math.max(0, 0.9 - (s.age - 0.11) * 2.6)})`; ctx.lineWidth = 2.4;
-      ctx.beginPath(); ctx.moveTo(tx - ux * 34, ty - uy * 34); ctx.lineTo(tx, ty); ctx.stroke();
+    if (s.kind === "bolt") {           // a crossbow bolt: no flash. It flies as a thin bright shaft, lands with a small burst, and stays where it struck
+      const L = Math.hypot(s.x1 - s.x0, s.y1 - s.y0) || 1, ux = (s.x1 - s.x0) / L, uy = (s.y1 - s.y0) / L, T = Math.max(0.05, L / 5200), col = s.color ?? "#e6f6fa";
+      const u = clamp(s.age / T), tx = s.x0 + (s.x1 - s.x0) * u, ty = s.y0 + (s.y1 - s.y0) * u;
+      if (u < 1) {
+        const back = Math.min(120, L * u) + 1, g = ctx.createLinearGradient(tx - ux * back, ty - uy * back, tx, ty); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(1, hexA(col, 0.55));
+        ctx.strokeStyle = g; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(tx - ux * back, ty - uy * back); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.strokeStyle = "rgba(255,255,250,0.98)"; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(tx - ux * Math.min(30, back), ty - uy * Math.min(30, back)); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,250,1)"; ctx.beginPath(); ctx.moveTo(tx + ux * 9, ty + uy * 9); ctx.lineTo(tx - ux * 3 - uy * 5.5, ty - uy * 3 + ux * 5.5); ctx.lineTo(tx, ty); ctx.lineTo(tx - ux * 3 + uy * 5.5, ty - uy * 3 - ux * 5.5); ctx.closePath(); ctx.fill();   // broadhead
+      } else {
+        const since = s.age - T, fade = since < 1.1 ? 1 : Math.max(0, 1 - (since - 1.1) / 0.4);
+        if (since < 0.22) { const a = 1 - since / 0.22, r = 8 + 34 * (since / 0.22);                         // the strike: a ring and a few flecks thrown back
+          ctx.strokeStyle = hexA(col, 0.9 * a); ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(s.x1, s.y1, r, 0, TAU); ctx.stroke();
+          const rr = rng(Math.floor(s.x1 * 5 + s.y1 * 11)); ctx.fillStyle = `rgba(255,255,245,${a})`;
+          for (let k = 0; k < 6; k++) { const an = Math.atan2(-uy, -ux) + (rr() - 0.5) * 2.2, d = 6 + 30 * (since / 0.22) * (0.4 + rr()); ctx.beginPath(); ctx.arc(s.x1 + Math.cos(an) * d, s.y1 + Math.sin(an) * d, 1.5, 0, TAU); ctx.fill(); } }
+        if (s.lodged) continue;                                 // it went into something that carries it from here on (drawn with that figure)
+        ctx.globalCompositeOperation = "source-over"; ctx.lineCap = "butt";                                    // the shaft left standing out of what it hit
+        ctx.strokeStyle = hexA(col, 0.95 * fade); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(s.x1 - ux * 26, s.y1 - uy * 26); ctx.lineTo(s.x1 - ux * 4, s.y1 - uy * 4); ctx.stroke();
+        ctx.strokeStyle = `rgba(255,255,255,${0.9 * fade})`; ctx.lineWidth = 1.4;
+        for (const sg of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s.x1 - ux * 26, s.y1 - uy * 26); ctx.lineTo(s.x1 - ux * 33 - uy * 5 * sg, s.y1 - uy * 33 + ux * 5 * sg); ctx.stroke(); }
+        ctx.globalCompositeOperation = "lighter";
+      }
       continue;
     }
     if (s.kind === "shotgun") { drawShotgunBlast(ctx, s); continue; }
-    if (s.age < 0.2) { // tracer + muzzle bloom
-      const a = 1 - s.age / 0.2;
-      const g = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 70);
-      g.addColorStop(0, `rgba(255,245,215,${0.9 * a})`); g.addColorStop(1, "rgba(255,200,120,0)");
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x0, s.y0, 70, 0, TAU); ctx.fill();
-      const u = clamp(s.age / 0.07), tx = s.x0 + (s.x1 - s.x0) * u, ty = s.y0 + (s.y1 - s.y0) * u;
-      const bx = s.x0 + (s.x1 - s.x0) * Math.max(0, u - 0.45), by = s.y0 + (s.y1 - s.y0) * Math.max(0, u - 0.45);
-      ctx.strokeStyle = `rgba(255,236,200,${a})`; ctx.lineWidth = 4; ctx.shadowColor = "rgba(255,220,170,1)"; ctx.shadowBlur = 12;
-      ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke(); ctx.shadowBlur = 0;
-    }
-    if (s.age > 0.05 && s.age < 0.4) { // impact sparks
-      const a = 1 - (s.age - 0.05) / 0.35, r = rng(Math.floor(s.x1 * 13 + s.y1));
-      ctx.fillStyle = `rgba(255,230,190,${a})`;
-      for (let k = 0; k < 7; k++) {
-        const ang = r() * TAU, d = 6 + (s.age - 0.05) * (80 + r() * 120);
-        ctx.beginPath(); ctx.arc(s.x1 + Math.cos(ang) * d, s.y1 + Math.sin(ang) * d, 1.8, 0, TAU); ctx.fill();
-      }
-    }
+    drawGunshot(ctx, s);
   }
   ctx.restore();
 }

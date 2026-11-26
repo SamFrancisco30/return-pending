@@ -13,6 +13,8 @@ BASE = CHAR.split("_")[0]; OPS = ("knox", "hound", "reyes", "miller", "cole")   
 CARRY = os.environ.get("RP_CARRY", "0") == "1"       # 1 = the weapon is carried at the chest (walking, standing); 0 = it is in the hands, pointed (aiming, firing)
 NOWEAPON = os.environ.get("RP_NOWEAPON", "0") == "1"
 TAC = os.environ.get("RP_TAC", "0") == "1"           # 1 = moving like someone carrying a weapon: the legs do what the clip does, the arms stay on the weapon
+PROC = os.environ.get("RP_PROC", "")                 # a movement built here instead of taken from a clip: "chop"
+FOLLOW = os.environ.get("RP_FOLLOW", "0") == "1"
 AXE_AXIS = os.environ.get("RP_AXE_AXIS", "y")
 SHIELD = os.environ.get("RP_SHIELD", "arm")   # arm = strapped to the forearm (right for bracing and bashing); upright = held upright in front of the left shoulder, clear of the gun hand
 SIZE = int(a[4]) if len(a) > 4 else 320; SPAN = float(a[5]) if len(a) > 5 else 3.2; STEP = int(a[6]) if len(a) > 6 else 1
@@ -95,12 +97,20 @@ if BASE in OPS and BASE != "knox":
     ch = P("chest")
     box("id_strip", (ch.x, ch.y + 0.17, ch.z + 0.185), (0.21, 0.045, 0.03), "chest", M_GLOW)
     if BASE == "reyes":                                   # the long rifle slung across her back, muzzle past the left shoulder
-        box("sniper", (ch.x + 0.03, ch.y + 0.26, ch.z + 0.06), (0.84, 0.05, 0.06), "chest", M_KIT, rot=(0, 0, math.radians(38)), bevel=0.01)
-        box("sniper_scope", (ch.x + 0.0, ch.y + 0.25, ch.z + 0.11), (0.24, 0.06, 0.05), "chest", M_GUN, rot=(0, 0, math.radians(38)), bevel=0.02)
+        if CHAR != "reyes_rifle":                         # (when it is in her hands it is not on her back)
+            c0 = Vector((ch.x + 0.03, ch.y + 0.26, ch.z + 0.06)); ang = math.radians(-14 if "Pistol" in ACTION else 38); u = Vector((math.cos(ang), math.sin(ang), 0))
+            for nm, t, ln, wd, m, dz in (("sl_stock", -0.33, 0.26, 0.10, M_GUN, 0), ("sl_receiver", -0.08, 0.26, 0.11, M_GUN, 0), ("sl_scope", -0.07, 0.26, 0.055, M_KIT, 0.06),
+                                         ("sl_guard", 0.16, 0.24, 0.085, M_GUN, 0), ("sl_barrel", 0.40, 0.26, 0.048, M_GUN, 0), ("sl_brake", 0.555, 0.07, 0.08, M_KIT, 0)):
+                c = c0 + u * t; box(nm, (c.x, c.y, c.z + dz), (ln, wd, 0.06), "chest", m, rot=(0, 0, ang), bevel=0.01)
         arm.scale = (0.93, 0.93, 0.96)
     if BASE == "cole":                                    # the recovery pack, with the cross on its lid
         box("med_pack", (ch.x, ch.y + 0.22, ch.z + 0.0), (0.33, 0.20, 0.36), "chest", M_KIT, bevel=0.05)
         box("cross_a", (ch.x, ch.y + 0.22, ch.z + 0.19), (0.19, 0.055, 0.02), "chest", M_GLOW); box("cross_b", (ch.x, ch.y + 0.22, ch.z + 0.19), (0.055, 0.17, 0.02), "chest", M_GLOW)
+        box("cross_c", (ch.x, ch.y + 0.325, ch.z + 0.0), (0.19, 0.02, 0.055), "chest", M_GLOW); box("cross_d", (ch.x, ch.y + 0.325, ch.z + 0.0), (0.055, 0.02, 0.19), "chest", M_GLOW)   # and on its back, which is what shows when he bends over something
+        if os.environ.get("RP_LOAD") == "case":           # a sealed recovery case carried in both arms: dark, banded in his colour
+            box("case", (ch.x, ch.y - 0.40, ch.z - 0.10), (0.50, 0.30, 0.24), "chest", M_KIT, bevel=0.03)
+            for dx in (-0.15, 0.15): box("case_band", (ch.x + dx, ch.y - 0.40, ch.z + 0.025), (0.045, 0.31, 0.02), "chest", M_GLOW)
+            box("case_handle", (ch.x, ch.y - 0.40, ch.z + 0.04), (0.16, 0.035, 0.03), "chest", M_GUN, bevel=0.01)
     if BASE == "hound":                                   # quiver across the back
         box("quiver", (ch.x - 0.07, ch.y + 0.24, ch.z + 0.03), (0.085, 0.27, 0.085), "chest", M_KIT, rot=(0, 0, math.radians(-28)), bevel=0.03)
 if CHAR == "knox":
@@ -150,27 +160,56 @@ def fist(side):
             ls = pb.constraints.new("LIMIT_SCALE"); ls.owner_space = "LOCAL"
             for ax in "xyz": setattr(ls, "use_max_" + ax, True); setattr(ls, "max_" + ax, 0.05)
 def hold(side, elbow, hand_pt):
-    arm.data.pose_position = "REST"; bpy.context.view_layer.update(); ch = arm.matrix_world @ arm.pose.bones[bone("chest")].head
+    arm.data.pose_position = "REST"; bpy.context.view_layer.update(); ch = arm.matrix_world @ arm.pose.bones[bone("chest")].head; made = []
     for key, off in (("upper_" + side, elbow), ("forearm_" + side, hand_pt)):
         e = bpy.data.objects.new("hold_" + key, None); bpy.context.collection.objects.link(e); e.location = (ch.x + off[0], ch.y + off[1], ch.z + off[2])
         bpy.context.view_layer.update(); w = e.matrix_world.copy(); e.parent = arm; e.parent_type = "BONE"; e.parent_bone = bone("chest"); bpy.context.view_layer.update(); e.matrix_world = w
-        c = arm.pose.bones[bone(key)].constraints.new("DAMPED_TRACK"); c.target = e; c.track_axis = "TRACK_Y"
+        c = arm.pose.bones[bone(key)].constraints.new("DAMPED_TRACK"); c.target = e; c.track_axis = "TRACK_Y"; made.append(e)
     cr = arm.pose.bones[bone("hand_" + side)].constraints.new("COPY_ROTATION"); cr.target = arm; cr.subtarget = bone("forearm_" + side); fist(side)
+    arm.data.pose_position = "POSE"; bpy.context.view_layer.update(); return made
+def keys(e, frames):                                 # move a hold point through chest-relative positions over the action: [(frame, (x, y, z)), ...]
+    arm.data.pose_position = "REST"; bpy.context.view_layer.update(); ch = arm.matrix_world @ arm.pose.bones[bone("chest")].head
+    for fr, off in frames:
+        m = e.matrix_world.copy(); m.translation = Vector((ch.x + off[0], ch.y + off[1], ch.z + off[2])); e.matrix_world = m; bpy.context.view_layer.update(); e.keyframe_insert("location", frame=f0 + fr)
     arm.data.pose_position = "POSE"; bpy.context.view_layer.update()
 def steady(key, influence):                          # keep a bone near its upright, forward-facing rest attitude while the legs run
     arm.data.pose_position = "REST"; bpy.context.view_layer.update()
     e = bpy.data.objects.new("steady_" + key, None); bpy.context.collection.objects.link(e); e.matrix_world = arm.matrix_world @ arm.pose.bones[bone(key)].matrix
     c = arm.pose.bones[bone(key)].constraints.new("COPY_ROTATION"); c.target = e; c.target_space = "WORLD"; c.owner_space = "WORLD"; c.influence = influence
-    arm.data.pose_position = "POSE"; bpy.context.view_layer.update()
+    arm.data.pose_position = "POSE"; bpy.context.view_layer.update(); return e
+def twist(e, frames):                                # turn a steadied bone about the vertical over the action: [(frame, degrees), ...] (+ = to the figure's left)
+    from mathutils import Matrix
+    base = e.matrix_world.copy(); e.rotation_mode = "QUATERNION"
+    for fr, deg in frames: e.matrix_world = Matrix.Rotation(math.radians(deg), 4, "Z") @ base; bpy.context.view_layer.update(); e.keyframe_insert("rotation_quaternion", frame=f0 + fr)
 if TAC and BASE in OPS and not NOWEAPON:
-    steady("chest", 0.8); steady("head", 0.8)        # a runner with a weapon keeps shoulders and eyes on the way ahead; the hips do the work
+    SHOULDERED = CHAR == "reyes_rifle" or (BASE == "miller" and not CARRY)        # a long gun up in the shoulder, pointed
+    CHEST = steady("chest", 1.0 if PROC or SHOULDERED else 0.8); steady("head", 0.8)        # a runner with a weapon keeps shoulders and eyes on the way ahead; the hips do the work
     if "Jog" in ACTION or "Sprint" in ACTION:        # the clip is an open-field jog with a long reaching stride; someone moving through a building in kit takes shorter, quicker steps
         steady("hips", float(os.environ.get("RP_HIPS", "0.85")))                    # and runs upright, not leaning into it, so the legs work under the body instead of trailing behind
         for k in ("thigh_l", "thigh_r"): steady(k, float(os.environ.get("RP_STRIDE", "0.3")))
         for k in ("shin_l", "shin_r"): steady(k, float(os.environ.get("RP_SHIN", "0.6")))   # no heel kicked up behind: from above that reads as a leg a metre long
     if BASE == "knox":   hold("l", (0.33, -0.12, -0.22), (0.15, -0.45, -0.09)); hold("r", (-0.31, -0.02, -0.27), (-0.21, -0.31, -0.20))        # shield up in front, gun at the hip
+    elif SHOULDERED:                                      # the long rifle shouldered: right hand on the grip by the shoulder, left out under the fore-end
+        RE, RH = (-0.34, -0.02, -0.22), (-0.15, -0.26, 0.02)
+        er, hr = hold("r", RE, RH); hold("l", (0.14, -0.28, -0.22), (-0.17, -0.50 if BASE == "reyes" else -0.44, -0.02))
+        # recoil: the rifle comes straight back into the shoulder and the shoulder gives, then both settle. One heavy shot, or three quick light ones.
+        KICK = {"recoil": [(0, 0), (1, 0.08), (3, 0.055), (9, 0), (12, 0)], "burst": [(0, 0), (1, 0.05), (2, 0.02), (3, 0.012), (4, 0.05), (5, 0.022), (6, 0.014), (7, 0.05), (9, 0.022), (14, 0)]}.get(PROC)
+        if KICK:
+            f1 = f0 + KICK[-1][0]; kick = lambda p, k: (p[0], p[1] + k, p[2])
+            keys(er, [(f, kick(RE, k)) for f, k in KICK]); keys(hr, [(f, kick(RH, k)) for f, k in KICK]); twist(CHEST, [(f, -60 * k) for f, k in KICK])
     elif BASE in ("reyes", "cole"): hold("l", (0.26, -0.08, -0.25), (0.03, -0.37, -0.17)); hold("r", (-0.26, -0.08, -0.25), (-0.03, -0.37, -0.17))  # pistol low in both hands
-    elif CHAR != "hound_axe": hold("r", (-0.30, -0.02, -0.28), (-0.10, -0.27, -0.17)); hold("l", (0.30, -0.14, -0.25), (0.15, -0.44, -0.10))      # long gun across the chest
+    else:                                                 # long gun across the chest
+        READY_E, READY_H = (-0.30, -0.02, -0.28), (-0.10, -0.27, -0.17)
+        er, hr = hold("r", READY_E, READY_H); hold("l", (0.30, -0.14, -0.25), (0.15, -0.44, -0.10))
+        # HOUND's hatchet exists only inside the chop: the right hand leaves the crossbow (the left keeps it at the chest), reaches back
+        # over the shoulder, comes down with the hatchet in it, and goes back to the crossbow empty. Nothing to pose at rest.
+        if PROC == "chop":
+            # one compact overhand chop, 20 frames: draw back over the right shoulder, cut down and across in three frames, ride through, recover.
+            # The shoulders wind up with the arm and unwind into the cut.
+            f1 = f0 + 20
+            keys(er, [(0, READY_E), (6, (-0.36, 0.14, 0.02)), (8, (-0.36, 0.12, 0.04)), (11, (-0.20, -0.24, -0.06)), (13, (-0.14, -0.22, -0.18)), (17, (-0.36, 0.04, -0.24)), (20, READY_E)])
+            keys(hr, [(0, READY_H), (6, (-0.30, 0.30, 0.26)), (8, (-0.30, 0.32, 0.28)), (11, (-0.10, -0.60, -0.02)), (13, (0.04, -0.54, -0.26)), (17, (-0.31, -0.08, -0.52)), (20, READY_H)])   # 17: down to the belt, where the hatchet is put away
+            twist(CHEST, [(0, 0), (6, -22), (8, -24), (11, 6), (13, 12), (17, 0), (20, 0)])
 
 # ---- one-handed shooting: the source clips are two-handed pistol stances, so the left arm is taken off the gun and
 # pointed at the shield grip instead (upper arm to a point low at the front-left, forearm on to where the shield is held)
@@ -194,29 +233,77 @@ if BASE in OPS and BASE != "knox" and not NOWEAPON:
     if CARRY: org = Vector((chest.x - 0.02, chest.y - 0.25, chest.z - 0.10)); d = Vector((0.62, -0.78, 0)).normalized(); key = "chest"       # low ready: muzzle forward and to the left
     else: org = Vector((hand.x, hand.y, hand.z)); d = Vector((0.0, -1, 0)); key = "hand_r"
     side = Vector((-d.y, d.x, 0)); yaw = math.atan2(d.y, d.x) - math.pi / 2
+    KICK = globals().get("KICK")
+    def ride(parts):                                      # a chest-mounted gun comes straight back with the hands on each shot
+        inv = (arm.matrix_world @ arm.pose.bones[bone("chest")].matrix).to_3x3().inverted()
+        for o in parts:
+            for fr, k in KICK: o.delta_location = inv @ Vector((0, k, 0)); o.keyframe_insert("delta_location", frame=f0 + fr)
     def part(name, fwd, size, m=M_GUN, lat=0.0, dz=0.0, turn=0.0, bevel=0.01):
         c = org + d * fwd + side * lat; return box(name, (c.x, c.y, org.z + dz), size, key, m, rot=(0, 0, yaw + turn), bevel=bevel)
-    if CHAR in ("hound", "hound_bow"):
+    if BASE == "hound":
         b = -0.30 if not CARRY else -0.25                # the hands hold it by the middle of the stock
         part("stock", b + 0.25, (0.075, 0.58, 0.07)); part("butt", b - 0.05, (0.10, 0.10, 0.09), M_KIT)
-        for sgn in (-1, 1): part("limb", b + 0.43, (0.36, 0.05, 0.045), M_KIT, lat=sgn * 0.17, turn=sgn * math.radians(-20))       # the bow: two limbs swept back
-        part("string", b + 0.36, (0.60, 0.012, 0.012), M_GLOW); part("bolt", b + 0.40, (0.022, 0.40, 0.022), M_GLOW, dz=0.045)
-        part("muzzle", b + 0.61, (0.045, 0.03, 0.03), M_GLOW, dz=0.045)
-    elif CHAR == "hound_axe":
+        F, HW, SW = b + 0.50, 0.31, 0.13                 # the bow sits across the front: half-width, and how far the tips sweep back
+        for i in range(-4, 5):                           # one curved prod, built from short pieces
+            lat = HW * i / 4.5; part("prod", F - SW * (lat / HW) ** 2, (HW / 4.5 + 0.012, 0.055, 0.05), M_KIT, lat=lat, turn=math.atan(2 * SW * lat / HW ** 2), bevel=0.012)
+        tipf = F - SW * (4 / 4.5) ** 2; latch = b + 0.20; L = math.hypot(HW * 4 / 4.5, tipf - latch)
+        for sgn in (-1, 1): part("string", (tipf + latch) / 2, (L, 0.014, 0.014), M_GLOW, lat=sgn * HW * 2 / 4.5, turn=-sgn * math.atan2(tipf - latch, HW * 4 / 4.5), dz=0.02, bevel=0)   # cocked: drawn back to the latch in a V
+        def broadhead(f_base, length, half):                 # a flat arrowhead: point forward, two barbs swept back. Its origin is its middle, so it also marks where the bolt leaves from
+            pts = [(f_base + length, 0.0), (f_base, half), (f_base + length * 0.28, 0.0), (f_base, -half)]; cen = org + d * (f_base + length * 0.5); cen.z = org.z + 0.045
+            me = bpy.data.meshes.new("muzzle"); bm = bmesh.new(); up = Vector((0, 0, 0.012))
+            top = [bm.verts.new(org + d * f + side * l + Vector((0, 0, 0.045)) + up - cen) for f, l in pts]; bot = [bm.verts.new(v.co - 2 * up) for v in top]
+            bm.faces.new(top); bm.faces.new(bot[::-1])
+            for i in range(4): j = (i + 1) % 4; bm.faces.new((top[i], bot[i], bot[j], top[j]))
+            bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(me); bm.free()
+            o = bpy.data.objects.new("muzzle", me); bpy.context.collection.objects.link(o); o.location = cen; bpy.context.view_layer.update(); attach(o, key, M_GLOW); return o
+        bolt = [part("bolt", b + 0.40, (0.024, 0.40, 0.024), M_GLOW, dz=0.045, bevel=0), broadhead(b + 0.58, 0.15, 0.058)]
+        BOLT = os.environ.get("RP_BOLT", "")             # "fired": gone from the third frame; "reload": absent until the new one is seated
+        if BOLT:
+            cut = f0 + 2 if BOLT == "fired" else f0 + int((f1 - f0) * 0.62)
+            for o in bolt:
+                for fr, hide in ((f0, BOLT == "reload"), (cut, BOLT == "fired")): o.hide_render = hide; o.keyframe_insert("hide_render", frame=fr)
+                for fc in (o.animation_data.action.fcurves if o.animation_data and o.animation_data.action and hasattr(o.animation_data.action, "fcurves") else []): 
+                    for kp in fc.keyframe_points: kp.interpolation = "CONSTANT"
+    if CHAR == "hound_axe":
+        if PROC == "chop": bpy.context.scene.frame_set(f0 + 11); bpy.context.view_layer.update()      # built as it is at the moment it lands, so the head lies flat to the camera there
         pb = arm.pose.bones[bone("hand_r")]; M = arm.matrix_world @ pb.matrix; ax = {"x": 0, "y": 1, "z": 2}[AXE_AXIS.strip("-")]
         a3 = M.to_3x3().col[ax].normalized() * (-1 if AXE_AXIS.startswith("-") else 1); org = M.translation
         q = a3.to_track_quat("Y", "Z").to_euler(); sd = a3.cross(Vector((0, 0, 1))); sd = sd.normalized() if sd.length > 0.1 else Vector((1, 0, 0))
-        for nm, f, size, m, lt in (("haft", 0.20, (0.04, 0.52, 0.04), M_GUN, 0.0), ("head", 0.40, (0.20, 0.13, 0.035), M_GLOW, 0.07), ("poll", 0.40, (0.06, 0.07, 0.05), M_KIT, -0.05)):
-            c = org + a3 * f + sd * lt; box(nm, (c.x, c.y, c.z), size, "hand_r", m, rot=q, bevel=0.008)
+        axe = []; c = org + a3 * 0.17; axe.append(box("haft", (c.x, c.y, c.z), (0.04, 0.50, 0.04), "hand_r", M_GUN, rot=q, bevel=0.008))
+        # the head is a hatchet's wedge, laid flat to the camera so its outline shows: narrow at the eye, flaring to a curved bit
+        sd = -sd; up = a3.cross(sd).normalized(); prof = [(0.0, 0.33), (0.0, 0.43), (0.09, 0.46), (0.17, 0.49), (0.20, 0.39), (0.17, 0.28), (0.09, 0.31)]
+        me = bpy.data.meshes.new("axe_head"); bm = bmesh.new(); top = [bm.verts.new(org + a3 * y + sd * x + up * 0.02) for x, y in prof]; bot = [bm.verts.new(org + a3 * y + sd * x - up * 0.02) for x, y in prof]
+        bm.faces.new(top); bm.faces.new(bot[::-1])
+        for i in range(len(prof)): j = (i + 1) % len(prof); bm.faces.new((top[i], bot[i], bot[j], top[j]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(me); bm.free(); hd_o = bpy.data.objects.new("axe_head", me); bpy.context.collection.objects.link(hd_o); bpy.context.view_layer.update(); attach(hd_o, "hand_r", M_GLOW); axe.append(hd_o)
+        c = org + a3 * 0.37 - sd * 0.045; axe.append(box("poll", (c.x, c.y, c.z), (0.05, 0.09, 0.05), "hand_r", M_KIT, rot=q, bevel=0.008))
+        fist("r"); fist("l")
+        if PROC == "chop":                                # in the hand only from the top of the reach back until the hand is on its way home
+            A0, A1 = int(os.environ.get("RP_AXE_IN", "5")), int(os.environ.get("RP_AXE_OUT", "17"))
+            for o in axe:
+                for fr, hide in ((f0, True), (f0 + A0, False), (f0 + A1, True)): o.hide_render = hide; o.keyframe_insert("hide_render", frame=fr)
+                for fc in (o.animation_data.action.fcurves if o.animation_data and o.animation_data.action and hasattr(o.animation_data.action, "fcurves") else []):
+                    for kp in fc.keyframe_points: kp.interpolation = "CONSTANT"
+            bpy.context.scene.frame_set(f0); bpy.context.view_layer.update()
+    elif CHAR == "reyes_rifle":                           # scoped bolt-action rifle, held by the grip: about 1.2 m from butt to brake
+        # It lies along the way she faces with the butt in the right shoulder, fixed to the chest (not to a wrist), so it stays level and true.
+        org = Vector((chest.x - 0.13, chest.y - 0.30, chest.z + 0.14)); d = Vector((0.0, -1, 0)); key = "chest"; side = Vector((-d.y, d.x, 0)); yaw = math.atan2(d.y, d.x) - math.pi / 2
+        rifle = [part("stock", -0.20, (0.10, 0.30, 0.09)), part("receiver", 0.07, (0.11, 0.26, 0.09)), part("scope", 0.08, (0.055, 0.28, 0.055), M_KIT, dz=0.075),
+                 part("handguard", 0.32, (0.085, 0.26, 0.065)), part("barrel", 0.66, (0.048, 0.44, 0.04)), part("muzzle", 0.91, (0.08, 0.08, 0.055), M_KIT)]
+        if KICK: ride(rifle)
     elif BASE in ("reyes", "cole"):
         if not CARRY or TAC:                              # pistol: in the hands when pointed or at low ready; otherwise holstered and unseen
             if CARRY: org = Vector((hand.x, hand.y, hand.z)); d = Vector((0.0, -1, 0)); key = "hand_r"; side = Vector((1, 0, 0)); yaw = math.pi
-            part("slide", 0.11, (0.055, 0.23, 0.06)); part("muzzle", 0.235, (0.04, 0.02, 0.04))
-    elif BASE == "miller":
-        b = -0.44 if not CARRY else -0.30                # in the firing stance the butt is back at the shoulder
-        part("stock", b - 0.02, (0.065, 0.24, 0.085), M_KIT); part("receiver", b + 0.22, (0.075, 0.26, 0.09)); part("optic", b + 0.22, (0.05, 0.15, 0.05), M_KIT, dz=0.07)
-        part("mag", b + 0.24, (0.11, 0.06, 0.05), M_KIT, lat=-0.05, dz=-0.05); part("handguard", b + 0.46, (0.065, 0.24, 0.065), M_KIT)
-        part("barrel", b + 0.64, (0.03, 0.14, 0.03)); part("muzzle", b + 0.72, (0.045, 0.04, 0.045))
+            part("slide", 0.11, (0.055, 0.23, 0.06))
+            if BASE == "reyes": part("suppressor", 0.315, (0.044, 0.18, 0.044)); part("muzzle", 0.415, (0.03, 0.02, 0.03))     # hers is suppressed: a long can on the front, which also tells her pistol from COLE's
+            else: part("muzzle", 0.235, (0.04, 0.02, 0.04))
+    elif BASE == "miller":                                # carbine: light-coloured and thick so it reads as a gun, with a dark sight, a dark magazine out of the left side and a dark flash hider
+        g = -0.10                                         # where the grip is along it; carried, it hangs across the chest
+        if not CARRY:                                     # shouldered: fixed to the chest with the butt in the right shoulder, like the long rifle
+            org = Vector((chest.x - 0.13, chest.y - 0.30, chest.z + 0.14)); d = Vector((0.0, -1, 0)); key = "chest"; side = Vector((-d.y, d.x, 0)); yaw = math.atan2(d.y, d.x) - math.pi / 2; g = 0.0
+        rifle = [part("stock", g - 0.20, (0.085, 0.22, 0.085)), part("receiver", g + 0.04, (0.105, 0.28, 0.09)), part("optic", g + 0.04, (0.05, 0.11, 0.05), M_KIT, dz=0.07),
+                 part("mag", g + 0.10, (0.09, 0.075, 0.05), M_KIT, lat=0.085), part("handguard", g + 0.30, (0.085, 0.26, 0.07)), part("barrel", g + 0.50, (0.045, 0.16, 0.04)), part("muzzle", g + 0.60, (0.06, 0.05, 0.05), M_KIT)]
+        if not CARRY and KICK: ride(rifle)
 
 # ---- KNOX's pump shotgun. It rides at his right hip and always lies along the way he faces (it is not glued to the
 # wrist), so from above it reads as a gun carried at the hip: wide stock, receiver, fat ribbed pump, thin barrel.
@@ -262,12 +349,18 @@ def ground_speed():
     fps = bpy.context.scene.render.fps; v = sorted(max((ys[i + 1][k] - ys[i][k]) * fps for k in (0, 1)) for i in range(len(ys) - 1))
     return round(v[int(len(v) * 0.6)], 3) if v else 0.0          # forward is -Y, so the planted foot moves +Y
 SPEED = ground_speed() if any(k in ACTION for k in ("Walk", "Jog", "Sprint", "Crouch_Fwd")) else 0.0
-os.makedirs(OUT, exist_ok=True); n = 0; MUZZLE = []
+os.makedirs(OUT, exist_ok=True); n = 0; MUZZLE = []; TIP = []
 for f in os.listdir(OUT):
     if f.endswith(".png"): os.remove(os.path.join(OUT, f))
 for f in range(f0, f1 + 1, STEP):
-    sc.frame_set(f); sc.render.filepath = os.path.join(OUT, f"{n:04d}.png"); bpy.ops.render.render(write_still=True); n += 1
+    sc.frame_set(f)
+    if FOLLOW:                                          # the clip carries the figure across the floor: keep the camera over the hips, the timeline does the travelling
+        hp = arm.matrix_world @ arm.pose.bones[bone("hips")].head
+        cam.location.x, cam.location.y = hp.x, hp.y; bpy.context.view_layer.update()
+    sc.render.filepath = os.path.join(OUT, f"{n:04d}.png"); bpy.ops.render.render(write_still=True); n += 1
+    ah = bpy.data.objects.get("axe_head")               # where the blade is in this frame, for the trail it leaves in a swing
+    if ah: w = ah.matrix_world @ (sum((v.co for v in ah.data.vertices), Vector()) / len(ah.data.vertices)); TIP.append([round(-(w.y - cam.location.y), 4), round(-(w.x - cam.location.x), 4)])
     mz = bpy.data.objects.get("muzzle")                 # where the muzzle is in this frame: metres ahead of, and to the right of, the figure's centre
-    if mz: w = mz.matrix_world.translation; MUZZLE.append([round(-w.y + 0.02, 4), round(-w.x, 4)])
-json.dump({"action": ACTION, "char": CHAR, "frames": n, "fps": sc.render.fps / STEP, "size": SIZE, "span_m": SPAN, **({"muzzle_m": MUZZLE} if MUZZLE else {}), **({"speed_mps": SPEED} if SPEED > 0.2 else {})}, open(os.path.join(OUT, "meta.json"), "w"))
+    if mz: w = mz.matrix_world.translation; MUZZLE.append([round(-(w.y - cam.location.y) + 0.02, 4), round(-(w.x - cam.location.x), 4)])
+json.dump({"action": ACTION, "char": CHAR, "frames": n, "fps": sc.render.fps / STEP, "size": SIZE, "span_m": SPAN, **({"muzzle_m": MUZZLE} if MUZZLE else {}), **({"tip_m": TIP} if TIP else {}), **({"speed_mps": SPEED} if SPEED > 0.2 else {})}, open(os.path.join(OUT, "meta.json"), "w"))
 print("RENDERED", n, "frames ->", OUT)
