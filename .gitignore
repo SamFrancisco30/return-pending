@@ -15,3 +15,6 @@ renders/_insert_frames_*/
 .env
 .env.*
 .claude/settings.local.json
+
+# third-party source assets (CC0, re-downloadable; see PIPELINE_V2_PLAN.md)
+library/_sources/

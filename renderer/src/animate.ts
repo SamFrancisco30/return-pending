@@ -21,6 +21,26 @@ const scene = loadScene(tl.scene ?? "../scene/motel.json");
 const plateCfg = tl.plates ?? { xray: "../concepts/plate_xray_b.png", real: "../concepts/plate_real_a.png" };
 const plates = { ...(await loadPlates(plateCfg.xray, plateCfg.real ?? plateCfg.xray)), fit: plateCfg.fit };
 const debugPlan = process.argv.includes("--debug-plan");
+// ---------- pre-rendered character sprites (library/characters/<who>/<action>/NNNN.png + meta.json) ----------
+// tl.sprites = { <operator id or "ENTITY">: { dir, pxPerM, clips: [{ from, action, loop?, rate? }] } }. Whoever has an entry is
+// drawn from the sequence instead of the procedural figure. The art faces +x, so turning is just rotating the image.
+const spriteClips: Record<string, { imgs: any[]; fps: number; span: number; muzzle?: number[][]; speed?: number }> = {};
+for (const cfg of Object.values(tl.sprites ?? {}) as any[]) for (const c of cfg.clips) {
+  const dir = path.join(cfg.dir, c.action); if (spriteClips[dir]) continue;
+  const meta = JSON.parse(fs.readFileSync(path.join(dir, "meta.json"), "utf8")), imgs: any[] = [];
+  for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".png")).sort()) imgs.push(await loadImage(path.join(dir, f)));
+  spriteClips[dir] = { imgs, fps: meta.fps, span: meta.span_m, muzzle: meta.muzzle_m, speed: meta.speed_mps };
+}
+function spriteAt(who: string, t: number, clipSpeed?: (from: number) => number) {
+  const cfg = (tl.sprites ?? {})[who]; if (!cfg) return undefined;
+  let clip = cfg.clips[0]; for (const c of cfg.clips) if (c.from <= t) clip = c;
+  const s = spriteClips[path.join(cfg.dir, clip.action)], n = s.imgs.length;
+  // a walk or run loop is played as fast as the figure really travels, so the feet do not slide
+  const auto = clip.loop && s.speed && clipSpeed ? Math.max(0.55, Math.min(2.0, clipSpeed(clip.from) / cfg.pxPerM / s.speed)) : 1;
+  const k = Math.max(0, (t - clip.from) * s.fps * (clip.rate ?? auto));
+  const fi = clip.loop ? Math.floor(k) % n : Math.min(n - 1, Math.floor(k)), u = cfg.pxPerM * (cfg.scale ?? 1), mz = s.muzzle?.[fi];
+  return { img: s.imgs[fi], size: s.span * u, muzzle: mz ? [mz[0] * u, mz[1] * u] : undefined };
+}
 const feedLabel = tl.feedLabel ?? "SITE 07 // ROUTE 9 MOTEL // CAM-OVH";
 const W = 1920, H = 1080, FPS = tl.fps, N = Math.round(tl.duration * FPS);
 const argNum = (k: string) => (process.argv.includes(k) ? Number(process.argv[process.argv.indexOf(k) + 1]) : null);
@@ -121,15 +141,28 @@ function countdownAt(t: number) {
 }
 const idOf = (who: string) => Object.entries(tl.operatorIds ?? {}).find(([, cs]) => cs === who)?.[0] ?? who;
 function shotsAt(t: number, ops: { id: string; x: number; y: number }[]) {
-  const out: { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string }[] = [];
+  const out: { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number }[] = [];
   for (const f of tl.fire ?? []) for (let k = 0; k < 3; k++) {
-    const age = t - (f.t + k * 0.085); if (age < 0 || age > 0.45) continue;
+    const age = t - (f.t + k * 0.085); if (age < 0 || age > (f.kind === "shotgun" ? 0.95 : 0.45)) continue;
     const o = ops.find(o => o.id === idOf(f.who)); if (!o) continue;
     const dx = f.at[0] - o.x, dy = f.at[1] - o.y, L = Math.hypot(dx, dy) || 1;
-    if (f.kind === "bolt" && k) continue;
-    out.push({ x0: o.x + dx / L * 38, y0: o.y + dy / L * 38, x1: f.at[0] + (f.kind === "bolt" ? 0 : (k - 1) * 9), y1: f.at[1] + (f.kind === "bolt" ? 0 : ((k * 7) % 5 - 2) * 5), age, kind: f.kind });
+    if (f.kind === "melee") continue;
+    if ((f.kind === "bolt" || f.kind === "shotgun") && k) continue;
+    // a sprite knows where its own muzzle is in every frame; the shot leaves from there, along the way the figure faces
+    const sp = spriteAt(o.id, f.t + 0.001)?.muzzle ?? (o as any).sprite?.muzzle, hd = ((o as any).heading ?? 0) * Math.PI / 180;
+    if (sp && k) continue;                                   // a sprite fires one round per trigger pull, not the old three-line burst
+    if (sp) { const cx = Math.cos(hd), sy = Math.sin(hd), mx = o.x + cx * sp[0] - sy * sp[1], my = o.y + sy * sp[0] + cx * sp[1], D = Math.max(60, L - sp[0]);
+      out.push({ x0: mx, y0: my, x1: mx + cx * D, y1: my + sy * D, age, kind: f.kind, seed: Math.floor(f.t * 1000) }); continue; }
+    const fw = f.muzzle?.[0] ?? 38, rt = f.muzzle?.[1] ?? 0;
+    out.push({ x0: o.x + dx / L * fw - dy / L * rt, y0: o.y + dy / L * fw + dx / L * rt, x1: f.at[0] + (f.kind ? 0 : (k - 1) * 9), y1: f.at[1] + (f.kind ? 0 : ((k * 7) % 5 - 2) * 5), age, kind: f.kind });
   }
   return out;
+}
+
+// props may move: {track: [[t, x, y, rot]]}
+function propsAt(t: number, all = false) {
+  return (tl.props ?? []).filter((p: any) => all || (t >= p.from && t < p.to)).map((p: any) => {
+    if (!p.track) return p; const [x, y, rot] = sample(p.track as Track, t); return { ...p, x, y, rot }; });
 }
 
 function mapState(t: number): FrameState {
@@ -146,11 +179,23 @@ function mapState(t: number): FrameState {
       const aim = Math.atan2(f.at[1] - y, f.at[0] - x) * 180 / Math.PI, d = ((aim - heading + 540) % 360) - 180;
       heading += d * Math.min(1, w);
     }
+    // a melee blow is a whole movement: draw back (swing -1), cut through (to +1) with a step in, recover (back to 0)
+    let swing = 0, slash = 0;
+    for (const f of tl.fire ?? []) {
+      if (f.kind !== "melee" || idOf(f.who) !== id) continue;
+      const dt = t - f.t; if (dt < -0.34 || dt > 0.46) continue;
+      const ease = (u: number) => u * u * (3 - 2 * u);
+      swing = dt < -0.1 ? -ease((dt + 0.34) / 0.24) : dt < 0.02 ? -1 + 2 * ease((dt + 0.1) / 0.12) : dt < 0.14 ? 1 : 1 - ease((dt - 0.14) / 0.32);
+      slash = dt < -0.1 ? 0 : dt < 0.02 ? (dt + 0.1) / 0.12 : Math.max(0, 1 - (dt - 0.02) / 0.2);
+      const step = dt < -0.1 ? 0 : dt < 0.02 ? ease((dt + 0.1) / 0.12) : 1 - ease(Math.min(1, (dt - 0.02) / 0.44));
+      const dx = f.at[0] - x, dy = f.at[1] - y, L = Math.hypot(dx, dy) || 1;
+      x += dx / L * 12 * step; y += dy / L * 12 * step;
+    }
     const tr = track(id, keys as Track, t);
     const col = scene.roster?.find((r: any) => r.id === id)?.color;
     footprints.push(...tr.prints.map(p => ({ ...p, color: col })));
     const downAt = tl.down?.[id];
-    return { id, x, y, heading, gait: { phase: tr.phase, moving: tr.moving }, down: downAt != null && t >= downAt, guard: tl.guard?.[id] ? sample(tl.guard[id] as Track, t)[0] : 0 };
+    return { id, x, y, heading, gait: { phase: tr.phase, moving: tr.moving }, down: downAt != null && t >= downAt, guard: tl.guard?.[id] ? sample(tl.guard[id] as Track, t)[0] : 0, stow: tl.stow?.[id] ? sample(tl.stow[id] as Track, t)[0] : 0, swing, slash, sprite: spriteAt(id, t, from => { const a = sample(keys as Track, from + 0.15), b = sample(keys as Track, from + 0.65); return Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.5; }) };
   });
   const residues = jumps.filter(([, b]: number[][]) => t >= b[0] && t - b[0] < 3)
     .map(([a, b]: number[][]) => ({ e: { x: a[1], y: a[2], heading: a[3], visible: 1, pose: a[6] ?? 1, hidden: a[8] ?? 0 }, age: t - b[0] }));
@@ -160,6 +205,8 @@ function mapState(t: number): FrameState {
   const freeze = (tl.freeze ?? []).find((f: any) => t >= f.from && t < f.to);
   const warn = (tl.warn ?? []).find((w: any) => t >= w.from && t <= w.to);
   const sub = subAt(t);
+  const ropes = (tl.ropes ?? []).filter((r: any) => t >= r.from && t < r.to).map((r: any) => {
+    const o = operators.find(o => o.id === idOf(r.who)), p = propsAt(t, true)[r.prop]; return o && p ? { x0: o.x, y0: o.y, x1: p.x, y1: p.y } : null; }).filter(Boolean);
   // FILE 001: the shackle pulse (leaves the wearer every period), swaps, impacts, tags that follow a person
   let pulse: any, pulseHud: any;
   if (tl.pulse) {
@@ -189,12 +236,14 @@ function mapState(t: number): FrameState {
     const o = operators.find(o => o.id === idOf(g.who)); return o ? { x: o.x, y: o.y - 34, text: g.text, alpha: windowAlpha(t, g.from, g.to, 0.2) } : null; }).filter(Boolean);
   return {
     pulse, pulseHud, boundary: tl.boundary, swaps, impacts,
+    mobs: (tl.mobs ?? []).map((m: any) => { const [x, y, heading, visible, glitch, pose, look, , reach] = sample(m.track as Track, t, [2, 6]); return { x, y, heading, visible, glitch, pose, look, hidden: 0, reach, species: m.species ?? "inmate" }; }).filter((m: any) => m.visible > 0.01),
+    sounds: (tl.sounds ?? []).map((q: any) => ({ x: q.x, y: q.y, r: q.r, loud: !!q.loud, age: t - q.t })).filter((q: any) => q.age >= 0 && q.age < 1.2),
     t, doors, operators, footprints, residues, roster: scene.roster,
-    entity: { id: tl.entityId ?? "UNK-1", x: ex, y: ey, heading: eh, visible: ev, glitch: eg, pose: epose ?? 1, look: elook ?? 0, hidden: ehid ?? 0, reach: ereach ?? 0 },
+    entity: { id: tl.entityId ?? "UNK-1", x: ex, y: ey, heading: eh, visible: ev, glitch: eg, pose: epose ?? 1, look: elook ?? 0, hidden: ehid ?? 0, reach: ereach ?? 0, sprite: spriteAt("ENTITY", t) },
     doorFx: Object.fromEntries(Object.entries(tl.doorFx ?? {}).map(([id, tr]) => [id, doorFxAt(tr as [number, string][], t)!])),
     shots, shake: Math.max(impShake, swapShake, shots.reduce((m, s) => Math.max(m, s.age < 0.25 ? 5 * (1 - s.age / 0.25) : 0), 0)),
     frozenAt: freeze ? freeze.from : null,
-    props: (tl.props ?? []).filter((p: any) => t >= p.from && t < p.to),
+    props: propsAt(t), ropes,
     hudX: { confidence: tl.pulse && !confKeys.length ? undefined : confAt(t), zone: zoneAt(t), countdown: countdownAt(t), entityId: tl.entityId },
     collapse: collapseAt(t),
     species: tl.species ?? "stalker", unitScale: scene.unitScale ?? 1, evacPath: tl.evacPath,

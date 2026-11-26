@@ -6,7 +6,7 @@ export type Kit = "shield" | "radio" | "recon";
 export type Icon = "tri" | "square" | "diamond" | "circle" | "cross" | "arrow";
 export type OperatorSpec = { id: string; callsign: string; kit: Kit; build: number; color?: string; icon?: Icon };
 export type Gait = { phase: number; moving: number }; // phase in radians, moving 0..1
-export type ThermalUnit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; guard?: number };
+export type ThermalUnit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; guard?: number; stow?: number; swing?: number; slash?: number };
 export type Footprint = { x: number; y: number; heading: number; age: number; side: number; color?: string };
 
 // small identity glyph, also used by the HUD and subtitles
@@ -60,7 +60,10 @@ function part(ctx: SKRSContext2D, x: number, y: number, w: number, h: number, r 
 // facing +x, in the operator's own space (shoulders at y = +-21). Also used alone on the design boards.
 // guard (0..1): shield 0 = carried on the left arm, 1 = squared up and pushed forward;
 // crossbow kit 0 = crossbow in hand, 1 = tomahawk in hand. Only one of the two is ever shown.
-export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0) {
+// the tomahawk's angle through a blow: swing -1 = drawn back, 0 = carried, +1 = cut through
+export const SWING_PIVOT = [2, 15];
+export const SWING_ANGLE = (s: number) => s < 0 ? -0.16 + (-s) * 2.2 : -0.16 - s * 1.15;
+export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0, swing = 0, slash = 0) {
   ctx.save(); ctx.lineJoin = "round"; ctx.lineCap = "butt";
   if (kit === "shield") {
     const y = 22, g = guard, lerp = (p: number, q: number) => p + (q - p) * g;
@@ -86,7 +89,16 @@ export function drawKit(ctx: SKRSContext2D, kit: string, idc: string, guard = 0)
   } else if (kit === "crossbow") {
     if (guard >= 0.5) {
       // tomahawk in the right hand, carried forward ready to strike: handle, poll, bearded blade with a bright edge
-      ctx.save(); ctx.translate(13, 9); ctx.rotate(-0.16);
+      // swinging: the axe turns about the right shoulder, from drawn back behind the right hip to across the front,
+      // blade leading, with a bright arc where the edge has just been
+      const sw = swing !== 0 || slash > 0, ang = SWING_ANGLE(swing);
+      if (sw && slash > 0) {
+        ctx.save(); ctx.lineCap = "round"; ctx.shadowColor = idc; ctx.shadowBlur = 14;
+        for (const [w, al, span] of [[9, 0.28, 1.5], [3.2, 0.9, 1.1]]) { ctx.strokeStyle = rgba("#eafcff", al * slash); ctx.lineWidth = w; ctx.beginPath(); ctx.arc(SWING_PIVOT[0], SWING_PIVOT[1], 47, ang, ang + span * slash); ctx.stroke(); }
+        ctx.restore();
+      }
+      ctx.save();
+      if (sw) { ctx.translate(SWING_PIVOT[0], SWING_PIVOT[1]); ctx.rotate(ang); ctx.translate(14, 0); ctx.scale(1, -1); } else { ctx.translate(13, 9); ctx.rotate(-0.16); }
       part(ctx, -6, -1.8, 40, 3.6, 1.6, "rgba(56,84,90,1)");                         // handle
       part(ctx, 26, -5.6, 7, 3.8, 1, STEEL2);                                          // poll
       ctx.beginPath(); ctx.moveTo(25.5, 1.8); ctx.lineTo(33.5, 1.8); ctx.lineTo(38, 14.5); ctx.quadraticCurveTo(29, 20, 19.5, 14.5); ctx.closePath();
@@ -203,10 +215,13 @@ export function drawOperatorThermal(ctx: SKRSContext2D, u: ThermalUnit, spec: Op
   const GRIP: Record<string, number[]> = { shield: [21, -11, 9, 21], crossbow: [27, -2, 8, 3], medic: [16, -2, 16, 2], recon: [31, 2, 12, 6], rifle: [30, 2, 12, 6] };
   const gd = u.guard ?? 0;
   const gr = spec.kit === "shield" ? [21 + 4 * gd, -11 + 9 * gd, 9 - 5 * gd, 21 - 2 * gd]
-    : spec.kit === "crossbow" && gd >= 0.5 ? [15, -13, 17, 9] : GRIP[spec.kit] ?? GRIP.rifle;
+    : spec.kit === "crossbow" && gd >= 0.5 ? [15, -13, 17, 9] : [...(GRIP[spec.kit] ?? GRIP.rifle)];
+  if ((u.stow ?? 0) >= 0.5) { gr[0] = 20; gr[1] = -11; gr[2] = 20; gr[3] = 11; }
+  const sw = u.swing ?? 0, sl = u.slash ?? 0;
+  if (spec.kit === "crossbow" && gd >= 0.5 && (sw !== 0 || sl > 0)) { const a = SWING_ANGLE(sw); gr[2] = SWING_PIVOT[0] + Math.cos(a) * 17; gr[3] = SWING_PIVOT[1] + Math.sin(a) * 17; gr[0] = 12; gr[1] = -15; }
   ctx.strokeStyle = WARM; ctx.lineWidth = 6.5; ctx.lineCap = "round";
   ctx.beginPath(); ctx.moveTo(-2, -shW + 3); ctx.lineTo(gr[0], gr[1]); ctx.moveTo(-2, shW - 3); ctx.lineTo(gr[2], gr[3]); ctx.stroke();
-  drawKit(ctx, spec.kit, idc, gd);
+  if ((u.stow ?? 0) < 0.5) drawKit(ctx, spec.kit, idc, gd, sw, sl);
   ctx.restore();
 
   // head: cold helmet disc with a hot face crescent showing where they look

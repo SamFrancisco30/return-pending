@@ -118,8 +118,8 @@ def footstep(weight):
     return (thump + grit) * weight
 
 roster = json.load(open(os.path.join(RENDERER, tl.get("scene", "../scene/motel.json")), encoding="utf-8")).get("roster", [])
-weights = {r["id"]: (1.25 if r.get("kit") == "radio" else 0.8 if r.get("kit") == "recon" else 1.0) for r in roster}
-step_smp = {r["id"]: smp({"radio": "step_heavy", "recon": "step_light"}.get(r.get("kit"), "step")) for r in roster}
+weights = {r["id"]: (1.25 if r.get("kit") in ("radio", "shield") else 0.8 if r.get("kit") == "recon" else 1.0) for r in roster}
+step_smp = {r["id"]: smp({"radio": "step_heavy", "shield": "step_heavy", "recon": "step_light"}.get(r.get("kit"), "step")) for r in roster}
 def step_at(oid, t):
     s = step_smp.get(oid)
     if s is not None: put(room, fit(vary(s), 0.35) * weights.get(oid, 1.0), t, rng.uniform(0.10, 0.14))
@@ -132,12 +132,12 @@ for oid, tr in tl["operators"].items():
             t = a[0] + rng.uniform(0.05, 0.2)
             while t < b[0]: step_at(oid, t); t += rng.uniform(0.29, 0.34)
         continue
-    acc = 0.0                                # dense compiled keys: a step every stride of distance
+    acc = 0.0                                # a step every stride of distance, however long the segment between two keys is
     for a, b in zip(keys, keys[1:]):
         d = np.hypot(b[1] - a[1], b[2] - a[2]); dt = max(1e-3, b[0] - a[0]); v = d / dt
-        if v < 15: acc = 0.0; continue
+        if v < 15 or v > 900: acc = 0.0; continue          # standing still, or a cut / a trade of places: no footsteps
         stride = 40 + 0.11 * v; acc += d
-        if acc >= stride: acc -= stride; step_at(oid, b[0] + rng.uniform(-0.02, 0.02))
+        while acc >= stride: acc -= stride; step_at(oid, b[0] - acc / v + rng.uniform(-0.02, 0.02))
 
 # ---------------- explicit cues ----------------
 def creak(d):
@@ -199,9 +199,11 @@ for c in cues:
     elif ty == "oneshot":
         s = smp(c["sample"]) if c.get("sample") else None
         lvl = {"gunfire": 0.9, "door_slam": 0.8, "door_burst": 0.45, "rattle": 0.5, "frost": 0.35, "door_latch": 0.45,
-               "pack_drag": 0.45, "stamp": 0.6, "limb": 0.45, "beacon_chirp": 0.3, "glitch": 0.35}.get(c.get("sample"), 0.5)
+               "pack_drag": 0.45, "stamp": 0.6, "limb": 0.45, "beacon_chirp": 0.3, "glitch": 0.35,
+               "shotgun": 0.95, "rifle": 0.75, "pistol": 0.6, "crossbow": 0.5, "axe": 0.5, "shield_hit": 0.7, "punch": 0.8, "door_pound": 0.75, "pulse": 0.28}.get(c.get("sample").rsplit("_", 1)[0] if c.get("sample", "").rsplit("_", 1)[-1] in ("a", "b", "c") else c.get("sample"), 0.5)
         if s is not None:
-            if c.get("sample") in ("stamp", "beacon_chirp"): put(ui, s, t, lvl * g)
+            if c.get("vary"): s = vary(s, c["vary"])
+            if c.get("sample") in ("stamp", "beacon_chirp", "pulse"): put(ui, s, t, lvl * g)
             else: fx(s, t, lvl * g, c.get("pan", 0.0))
         elif c.get("sample") == "gunfire":
             for k in range(3): fx(click(1.0), t + k * 0.085, 1); fx(boom(0.3, 90, 0.04), t + k * 0.085, 0.6)
@@ -313,7 +315,7 @@ L = (roomg + fxL + conv(roomg * 0.6 + fxL) * wet) * duck + vo + ui
 R = (roomg + fxR + conv(roomg * 0.6 + fxR) * wet) * duck + vo + ui
 fade = int(0.25 * SR); L[-fade:] *= np.linspace(1, 0, fade); R[-fade:] *= np.linspace(1, 0, fade)
 peak = np.percentile(np.abs(np.concatenate([L, R])), 99.97)   # transients (gunfire, slams) ride the soft clip instead of setting the level
-L, R = np.tanh(L / peak * 1.1) / np.tanh(1.1) * 0.89, np.tanh(R / peak * 1.1) / np.tanh(1.1) * 0.89
+L, R = np.tanh(L / peak * 1.1) * 0.97, np.tanh(R / peak * 1.1) * 0.97   # tanh tops out at 1, so nothing can pass 0.97 and wrap around in int16
 pcm = (np.stack([L, R], 1) * 32767).astype(np.int16)
 with wave.open(sys.argv[2], "wb") as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())

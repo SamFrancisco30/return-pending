@@ -2,13 +2,17 @@
 // Scene space is 2048x1152; output is scaled to the output canvas size.
 import { createCanvas, loadImage, GlobalFonts, type SKRSContext2D, type Image, type Canvas } from "@napi-rs/canvas";
 import { buildGeometry, type Rect } from "./geometry.ts";
-import { doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawPulseHud, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
+import { doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawPulseHud, drawHeavyDoor, drawRopes, drawSounds, type Rope, type SoundRing, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
 import { drawOperatorThermal, drawCallsign, callsignWidth, drawEntityThermal, drawFootprints, drawResidue, drawIdentityArc, drawIcon, rgba, type OperatorSpec, type Footprint, type Gait, type EntityState } from "./thermal.ts";
 
 GlobalFonts.registerFromPath("C:/Windows/Fonts/consola.ttf", "Consolas");
 
 export type Style = "S2" | "S3";
-export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number };
+function drawSprite(ctx: SKRSContext2D, u: { x: number; y: number; heading: number; sprite?: { img: Image; size: number } }) {
+  const s = u.sprite!; ctx.save(); ctx.translate(u.x, u.y); ctx.rotate(u.heading * Math.PI / 180); ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.restore();
+}
+export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number; stow?: number; swing?: number; slash?: number; sprite?: { img: Image; size: number } };
 export type FrameState = {
   t: number;                       // seconds, drives noise/flicker
   doors: Record<string, number>;   // id -> open fraction 0..1
@@ -35,7 +39,8 @@ export type FrameState = {
   collapse?: number;                // 0..1 reconstruction breaking up; >=1 lapse closed (wireframe)
   shake?: number;                   // camera shake in px
   frozenAt?: number | null;         // entity motion halted: draw it as it was at this time
-  pulse?: Pulse; boundary?: Boundary; swaps?: SwapFx[]; impacts?: Impact[]; pulseHud?: PulseHud;   // FILE 001
+  pulse?: Pulse; boundary?: Boundary; swaps?: SwapFx[]; impacts?: Impact[]; pulseHud?: PulseHud; ropes?: Rope[];   // FILE 001
+  mobs?: (EntityState & { species: string })[]; sounds?: SoundRing[];
 };
 
 const SW = 2048, SH = 1152;
@@ -452,6 +457,7 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   // 4. doors (procedural, X-ray look)
   for (const d of geo.doors) {
     const f = doorF[d.id]; const [ex, ey] = leafEnd(d, f);
+    if ((d as any).heavy) continue;                       // drawn after the pulse, as a slab
     ctx.lineCap = "butt";
     ctx.strokeStyle = "rgba(150,190,200,0.45)"; ctx.lineWidth = 8;
     ctx.beginPath(); ctx.moveTo(d.hx, d.hy); ctx.lineTo(ex, ey); ctx.stroke();
@@ -468,6 +474,8 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   if (!closedLapse) for (const d of geo.doors) drawDoorFx(ctx, d as any, leafEnd(d, doorF[d.id]), st.doorFx?.[d.id], st.t);
   drawProps(ctx, st.props ?? [], st.t);
   if (!closedLapse) drawPulse(ctx, st.pulse, st.boundary, st.t);
+  for (const d of geo.doors) if ((d as any).heavy) { const [ex, ey] = leafEnd(d, doorF[d.id]); drawHeavyDoor(ctx, d.hx, d.hy, ex, ey, doorF[d.id], st.t); }
+  drawRopes(ctx, st.ropes ?? [], st.t);
 
   // 4b. thermal floor residue (S3): footprints and the heat an entity leaves behind
   if (style === "S3") {
@@ -488,12 +496,13 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
     for (const o of st.operators) drawTag(ctx, o, "rgba(160,225,235,0.85)");
   } else {
     if (!closedLapse) {
-      drawEntityThermal(ctx, st.entity, st.frozenAt ?? st.t, false, st.species, st.unitScale ?? 1);
+      for (const m of st.mobs ?? []) drawEntityThermal(ctx, m, st.t + m.x * 0.013, false, m.species, st.unitScale ?? 1);
+      if (st.entity.sprite) { if (st.entity.visible > 0.01) drawSprite(ctx, st.entity); } else drawEntityThermal(ctx, st.entity, st.frozenAt ?? st.t, false, st.species, st.unitScale ?? 1);
       drawEntityMarker(ctx, st.entity, st.t);
     }
     const spec = (id: string): OperatorSpec => st.roster?.find(r => r.id === id) ?? { id, callsign: id, kit: "recon", build: 1 };
-    for (const o of st.operators) if (!o.down) drawIdentityArc(ctx, o, spec(o.id), st.unitScale ?? 1);
-    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
+    for (const o of st.operators) if (!o.down && !o.sprite) drawIdentityArc(ctx, o, spec(o.id), st.unitScale ?? 1);
+    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; if (o.sprite) drawSprite(ctx, o); else drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
     // callsign labels: stack downward instead of overlapping
     const placed: Rect[] = [];
     for (const o of [...st.operators].sort((p, q) => p.y - q.y)) {
@@ -507,6 +516,7 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
     }
   }
 
+  drawSounds(ctx, st.sounds ?? []);
   drawGunfire(ctx, st.shots ?? []);
   drawImpacts(ctx, st.impacts ?? []);
   drawSwap(ctx, st.swaps ?? []);

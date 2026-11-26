@@ -876,6 +876,14 @@
    "build": 0.98,
    "color": "#f2f6f7",
    "icon": "cross"
+  },
+  {
+   "id": "F",
+   "callsign": "T04-4",
+   "kit": "rifle",
+   "build": 1.0,
+   "color": "#9fb4ba",
+   "icon": "circle"
   }
  ]
 }

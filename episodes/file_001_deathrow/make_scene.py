@@ -12,7 +12,8 @@ ch_x1, ch_t, ch_b = px(24), YC - int(3.5 * M), YC + int(3.5 * M)   # 1836, 352, 
 walls = [
     [0, YC - 96, X0, YC - 96], [0, YC + 96, X0, YC + 96],                            # access passage from the general block (open at the left edge)
     [X0, cell_t, X0, cell_b],                                                         # block front wall (door gap)
-    [X0 - 24, YC - 96, X0 - 24, YC + 96], [X0 + 24, YC - 150, X0 + 24, YC + 150],     # the doorway is a thick security frame: three skins deep
+    [X0 - 24, YC - 96, X0 - 24, YC - 64], [X0 - 24, YC + 64, X0 - 24, YC + 96],       # the doorway is a thick security frame:
+    [X0 + 24, YC - 150, X0 + 24, YC - 64], [X0 + 24, YC + 64, X0 + 24, YC + 150],     # jambs three skins deep
     [X0, cell_t, rows_end, cell_t], [X0, cell_b, rows_end, cell_b],                   # cell rows, outer
     [rows_end, cell_t, rows_end, hall_t], [rows_end, hall_b, rows_end, cell_b],       # cell rows end
     [X0, hall_t, hall_end, hall_t], [X0, hall_b, hall_end, hall_b],                   # hall walls
@@ -23,9 +24,7 @@ walls = [
     [ch_x1 + 26, ch_t - 26, ch_x1 + 26, ch_b + 26],
     [hall_end - 26, ch_t - 26, hall_end - 26, hall_t], [hall_end - 26, hall_b, hall_end - 26, ch_b + 26],
 ]
-doors = [{"id": "GATE", "axis": "v", "hx": X0, "hy": YC - 64, "width": 128, "swing": 1, "open": True},
-         {"id": "GATE_A", "axis": "v", "hx": X0 - 24, "hy": YC - 64, "width": 128, "swing": 1, "open": True},
-         {"id": "GATE_B", "axis": "v", "hx": X0 + 24, "hy": YC - 64, "width": 128, "swing": 1, "open": True},
+doors = [{"id": "GATE", "axis": "v", "hx": X0, "hy": YC - 64, "width": 128, "swing": 1, "open": False, "heavy": True},
          {"id": "CELL", "axis": "v", "hx": hall_end, "hy": YC - 128, "width": 256, "swing": 1, "open": False}]
 rooms = [{"id": "CELL", "x": hall_end, "y": ch_t, "w": ch_x1 - hall_end, "h": ch_b - ch_t}]
 props = [{"type": "box", "x": px(21.8) - 46, "y": YC - 46, "w": 92, "h": 92}]          # restraint plate, chamber centre
@@ -49,7 +48,8 @@ scene = {"name": "greyrock_deathrow", "template": "explicit", "canvas": {"w": 20
              {"id": "B", "callsign": "HOUND", "kit": "crossbow", "build": 1.05, "color": "#a6e36e", "icon": "arrow"},
              {"id": "C", "callsign": "REYES", "kit": "recon", "build": 0.92, "color": "#b9a4ff", "icon": "diamond"},
              {"id": "D", "callsign": "MILLER", "kit": "rifle", "build": 1.0, "color": "#f0df7c", "icon": "square"},
-             {"id": "E", "callsign": "COLE", "kit": "medic", "build": 0.98, "color": "#f2f6f7", "icon": "cross"}]}
+             {"id": "E", "callsign": "COLE", "kit": "medic", "build": 0.98, "color": "#f2f6f7", "icon": "cross"},
+             {"id": "F", "callsign": "T04-4", "kit": "rifle", "build": 1.0, "color": "#9fb4ba", "icon": "circle"}]}
 json.dump(scene, open("scene/deathrow.json", "w"), indent=1)
 p = ("Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, cell partition and fixture must stay at the same pixel positions and proportions. Do not add, move or remove any wall, cell or doorway. "
      "Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colors and wall treatment. "

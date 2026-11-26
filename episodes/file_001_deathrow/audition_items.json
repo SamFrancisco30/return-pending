@@ -1,0 +1,79 @@
+[
+ {
+  "n": 1,
+  "from": 1,
+  "to": 6,
+  "title": "KNOX  //  SHOTGUN",
+  "sample": "shotgun.wav"
+ },
+ {
+  "n": 2,
+  "from": 6,
+  "to": 11,
+  "title": "MILLER  //  RIFLE",
+  "sample": "rifle.wav"
+ },
+ {
+  "n": 3,
+  "from": 11,
+  "to": 16,
+  "title": "REYES  //  PISTOL",
+  "sample": "pistol.wav"
+ },
+ {
+  "n": 4,
+  "from": 16,
+  "to": 21,
+  "title": "HOUND  //  CROSSBOW",
+  "sample": "crossbow.wav"
+ },
+ {
+  "n": 5,
+  "from": 21,
+  "to": 26,
+  "title": "HOUND  //  TOMAHAWK",
+  "sample": "axe.wav"
+ },
+ {
+  "n": 6,
+  "from": 26,
+  "to": 31,
+  "title": "PRISONER  //  BLOW ON KNOX'S SHIELD",
+  "sample": "shield_hit.wav"
+ },
+ {
+  "n": 7,
+  "from": 31,
+  "to": 36,
+  "title": "PRISONER  //  PUNCH LANDS ON A PERSON",
+  "sample": "punch.wav"
+ },
+ {
+  "n": 8,
+  "from": 36,
+  "to": 41,
+  "title": "PRISONER  //  POUNDING THE STEEL DOOR",
+  "sample": "door_pound.wav"
+ },
+ {
+  "n": 9,
+  "from": 41,
+  "to": 47,
+  "title": "STEEL DOOR  //  OPEN, THEN SHUT AND BOLT",
+  "sample": "fire_door.wav  >  door_slam.wav + door_latch.wav"
+ },
+ {
+  "n": 10,
+  "from": 47,
+  "to": 53,
+  "title": "FOOTSTEPS  //  KNOX WALKS (TOP), REYES RUNS (BOTTOM)",
+  "sample": "step_b.wav  /  step_a.wav"
+ },
+ {
+  "n": 11,
+  "from": 53,
+  "to": 61,
+  "title": "SHACKLES  //  RIPPLE, LOCK, EXCHANGE",
+  "sample": "pulse.wav  >  relocate.wav + glitch_burst.wav"
+ }
+]

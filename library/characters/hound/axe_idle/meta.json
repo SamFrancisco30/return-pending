@@ -1,0 +1,9 @@
+{
+ "action": "Sword_Idle",
+ "char": "hound_axe",
+ "frames": 41,
+ "fps": 24.0,
+ "size": 384,
+ "span_m": 2.6,
+ "source": "Quaternius Universal Animation Library (CC0) / Sword_Idle"
+}

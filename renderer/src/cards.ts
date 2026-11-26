@@ -69,7 +69,7 @@ export function renderCaseCard(cards: any, plates: { xray: Image }, beacon: numb
   const { cv, ctx } = frame(W, H);
   const X = 150, VX = 470, RY = 420;
   header(ctx, cards.program, `CASE FILE ${cards.file}`, X, 230, clamp(lt / 0.3));
-  const rows: Row[] = [
+  const rows: Row[] = cards.caseRows ? cards.caseRows : [
     { label: "SITE", segs: [{ text: cards.site }] },
     { label: "OBJECTIVE", segs: [{ text: cards.objective }] },
     ...cards.personnel.map((p: any, i: number) => ({
@@ -100,7 +100,7 @@ export function renderCaseCard(cards: any, plates: { xray: Image }, beacon: numb
   }
 
   // status stamp
-  const sa = lt - 6.0;
+  const sa = lt - (cards.stampAt ?? 6.0);
   if (sa > 0) {
     ctx.font = "22px Consolas"; ctx.fillStyle = DIM; ctx.fillText("STATUS", X, RY + 64 * rows.length + 40);
     const k = 1 + 0.5 * (1 - clamp(sa / 0.14));
@@ -123,7 +123,7 @@ export function renderReportCard(cards: any, lastSignal: string, lt: number, dur
   ctx.save(); ctx.globalAlpha = fade;
   header(ctx, `${cards.program} // FILE ${cards.file} // ${String(cards.site).split(" · ")[0]}`, "PERSONNEL RECOVERY REPORT", X, 160, clamp(lt / 0.3));
   const rec = cards.recovered?.[0];
-  const rows: Row[] = [
+  const rows: Row[] = cards.reportRows ? cards.reportRows : [
     { label: "MISSION OBJECTIVE", segs: [{ text: cards.result, bold: true }] },
     { label: "EXPOSURE", segs: [{ text: "BEFORE -> AFTER STABILIZER", color: DIM }] },
     ...cards.personnel.map((p: any) => ({

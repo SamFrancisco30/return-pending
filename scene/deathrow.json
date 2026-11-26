@@ -55,11 +55,23 @@
    276,
    480,
    276,
+   512
+  ],
+  [
+   276,
+   640,
+   276,
    672
   ],
   [
    324,
    426,
+   324,
+   512
+  ],
+  [
+   324,
+   640,
    324,
    726
   ],
@@ -222,25 +234,8 @@
    "hy": 512,
    "width": 128,
    "swing": 1,
-   "open": true
-  },
-  {
-   "id": "GATE_A",
-   "axis": "v",
-   "hx": 276,
-   "hy": 512,
-   "width": 128,
-   "swing": 1,
-   "open": true
-  },
-  {
-   "id": "GATE_B",
-   "axis": "v",
-   "hx": 324,
-   "hy": 512,
-   "width": 128,
-   "swing": 1,
-   "open": true
+   "open": false,
+   "heavy": true
   },
   {
    "id": "CELL",
@@ -610,6 +605,14 @@
    "build": 0.98,
    "color": "#f2f6f7",
    "icon": "cross"
+  },
+  {
+   "id": "F",
+   "callsign": "T04-4",
+   "kit": "rifle",
+   "build": 1.0,
+   "color": "#9fb4ba",
+   "icon": "circle"
   }
  ]
 }

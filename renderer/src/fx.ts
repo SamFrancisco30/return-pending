@@ -108,7 +108,70 @@ export function drawDoorFx(ctx: SKRSContext2D, d: { id: string; hx: number; hy: 
 }
 
 // ---------------- gunfire ----------------
-export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string };
+export type Shot = { x0: number; y0: number; x1: number; y1: number; age: number; kind?: string; seed?: number };
+// A short shotgun going off, seen from above. Five things, each on its own clock, all keyed to the seed of the shot so nothing
+// flickers from frame to frame: a white-hot flash with a forward tongue and two side jets; a dozen pellets that actually
+// travel; flecks where they land; a puff of smoke that hangs and drifts; and the spent shell kicked out to the right.
+function drawShotgunBlast(ctx: SKRSContext2D, s: Shot) {
+  const th = Math.atan2(s.y1 - s.y0, s.x1 - s.x0), D = Math.min(Math.hypot(s.x1 - s.x0, s.y1 - s.y0), 360), H = 0.19, age = s.age;
+  const r = rng((s.seed ?? Math.floor(s.x1 * 7 + s.y1 * 3)) + 17), cs = Math.cos(th), sn = Math.sin(th);
+  const at = (d: number, off = 0): [number, number] => [s.x0 + cs * d - sn * off, s.y0 + sn * d + cs * off];
+  ctx.save();
+  // smoke first, under everything, in normal blending so it greys the floor instead of adding light
+  ctx.globalCompositeOperation = "source-over";
+  for (let k = 0; k < 6; k++) {
+    const d0 = 14 + r() * 70, off = (r() - 0.5) * 30, grow = 12 + r() * 10, life = 0.55 + r() * 0.4, drift = 0.6 + r() * 0.6, u = clamp((age - 0.03) / life);
+    if (age <= 0.03 || u >= 1) continue;
+    const [x, y] = at(d0 + 46 * u * drift, off * (1 + u)), R = grow + 30 * Math.sqrt(u), al = 0.17 * Math.sin(Math.PI * Math.min(1, u * 1.15)) * (1 - u * 0.4);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, R); g.addColorStop(0, `rgba(196,212,214,${al})`); g.addColorStop(0.6, `rgba(170,190,194,${al * 0.55})`); g.addColorStop(1, "rgba(160,180,186,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R, 0, TAU); ctx.fill();
+  }
+  ctx.globalCompositeOperation = "lighter";
+  const spikes = Array.from({ length: 5 }, () => [(r() - 0.5) * 1.5, 30 + r() * 34]);
+  // the flash: over in two or three frames
+  if (age < 0.075) {
+    const a = 1 - age / 0.075, k = 0.75 + 0.25 * a;
+    const gl = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 190); gl.addColorStop(0, `rgba(255,236,196,${0.30 * a})`); gl.addColorStop(1, "rgba(255,210,150,0)");
+    ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(s.x0, s.y0, 190, 0, TAU); ctx.fill();                         // light thrown on the floor
+    const jet = (ang: number, len: number, wid: number, alpha: number) => {
+      const c = Math.cos(ang), n = Math.sin(ang), tx = s.x0 + c * len, ty = s.y0 + n * len, mx = s.x0 + c * len * 0.35, my = s.y0 + n * len * 0.35;
+      const g = ctx.createLinearGradient(s.x0, s.y0, tx, ty); g.addColorStop(0, `rgba(255,255,246,${alpha})`); g.addColorStop(0.45, `rgba(255,224,150,${alpha * 0.8})`); g.addColorStop(1, "rgba(255,150,60,0)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.quadraticCurveTo(mx - n * wid, my + c * wid, tx, ty); ctx.quadraticCurveTo(mx + n * wid, my - c * wid, s.x0, s.y0); ctx.fill();
+    };
+    jet(th, 92 * k, 17, a); jet(th + 1.15, 34 * k, 7, a * 0.8); jet(th - 1.15, 34 * k, 7, a * 0.8);
+    for (const [da, len] of spikes) jet(th + da, len * k, 2.6, a * 0.7);
+    const c0 = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 30); c0.addColorStop(0, `rgba(255,255,250,${a})`); c0.addColorStop(0.5, `rgba(255,236,190,${0.6 * a})`); c0.addColorStop(1, "rgba(255,200,120,0)");
+    ctx.fillStyle = c0; ctx.beginPath(); ctx.arc(s.x0, s.y0, 30, 0, TAU); ctx.fill();
+  } else if (age < 0.4) {                                                                                          // the muzzle stays hot for a moment
+    const a = (1 - (age - 0.075) / 0.325) * 0.5, g = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 16);
+    g.addColorStop(0, `rgba(255,214,160,${a})`); g.addColorStop(1, "rgba(255,170,90,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x0, s.y0, 16, 0, TAU); ctx.fill();
+  }
+  // pellets: each flies its own line at its own speed, a tapering streak behind a bright head, then a fleck where it lands
+  ctx.lineCap = "round";
+  for (let q = 0; q < 13; q++) {
+    const an = th + (r() + r() - 1) * H, reach = D * (0.86 + r() * 0.26), speed = D / (0.055 + r() * 0.035), sc = [r(), r(), r(), r()];
+    const d = Math.min(reach, speed * age), tHit = reach / speed, c = Math.cos(an), n = Math.sin(an), hx = s.x0 + c * d, hy = s.y0 + n * d;
+    if (age < tHit + 0.02) {
+      const tail = Math.min(d, 58), tx = hx - c * tail, ty = hy - n * tail; if (tail < 1) continue;
+      const g = ctx.createLinearGradient(tx, ty, hx, hy); g.addColorStop(0, "rgba(255,220,160,0)"); g.addColorStop(1, "rgba(255,250,232,0.95)");
+      ctx.strokeStyle = g; ctx.lineWidth = 1.9; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(hx, hy); ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,245,0.95)"; ctx.beginPath(); ctx.arc(hx, hy, 1.7, 0, TAU); ctx.fill();
+    } else if (age < tHit + 0.22) {
+      const u = (age - tHit) / 0.22, a = 1 - u, ex = s.x0 + c * reach, ey = s.y0 + n * reach;
+      ctx.fillStyle = `rgba(255,214,150,${a})`; ctx.beginPath(); ctx.arc(ex, ey, 3.2 * a + 0.6, 0, TAU); ctx.fill();
+      for (let w = 0; w < 2; w++) { const sa = an + Math.PI + (sc[w * 2] - 0.5) * 2.4, sd = 6 + 26 * u * (0.5 + sc[w * 2 + 1]);
+        ctx.fillStyle = `rgba(255,196,120,${a * 0.9})`; ctx.beginPath(); ctx.arc(ex + Math.cos(sa) * sd, ey + Math.sin(sa) * sd, 1.3, 0, TAU); ctx.fill(); }
+    }
+  }
+  // the spent shell: out to the right, tumbling, comes to rest and cools
+  if (age > 0.07 && age < 0.9) {
+    const u = age - 0.07, d = 46 * (1 - Math.exp(-u * 7)), back = -30 - 10 * (1 - Math.exp(-u * 5)), [x, y] = at(back, d + 12), a = age < 0.55 ? 1 : 1 - (age - 0.55) / 0.35;
+    ctx.globalCompositeOperation = "source-over"; ctx.translate(x, y); ctx.rotate(th + 9 * (1 - Math.exp(-u * 4)));
+    ctx.fillStyle = `rgba(255,232,170,${0.95 * a})`; ctx.fillRect(-3.6, -1.5, 7.2, 3); ctx.fillStyle = `rgba(255,255,240,${a})`; ctx.fillRect(1.6, -1.5, 2, 3);
+  }
+  ctx.restore();
+}
+
 export function drawGunfire(ctx: SKRSContext2D, shots: Shot[]) {
   ctx.save(); ctx.globalCompositeOperation = "lighter";
   for (const s of shots) {
@@ -119,6 +182,7 @@ export function drawGunfire(ctx: SKRSContext2D, shots: Shot[]) {
       ctx.beginPath(); ctx.moveTo(tx - ux * 34, ty - uy * 34); ctx.lineTo(tx, ty); ctx.stroke();
       continue;
     }
+    if (s.kind === "shotgun") { drawShotgunBlast(ctx, s); continue; }
     if (s.age < 0.2) { // tracer + muzzle bloom
       const a = 1 - s.age / 0.2;
       const g = ctx.createRadialGradient(s.x0, s.y0, 0, s.x0, s.y0, 70);
@@ -384,6 +448,62 @@ export function drawPulseHud(ctx: SKRSContext2D, W: number, H: number, t: number
     ctx.font = "bold 20px Consolas"; ctx.fillStyle = "rgba(255,170,160,0.8)"; ctx.fillText("SEC", x0 + 154, y + 80);
     const bx = x0 + 214, n = 10, lit = Math.ceil((1 - sec / p.period) * n);
     for (let k = 0; k < n; k++) { ctx.fillStyle = k < lit ? `rgba(255,74,58,${beat})` : "rgba(140,90,85,0.3)"; ctx.fillRect(bx + k * 10, y + 58, 7, 22); }
+  }
+  ctx.restore();
+}
+
+// ---------------- FILE 001: the block's security door, and a recovery line ----------------
+// A thick steel leaf from hinge (hx, hy) to its free end. f = open fraction; shut, it shows its bolts and a SEALED tag.
+export function drawHeavyDoor(ctx: SKRSContext2D, hx: number, hy: number, ex: number, ey: number, f: number, t: number) {
+  const L = Math.hypot(ex - hx, ey - hy) || 1, ux = (ex - hx) / L, uy = (ey - hy) / L, shut = f < 0.04, moving = f > 0.04 && f < 0.96;
+  ctx.save(); ctx.translate(hx, hy); ctx.rotate(Math.atan2(uy, ux));
+  ctx.shadowColor = shut ? "rgba(120,230,245,1)" : "rgba(120,230,245,0.6)"; ctx.shadowBlur = shut ? 22 : 10;
+  ctx.fillStyle = "rgba(26,46,54,1)"; ctx.beginPath(); ctx.roundRect(-4, -12, L + 8, 24, 3); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(190,238,246,0.98)"; ctx.lineWidth = 2.6; ctx.stroke();
+  ctx.fillStyle = "rgba(70,112,124,1)"; ctx.fillRect(2, -7, L - 4, 14);                         // plate
+  ctx.strokeStyle = "rgba(150,210,222,0.8)"; ctx.lineWidth = 1.2;
+  for (let x = 14; x < L - 6; x += 22) { ctx.beginPath(); ctx.moveTo(x, -7); ctx.lineTo(x, 7); ctx.stroke(); }   // ribs
+  ctx.fillStyle = "rgba(220,244,250,0.95)";
+  for (let x = 8; x < L; x += 22) { ctx.beginPath(); ctx.arc(x, -9.2, 1.5, 0, TAU); ctx.arc(x, 9.2, 1.5, 0, TAU); ctx.fill(); }   // rivets
+  ctx.beginPath(); ctx.arc(0, 0, 7, 0, TAU); ctx.fillStyle = "rgba(190,238,246,0.95)"; ctx.fill();   // hinge post
+  if (shut) {                                                                                         // drop bolts thrown
+    ctx.fillStyle = "rgba(255,214,130,0.95)"; ctx.fillRect(L * 0.30, -15, 7, 30); ctx.fillRect(L * 0.66, -15, 7, 30);
+  }
+  ctx.restore();
+  if (moving) {                                                                                       // swing arc
+    ctx.save(); ctx.strokeStyle = "rgba(150,235,245,0.3)"; ctx.setLineDash([5, 7]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(hx, hy, L, 0, Math.PI / 2); ctx.stroke(); ctx.restore();
+  }
+  if (shut) {
+    ctx.save(); ctx.font = "bold 16px Consolas"; const txt = "DOOR SEALED", w = ctx.measureText(txt).width + 16, mx = (hx + ex) / 2, my = (hy + ey) / 2;
+    ctx.fillStyle = "rgba(20,14,2,0.85)"; ctx.fillRect(mx - w - 26, my - 13, w, 26);
+    ctx.strokeStyle = "rgba(255,214,130,0.9)"; ctx.lineWidth = 1.5; ctx.strokeRect(mx - w - 26, my - 13, w, 26);
+    ctx.fillStyle = "rgba(255,224,150,0.98)"; ctx.fillText(txt, mx - w - 18, my + 5.5); ctx.restore();
+  }
+}
+export type Rope = { x0: number; y0: number; x1: number; y1: number };
+export function drawRopes(ctx: SKRSContext2D, ropes: Rope[], t: number) {
+  for (const r of ropes) {
+    const mx = (r.x0 + r.x1) / 2, my = (r.y0 + r.y1) / 2 + 5 + Math.sin(t * 9) * 1.5;
+    ctx.save(); ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(10,20,24,0.8)"; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(r.x0, r.y0); ctx.quadraticCurveTo(mx, my, r.x1, r.y1); ctx.stroke();
+    ctx.strokeStyle = "rgba(226,245,250,0.95)"; ctx.lineWidth = 2.2; ctx.setLineDash([7, 4]); ctx.beginPath(); ctx.moveTo(r.x0, r.y0); ctx.quadraticCurveTo(mx, my, r.x1, r.y1); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// how loud something was, drawn on the map: a small pale ring for a blade or a bolt, a wide warm one for a gunshot
+export type SoundRing = { x: number; y: number; r: number; age: number; loud: boolean };
+export function drawSounds(ctx: SKRSContext2D, rings: SoundRing[]) {
+  ctx.save();
+  for (const s of rings) {
+    const life = s.loud ? 1.1 : 0.6; if (s.age < 0 || s.age > life) continue;
+    const u = s.age / life, a = (1 - u) * (s.loud ? 0.75 : 0.6);
+    for (let k = 0; k < (s.loud ? 3 : 2); k++) {
+      const rr = s.r * (u * (1 - k * 0.22)); if (rr <= 2) continue;
+      ctx.strokeStyle = s.loud ? `rgba(255,226,176,${a * (1 - k * 0.3)})` : `rgba(226,245,250,${a * (1 - k * 0.3)})`;
+      ctx.lineWidth = s.loud ? 3.5 - k : 2; ctx.beginPath(); ctx.arc(s.x, s.y, rr, 0, TAU); ctx.stroke();
+    }
   }
   ctx.restore();
 }
