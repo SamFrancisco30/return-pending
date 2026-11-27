@@ -51,10 +51,10 @@ body.data.materials.clear(); body.data.materials.append(M_SKIN); body.data.mater
 V = body.data.vertices
 for p in body.data.polygons:
     c = sum((V[i].co for i in p.vertices), Vector()) / len(p.vertices); c = body.matrix_world @ c; ax = abs(c.x)
-    if CHAR in ("prisoner", "resident"): cloth = c.z < 1.02 or (ax < 0.24 and c.z < 1.50) or (0.24 <= ax < 0.36 and c.z > 1.30)      # jumpsuit: legs, torso, sleeves torn off at the shoulder
+    if CHAR in ("prisoner", "resident", "resident_b", "resident_c"): cloth = c.z < 1.02 or (ax < 0.24 and c.z < 1.50) or (0.24 <= ax < 0.36 and c.z > 1.30)      # jumpsuit: legs, torso, sleeves torn off at the shoulder
     else: cloth = not (ax > 0.70 or c.z > 1.52)                                                                    # uniform everywhere but hands and face
     p.material_index = 1 if cloth and VAR == "v2" else 0
-if VAR != "v2" and CHAR not in ("prisoner", "resident"): body.data.materials[0] = mat("body", 0.0, 0.0, 1.0)
+if VAR != "v2" and CHAR not in ("prisoner", "resident", "resident_b", "resident_c"): body.data.materials[0] = mat("body", 0.0, 0.0, 1.0)
 
 # ---- kit: simple solids placed in the REST pose and parented to a bone
 arm.data.pose_position = "REST"; bpy.context.view_layer.update()
@@ -152,6 +152,17 @@ if CHAR == "prisoner":
         f = P(k.replace("shin", "foot")); bpy.ops.mesh.primitive_torus_add(location=(f.x, f.y + 0.02, f.z + 0.06), major_radius=0.062, minor_radius=0.032); attach(bpy.context.object, k, M_GLOW)
     arm.scale = (1.32, 1.30, 1.10)                       # a much bigger man: wide and deep, a little taller
 if CHAR == "resident": arm.scale = (0.94, 0.90, 0.97)     # an ordinary inmate, on the thin side: nothing on him, nothing in his hands
+if CHAR == "resident_b": arm.scale = (1.14, 1.20, 0.99)   # a heavy man
+if CHAR == "resident_c": arm.scale = (0.86, 0.84, 1.08)   # a tall thin one
+if CHAR == "guard":                                      # a prison officer: what tells him from an inmate from above is the wide flat cap, the belt and the baton in his hand
+    hd, hp, hr = P("head"), P("hips"), P("hand_r")
+    bpy.ops.mesh.primitive_cylinder_add(location=(hd.x, hd.y, hd.z + 0.265), radius=0.185, depth=0.06, vertices=28); attach(bpy.context.object, "head", M_KIT)
+    box("cap_peak", (hd.x, hd.y - 0.19, hd.z + 0.245), (0.24, 0.13, 0.03), "head", M_GUN, bevel=0.012)
+    box("cap_badge", (hd.x, hd.y - 0.10, hd.z + 0.30), (0.07, 0.05, 0.02), "head", M_GUN, bevel=0.006)
+    box("belt", (hp.x, hp.y, hp.z + 0.06), (0.42, 0.30, 0.09), "hips", M_KIT, bevel=0.03)
+    for sx in (-1, 1): box("epaulette", (hd.x + sx * 0.21, hd.y + 0.01, hd.z - 0.10), (0.13, 0.11, 0.03), "chest", M_KIT, bevel=0.01)
+    box("baton", (hr.x, hr.y - 0.24, hr.z), (0.05, 0.62, 0.05), "hand_r", M_GUN, bevel=0.015)
+    arm.scale = (1.06, 1.10, 1.03)
 arm.data.pose_position = "POSE"
 
 # ---- the action

@@ -15,7 +15,7 @@ def run(cmd, cwd=ROOT):
 def clear_frames():
     for f in glob.glob(os.path.join(ROOT, "renders", "frames", "*.png")): os.remove(f)
 print(run(["node", f"episodes/file_001_deathrow/build_{act}.mjs"]).strip().splitlines()[-1])
-dur = json.load(open(tl, encoding="utf8"))["duration"]
+_t = json.load(open(tl, encoding="utf8")); dur = _t["duration"] + sum(f["dur"] for f in _t.get("freezes", []))      # held-picture cards make the output longer than the timeline
 if "--review" in sys.argv:
     step = float(arg("--review")); a, b = map(float, arg("--span", f"0,{dur}").split(",")); z = float(arg("--crop", "1")); cols = int(arg("--cols", "4"))
     fr = []; t = a

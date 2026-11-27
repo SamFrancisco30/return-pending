@@ -35,7 +35,12 @@ CHARS = {
     # the place's own: inmates still lined up for a count. Same body rendered once, tinted twice: unnoticed (dim) and roused.
     "resident_dim": {"tint": ["ember"], "actions": {"stand": C(UAL1, "Idle_Loop", build="resident"), "walk": C(UAL1, "Walk_Loop", build="resident"), "down": C(UAL2, "Hit_Knockback", build="resident", follow=1, span=3.6)}},
     "resident": {"tint": ["roused"], "actions": {"turn": C(UAL1, "Hit_Head", build="resident"), "idle": C(UAL2, "Zombie_Idle_Loop", build="resident"), "walk": C(UAL2, "Zombie_Walk_Fwd_Loop", build="resident"),
-        "attack": C(UAL2, "Zombie_Scratch", build="resident"), "hit": C(UAL1, "Hit_Chest", build="resident"), "down": C(UAL2, "Hit_Knockback", build="resident", follow=1, span=3.6)}},
+        "attack": C(UAL2, "Zombie_Scratch", build="resident"), "hit": C(UAL1, "Hit_Chest", build="resident"), "down": C(UAL2, "Hit_Knockback", build="resident", follow=1, span=3.6), "down2": C(UAL1, "Death01", build="resident", follow=1, span=3.6)}},
+    # more bodies for the block, so a row of men is not one man copied: a heavy one, a tall one, and the officers (cap, belt, baton)
+    **{f"resident_dim{sfx}": {"tint": ["ember"], "actions": {"stand": C(UAL1, "Idle_Loop", build=bd), "walk": C(UAL1, "Walk_Loop", build=bd)}} for sfx, bd in (("_b", "resident_b"), ("_c", "resident_c"), ("_g", "guard"))},
+    **{f"resident{sfx}": {"tint": ["roused"], "actions": {"turn": C(UAL1, "Hit_Head", build=bd), "idle": C(UAL2, "Zombie_Idle_Loop", build=bd), "walk": C(UAL2, "Zombie_Walk_Fwd_Loop", build=bd),
+        "attack": C(UAL2, "Zombie_Scratch", build=bd), "hit": C(UAL1, "Hit_Chest", build=bd), "down": C(UAL2, "Hit_Knockback", build=bd, follow=1, span=3.6), "down2": C(UAL1, "Death01", build=bd, follow=1, span=3.6)}}
+       for sfx, bd in (("_b", "resident_b"), ("_c", "resident_c"), ("_g", "guard"))},
     # a man of Team 04, seven days dead: the same body and kit as the squad, with the heat gone out of it. Only ever seen lying where he fell.
     "t04": {"tint": ["cold", "#8ba2aa"], "actions": {"death": C(UAL1, "Death01", build="miller", follow=1, span=3.6), "lying": C(UAL2, "LayToIdle", build="miller", follow=1, noweapon=1, curl=1)}},
     "prisoner": {"tint": ["boss", "#62c4ff"], "actions": {

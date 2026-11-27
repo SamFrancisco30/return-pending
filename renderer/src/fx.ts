@@ -267,6 +267,18 @@ export function drawProps(ctx: SKRSContext2D, props: Prop[], t: number) {
         ctx.strokeStyle = "rgba(10,20,23,0.8)"; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
       ctx.restore(); continue;
     }
+    if (p.kind === "lever") {                // the cell-door lever on the face of the officers' station: a steel console, a row of door lamps, and one big handle that is thrown across
+      const presses: number[] = p.presses ?? [], n = presses.filter(q => q <= t).length, since = n ? t - presses[n - 1] : 9, u = n ? Math.min(1, since / 0.28) : 0, thrown = n % 2 === 1 ? u : 1 - (n ? u : 1) * 0 - (n ? 0 : 1) * 0;
+      const k = n % 2 === 1 ? u : n ? 1 - u : 0, ang = (-38 + 76 * k) * Math.PI / 180;              // handle swings from left to right
+      ctx.fillStyle = "rgba(12,24,29,0.98)"; ctx.strokeStyle = "rgba(170,222,232,0.95)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.roundRect(-34, -9, 68, 20, 3); ctx.fill(); ctx.stroke();
+      for (let i = 0; i < 6; i++) { ctx.fillStyle = k > 0.5 ? "rgba(255,96,80,0.95)" : i === 4 ? "rgba(255,193,90,0.95)" : "rgba(120,220,235,0.8)"; ctx.fillRect(-28 + i * 10, -5, 6, 4); }      // one lamp a door: the open one amber, all red once thrown
+      ctx.strokeStyle = "rgba(60,84,92,1)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 12, 15, Math.PI * 1.2, Math.PI * 1.8); ctx.stroke();                 // the slot the handle travels in
+      ctx.save(); ctx.translate(0, 12); ctx.rotate(ang); ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(6,14,16,0.9)"; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -24); ctx.stroke();
+      ctx.strokeStyle = "rgba(214,240,246,1)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -24); ctx.stroke();
+      ctx.fillStyle = since < 0.5 ? "rgba(255,255,255,1)" : "rgba(255,193,90,1)"; ctx.shadowColor = "rgba(255,193,90,1)"; ctx.shadowBlur = since < 0.5 ? 22 : 8; ctx.beginPath(); ctx.arc(0, -24, 5.5, 0, TAU); ctx.fill(); ctx.restore();
+      void thrown; ctx.restore(); continue;
+    }
     if (p.kind === "panel") {                // a door control on the wall: a small box with one light. Red while the door is shut, green once someone has pressed it
       const presses: number[] = p.presses ?? [], n = presses.filter(q => q <= t).length, open = n % 2 === 1, since = n ? t - presses[n - 1] : 9;
       ctx.rotate((p.rot ?? 0) * Math.PI / 180); ctx.fillStyle = "rgba(14,28,33,0.98)"; ctx.strokeStyle = "rgba(170,222,232,0.95)"; ctx.lineWidth = 1.6;
@@ -620,8 +632,10 @@ export function drawSounds(ctx: SKRSContext2D, rings: SoundRing[]) {
 const rgba = (hex: string, al: number) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${al})`; };
 export function drawEquipCard(ctx: SKRSContext2D, W: number, H: number, t: number, q: any) {
   const a = Math.max(0, Math.min(1, q.lt / 0.3)) * Math.max(0, Math.min(1, (q.dur - q.lt) / 0.4)); if (a <= 0.01) return;
-  const w = 500, h = 600, x = W - 34 - w - 14, y = 150, c = q.color ?? "#6fdcff", slide = (1 - Math.min(1, q.lt / 0.3)) * 40;
-  ctx.save(); ctx.globalAlpha = a; ctx.translate(slide, 0);
+  const w = 500, h = 600, c = q.color ?? "#6fdcff", slide = q.full ? 0 : (1 - Math.min(1, q.lt / 0.3)) * 40;
+  const x = q.full ? -w / 2 : W - 34 - w - 14, y = q.full ? -h / 2 : 150;
+  ctx.save(); ctx.globalAlpha = a;
+  if (q.full) { ctx.translate(W / 2, H / 2); ctx.scale(1.55, 1.55); } else ctx.translate(slide, 0);     // full: alone in the middle of a held picture
   ctx.fillStyle = "rgba(4,9,12,0.9)"; ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = rgba(c, 0.55); ctx.lineWidth = 1.5; ctx.strokeRect(x, y, w, h); ctx.strokeRect(x + 8, y + 8, w - 16, h - 16);
   ctx.font = "bold 16px Consolas"; ctx.fillStyle = rgba(c, 0.95); ctx.fillText(q.label, x + 28, y + 44);

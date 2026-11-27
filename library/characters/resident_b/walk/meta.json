@@ -1,0 +1,10 @@
+{
+ "action": "Zombie_Walk_Fwd_Loop",
+ "char": "resident_b",
+ "frames": 33,
+ "fps": 24.0,
+ "size": 384,
+ "span_m": 2.6,
+ "speed_mps": 1.166,
+ "source": "Quaternius Universal Animation Library (CC0) / Zombie_Walk_Fwd_Loop"
+}

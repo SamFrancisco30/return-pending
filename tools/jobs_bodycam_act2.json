@@ -1,0 +1,24 @@
+[
+ {
+  "name": "bodycam_a2_watch_e",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/bodycam_refs/block_hall_master.png",
+   "scene/bodycam_refs/officer_master.png"
+  ],
+  "prompt": "A single frame of realistic helmet-mounted body camera footage: first person, wide-angle lens with barrel distortion, low light, heavy digital noise, real colours, lit only by the harsh cone of the wearer's weapon flashlight; the flashlight on the wearer's weapon just visible at the bottom edge. Image 1 shows the EXACT PLACE: this new frame is shot in the same hall by the same camera, looking the same way down it, so everything fixed must match image 1 exactly: the row of rusted barred cell doors on the LEFT with the same peeling grey-green and white paint between them, the steel mess tables with round stools on the RIGHT, the same ceiling and dead strip lights, the same dust and floor, the same cold white flashlight colour. The prisoners are the same dust-covered men in faded orange jumpsuits standing motionless behind the shut barred doors. Image 2 shows the EXACT OFFICER and he must be unmistakably the same man: the same face in his forties with DARK hair and dark heavy eyebrows, hollow cheeks, grey dusty skin, the same dusty wide peaked cap with the same round brass badge, the same dark uniform thick with grey dust, tie and shoulder straps, the same wooden clipboard. NOT an old man, NOT white-haired. The moment: the wearer stands still, only ONE AND A HALF metres from the officer, close enough that he fills the middle of the frame from the knees up. He has just stopped in front of the one cell whose barred door stands OPEN on a black empty interior; that open doorway is on the LEFT of the frame directly beside him. He is seen in three-quarter PROFILE from his right side, face clearly visible and lit by the flashlight, every detail of the dust on his cap, shoulders and sleeves sharp: he is looking into the black doorway, not at the camera, the clipboard held up in his left hand, a pencil in his right hand resting on it. No badges or insignia on his chest. He has not noticed the camera. Calm, still. The hall runs away into darkness beyond him. No blood, no gore, no wounds, no fangs, no monsters, no text, no watermark, no HUD, no timestamp."
+ },
+ {
+  "name": "bodycam_a2_watch_f",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/bodycam_refs/block_hall_master.png",
+   "scene/bodycam_refs/officer_master.png"
+  ],
+  "prompt": "A single frame of realistic helmet-mounted body camera footage: first person, wide-angle lens with barrel distortion, low light, heavy digital noise, real colours, lit only by the harsh cone of the wearer's weapon flashlight; the flashlight on the wearer's weapon just visible at the bottom edge. Image 1 shows the EXACT PLACE: this new frame is shot in the same hall by the same camera, looking the same way down it, so everything fixed must match image 1 exactly: the row of rusted barred cell doors on the LEFT with the same peeling grey-green and white paint between them, the steel mess tables with round stools on the RIGHT, the same ceiling and dead strip lights, the same dust and floor, the same cold white flashlight colour. The prisoners are the same dust-covered men in faded orange jumpsuits standing motionless behind the shut barred doors. Image 2 shows the EXACT OFFICER and he must be unmistakably the same man: the same face in his forties with DARK hair and dark heavy eyebrows, hollow cheeks, grey dusty skin, the same dusty wide peaked cap with the same round brass badge, the same dark uniform thick with grey dust, tie and shoulder straps, the same wooden clipboard. NOT an old man, NOT white-haired. The moment: the wearer stands still, only ONE AND A HALF metres from the officer, close enough that he fills the middle of the frame from the knees up. He has just stopped in front of the one cell whose barred door stands OPEN on a black empty interior; that open doorway is on the LEFT of the frame directly beside him. He is seen in three-quarter PROFILE from his right side, face clearly visible and lit by the flashlight, every detail of the dust on his cap, shoulders and sleeves sharp: he is looking into the black doorway, not at the camera, the clipboard held up in his left hand, a pencil in his right hand resting on it. No badges or insignia on his chest. He has not noticed the camera. Calm, still. The hall runs away into darkness beyond him. No blood, no gore, no wounds, no fangs, no monsters, no text, no watermark, no HUD, no timestamp."
+ }
+]

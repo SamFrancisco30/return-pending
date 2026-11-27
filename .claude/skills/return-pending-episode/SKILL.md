@@ -17,7 +17,7 @@ Everything here was learned making FILE 001 (DEATH ROW). The user judges by watc
    - spacing between squad members (>= 1.0 m), nobody inside a column, nobody inside a wall
    - timing races the plot relies on (door shut before he reaches it, out before the next pulse)
 4. **Look before you send.** I cannot hear audio or see motion. `python tools/render_act.py <act> --review 1.0` makes a sheet of frames; use `--span a,b --crop 1.6` to look closely at a beat. Read it, fix what is visibly wrong, then render. Say plainly that sound and continuous motion are unverified.
-5. **Render and tidy.** `python tools/render_act.py <act>` builds, renders, mixes sound, bumps the version and deletes older versions and frame images. `python tools/render_episode.py` renders every part and joins the full film. Never leave superseded previews or `renders/frames` behind (the disk is nearly full; the user asked for this every time).
+5. **Render and tidy.** `python tools/render_act.py <act>` builds, renders, mixes sound, bumps the version and deletes older versions and frame images. `python tools/render_episode.py` renders every part and joins the full film: only when the user asks for the whole film, not after every change. Never leave superseded previews or `renders/frames` behind (the disk is nearly full; the user asked for this every time).
 6. **Report honestly.** List what changed against each of the user's notes, then what I can see is still weak.
 
 ## Staging rules the user has given
@@ -59,6 +59,16 @@ Everything here was learned making FILE 001 (DEATH ROW). The user judges by watc
 - Real recordings or generated samples, not synthesis in code. Ready-made CC0 packs are fine (ask before downloading; keep them under `audio/_downloads/<pack>/`).
 - One event, one sound. An exchange of places keeps its own sound and nothing else is laid over it (no static, no alert). Before adding a sound, list what already fires at that instant.
 
+## Helmet cameras (Bodycam)
+
+- They show what the overhead feed cannot: what the red figures really are, and the one scare of an act. Two seconds or less each, a few per act.
+- **Shots of the same place must agree.** Never generate the stills of one place independently. Make one establishing still first and keep it as the master (`scene/bodycam_refs/<place>_master.png`); keep a master for any person seen close (`officer_master.png`). Every later still of that place is generated WITH the masters as reference images and told to match them exactly (walls, doors, furniture, light colour, the same face and clothes). Then lay the stills side by side and look for contradictions before animating.
+- **One beat, one take.** A beat with several moments (he stops, he turns his head, he comes, he grabs) is generated as ONE long clip (12 s works with `seedance-2.0-fast`, about $0.92) and trimmed, never as separate clips cut together: separate clips change the face, the clothes and the background, and the user sees it. Give the take a timeline in seconds in the prompt, and say what must never change.
+- **Start close.** Anyone who comes toward the camera must already be large in the first frame (knees up), with every detail the take has to keep. A small far figure gets re-invented as it approaches (clean uniform, new face). Sample one frame per second before using a take.
+- **Keep screen direction.** Within one person's run of shots, what was on the left stays on the left (the row of cells, the tables, the officer). Decide it from the first shot, write it into every later prompt, and put the person on the map where that view is true. If a clip comes out the other way round, mirror it (`ffmpeg -vf hflip`) rather than cut across it.
+- They must also agree with the map: which side things are on, where the open door is, who is near the camera at that moment in the timeline.
+- Flow: stills as A/B on a board for the user -> image-to-video (`tools/apimart_video.py`, 4 s clips; sample frames and look, the last second often drifts) -> `shots` of `type: "bodycam"` in the builder with `clip`, `clipOffset`, `unit`. The map carries on underneath, so put a shot where nothing essential happens on the map. Video clips are not in git (`*.mp4` is ignored).
+
 ## What is not done by these tools
 
-Voice-over (ElevenLabs, cast in `scene/voice_cast.json`), Bodycam shots (AI image and video), and canon/bible updates. Do not write proposals into the bible, set `approved`, run `--apply`, commit or push unless the user asks.
+Voice-over (ElevenLabs, cast in `scene/voice_cast.json`), music, and canon/bible updates. Do not write proposals into the bible, set `approved`, run `--apply`, commit or push unless the user asks.

@@ -324,7 +324,20 @@ R = (roomg + fxR + conv(roomg * 0.6 + fxR) * wet) * duck + vo + ui
 fade = int(0.25 * SR); L[-fade:] *= np.linspace(1, 0, fade); R[-fade:] *= np.linspace(1, 0, fade)
 peak = np.percentile(np.abs(np.concatenate([L, R])), 99.97)   # transients (gunfire, slams) ride the soft clip instead of setting the level
 L, R = np.tanh(L / peak * 1.1) * 0.97, np.tanh(R / peak * 1.1) * 0.97   # tanh tops out at 1, so nothing can pass 0.97 and wrap around in int16
+# freezes (tl.freezes, see renderer/src/animate.ts): the picture holds while a card is read, so the mix is opened at that moment:
+# what was sounding fades out, the gap carries only room tone and the card being typed, then everything comes back in
+for f in sorted(tl.get("freezes", []), key=lambda f: -f["at"]):
+    i = int(f["at"] * SR); m = int(f["dur"] * SR); k = int(0.12 * SR); gap = np.zeros(m)
+    a_ = smp("ambience", trim=False)
+    if a_ is not None: gap += loop(a_, m) * 0.045
+    ty = smp("typing")
+    if ty is not None: n_ = min(m - int(0.6 * SR), int(2.4 * SR)); gap[int(0.5 * SR):int(0.5 * SR) + n_] += loop(ty, n_, 0.05) * env(n_, 0.01, 0.05) * 0.2
+    gap *= env(m, 0.1, 0.1)
+    def opened(x):
+        x = x.copy(); x[max(0, i - k):i] *= np.linspace(1, 0, min(k, i)); x[i:i + k] *= np.linspace(0, 1, len(x[i:i + k]))
+        return np.concatenate([x[:i], gap, x[i:]])
+    L, R = opened(L), opened(R)
 pcm = (np.stack([L, R], 1) * 32767).astype(np.int16)
 with wave.open(sys.argv[2], "wb") as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
-print("wrote", sys.argv[2], round(N / SR, 2), "s,", len(cues), "explicit cues")
+print("wrote", sys.argv[2], round(len(L) / SR, 2), "s,", len(cues), "explicit cues")

@@ -7,7 +7,7 @@ import ffmpegPath from "ffmpeg-static";
 import { loadImage, createCanvas, type Image } from "@napi-rs/canvas";
 import { loadScene } from "./geometry.ts";
 import { loadPlates, renderFrame, renderBodycam, renderSignalLost, type FrameState, type Style } from "./compose.ts";
-import { doorFxAt } from "./fx.ts";
+import { doorFxAt, drawEquipCard } from "./fx.ts";
 import { renderTitleCard, renderCaseCard, renderReportCard } from "./cards.ts";
 import { renderAerial } from "./aerial.ts";
 
@@ -41,16 +41,20 @@ function spriteAt(who: string, t: number, clipSpeed?: (from: number) => number) 
   const s = spriteClips[path.join(clip.dir ?? cfg.dir, clip.action)], n = s.imgs.length;
   // a walk or run loop is played as fast as the figure really travels, so the feet do not slide
   const auto = clip.loop && s.speed && clipSpeed ? Math.max(0.55, Math.min(2.0, clipSpeed(clip.from) / cfg.pxPerM / s.speed)) : 1;
-  const k = Math.max(0, (t - clip.from) * s.fps * (clip.rate ?? auto));
+  const k = Math.max(0, (t - clip.from) * s.fps * (clip.rate ?? auto)) + (clip.loop ? (cfg.phase ?? 0) * n : 0);
   const fi = clip.loop ? Math.floor(k) % n : Math.min(n - 1, Math.floor(k)), u = cfg.pxPerM * (cfg.scale ?? 1), mz = s.muzzle?.[fi];
   // the blade's last few positions in a one-shot swing: the compositor draws the cut through them
   const trail = !clip.loop && s.tip ? s.tip.slice(Math.max(0, fi - 4), fi + 1).map(p => [p[0] * u, p[1] * u]) : undefined;
   return { img: s.imgs[fi], size: s.span * u, muzzle: mz ? [mz[0] * u, mz[1] * u] : undefined, trail };
 }
 const feedLabel = tl.feedLabel ?? "SITE 07 // ROUTE 9 MOTEL // CAM-OVH";
-const W = 1920, H = 1080, FPS = tl.fps, N = Math.round(tl.duration * FPS);
+// tl.freezes = [{ at, dur, card }]: at source time `at` the picture stops for `dur` seconds with a special-equipment card over it.
+// Times everywhere else in the timeline are source times; only the output gets longer. tools/sound_design.py opens the same gaps.
+const freezes = [...(tl.freezes ?? [])].sort((a: any, b: any) => a.at - b.at), OUT_DUR = tl.duration + freezes.reduce((q: number, f: any) => q + f.dur, 0);
+function srcTime(tOut: number): { t: number; fz?: any; lt?: number } { let t = tOut; for (const f of freezes) { if (t < f.at) break; if (t < f.at + f.dur) return { t: f.at, fz: f, lt: t - f.at }; t -= f.dur; } return { t }; }
+const W = 1920, H = 1080, FPS = tl.fps, N = Math.round(OUT_DUR * FPS);
 const argNum = (k: string) => (process.argv.includes(k) ? Number(process.argv[process.argv.indexOf(k) + 1]) : null);
-const I0 = Math.round((argNum("--from") ?? 0) * FPS), I1 = Math.min(N, Math.round((argNum("--to") ?? tl.duration) * FPS));
+const I0 = Math.round((argNum("--from") ?? 0) * FPS), I1 = Math.min(N, Math.round((argNum("--to") ?? OUT_DUR) * FPS));
 
 // ---------- interpolation ----------
 // A track is either a plain key list [[t, ...values]] (smoothstep between keys, hand-authored) or
@@ -337,7 +341,7 @@ for (const s of (tl.shots ?? []).filter((s: any) => s.type === "bodycam" || s.ty
 const portraits: Record<string, { img: Image; tag: string }> = {};
 for (const [who, p] of Object.entries(tl.portraits ?? {}) as any) portraits[who] = { img: await loadImage(p.img), tag: p.tag };
 const equipImgs: Record<string, Image> = {};
-for (const q of tl.equip ?? []) if (q.img) equipImgs[q.img] = await loadImage(q.img);
+for (const q of [...(tl.equip ?? []), ...(tl.freezes ?? []).map((f: any) => f.card)]) if (q?.img) equipImgs[q.img] = await loadImage(q.img);
 function subState(sub: any, t: number) { return sub ? { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15), ...(sub.card && portraits[sub.who] ? { portrait: portraits[sub.who].img, tag: portraits[sub.who].tag } : {}) } : undefined; }
 function equipAt(t: number) { const q = (tl.equip ?? []).find((q: any) => t >= q.from && t < q.to); return q ? { ...q, lt: t - q.from, dur: q.to - q.from, img: q.img ? equipImgs[q.img] : undefined } : undefined; }
 const inWindow = (t: number, wins: number[][] = []) => wins.some(([a, b]) => t >= a && t < b);
@@ -356,7 +360,15 @@ async function placeholderCard(lines: string[], t: number) {
 const beaconXY = () => { const b = (tl.props ?? []).find((p: any) => p.kind === "beacon"); return b ? [b.x, b.y] : null; };
 
 async function frameAt(i: number) {
-  const t = i / FPS;
+  const m = srcTime(i / FPS), cv = await frameAtSrc(m.t);
+  if (m.fz) {                                              // held: the feed dims and the card is read
+    const ctx = cv.getContext("2d"), k = Math.min(1, m.lt! / 0.25) * Math.min(1, (m.fz.dur - m.lt!) / 0.25);
+    ctx.fillStyle = `rgba(2,6,10,${0.66 * k})`; ctx.fillRect(0, 0, W, H);
+    drawEquipCard(ctx as any, W, H, i / FPS, { ...m.fz.card, lt: m.lt, dur: m.fz.dur, full: true, img: m.fz.card.img ? equipImgs[m.fz.card.img] : undefined });
+  }
+  return cv;
+}
+async function frameAtSrc(t: number) {
   const shot = tl.shots.find((s: any) => t >= s.from && t < s.to) ?? tl.shots[tl.shots.length - 1];
   if (shot.type === "bodycam" || shot.type === "cctv") {
     const lt = t - shot.from;

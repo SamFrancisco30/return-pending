@@ -20,11 +20,15 @@ def req(method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None
     r = urllib.request.Request(BASE + path, data=data, method=method, headers={
         "Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(r, timeout=120) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        return {"http_error": e.code, "body": e.read().decode(errors="replace")[:800]}
+    for attempt in range(4):                     # the connection is sometimes reset mid-request: try again before giving up
+        try:
+            with urllib.request.urlopen(r, timeout=120) as resp:
+                return json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            return {"http_error": e.code, "body": e.read().decode(errors="replace")[:800]}
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            err = repr(e); time.sleep(4 * (attempt + 1))
+    return {"network_error": err}
 
 
 def data_uri(path):

@@ -419,13 +419,13 @@ export function renderBodycam(src: Image, t: number, localT: number, label: stri
   const z = cctv ? 1.0 + localT * 0.012 : 1.06 + localT * 0.025;
   const flick = cctv ? 0.97 + 0.03 * Math.sin(t * 90) : 0.9 + 0.1 * Math.sin(t * 41) * Math.sin(t * 7);
   ctx.save(); ctx.translate(W / 2 + sx, H / 2 + sy); ctx.scale(z, z);
-  ctx.filter = cctv ? `brightness(${flick}) contrast(1.2) grayscale(1)` : `brightness(${flick}) contrast(1.12) saturate(0.6)`;
+  ctx.filter = cctv ? `brightness(${flick}) contrast(1.2) grayscale(1)` : `brightness(${flick * 1.45}) contrast(1.08) saturate(0.8)`;
   const sc = Math.max(W / src.width, H / src.height);
   ctx.drawImage(src, -src.width * sc / 2, -src.height * sc / 2, src.width * sc, src.height * sc);
   ctx.filter = "none"; ctx.restore();
   // fisheye-ish vignette
-  const v = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.85);
-  v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, cctv ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0.85)");
+  const v = ctx.createRadialGradient(W / 2, H / 2, H * (cctv ? 0.3 : 0.45), W / 2, H / 2, H * (cctv ? 0.85 : 1.0));
+  v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, cctv ? "rgba(0,0,0,0.45)" : "rgba(0,0,0,0.6)");
   ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
   post(ctx, W, H, t, "rgba(20,30,20,0.05)");
   ctx.font = "22px Consolas"; ctx.fillStyle = "rgba(235,240,235,0.9)";

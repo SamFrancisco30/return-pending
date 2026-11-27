@@ -11,14 +11,13 @@
 //   The transport crosses the shore and sets down on the old parade ground. DISPATCH adds the one thing nobody understands, and the
 //   view closes on the isolation block at the end of the cellhouse: a ring goes out under its roof, stops at its walls, and a count
 //   to the next one starts.
-//   The view comes back to the parade ground. Five blips leave the transport in single file, KNOX first, COLE last, and go in at the
+//   The view comes back to the parade ground. Five blips leave the transport in single file, KNOX first, COLE in the middle, and go in at the
 //   west door of the cellhouse. REYES asks the question the episode answers.
 // Places are plate pixels (2048 x 1152, about 5 px to a metre), measured on the plate in use. The plate has sea only down its left
 // side; the sea leg runs off it to the west over open water that the renderer draws there. The view must never pass the plate's
 // top, right or bottom edge, where the land simply stops.
 import fs from "node:fs";
 import { addSound } from "./sound_cues.mjs";
-import { PORTRAITS, withFaces } from "./cast_ui.mjs";
 
 const PLATE = process.env.ISLAND_PLATE ?? "island3_plate_b";
 const PLACES = {
@@ -51,7 +50,7 @@ const viewAt = t => { const [cx, cy, z] = posAt(camera, t); return [cx - 1024 / 
 const inView = (p, t, m = 30) => { const v = viewAt(t); return p[0] > v[0] + m && p[0] < v[2] - m && p[1] > v[1] + m && p[1] < v[3] - m; };
 
 // ---- the squad: single file from the pad to the west door, KNOX first ----
-const T_GO = 31.0, GAP = 0.8, SPEED = 70, ORDER = ["A", "B", "C", "D", "E"];
+const T_GO = 31.0, GAP = 0.8, SPEED = 70, ORDER = ["A", "C", "E", "B", "D"];       // the marching order they keep inside: COLE in the middle
 const ROUTE = [PLACES.pad, ...PLACES.via, PLACES.entry], LEG = ROUTE.slice(1).map((p, i) => dist(ROUTE[i], p)), LEN = LEG.reduce((a, b) => a + b, 0);
 const along = s => { let i = 0; while (i < LEG.length - 1 && s > LEG[i]) s -= LEG[i++]; return [0, 1].map(j => lerp(ROUTE[i][j], ROUTE[i + 1][j], Math.min(1, s / LEG[i]))); };
 const squad = Object.fromEntries(ORDER.map((id, i) => { const t0 = T_GO + i * GAP; return [id, dense(t0, +(t0 + LEN / SPEED).toFixed(2), u => along(u * LEN))]; }));
@@ -93,7 +92,7 @@ const tl = {
       { x: PLACES.entry[0], y: PLACES.entry[1], text: "CELLHOUSE  //  ENTRY", from: 32.6, to: 40.6, side: 1 },
     ],
   },
-  subtitles: withFaces(subtitles), portraits: PORTRAITS,
+  subtitles,                        // no faces on dialogue (user, 2026-11-27): the portraits wait for a better place to introduce the squad
   extraSamples: { ambience: "../audio/sfx/f001/amb_sea.wav", heli: "../audio/sfx/f001/heli_approach.wav", heli_cruise: "../audio/sfx/f001/heli_cruise.wav" },
   extraCues: [
     { type: "oneshot", t: 0.0, sample: "heli_cruise", gain: 0.7 },
@@ -117,7 +116,7 @@ ok(T04[0] >= FUSE_LINE.from && T04.at(-1) < FUSE_LINE.to, "the four Team 04 plat
 { const reach = Math.max(ripple.x - ripple.clip[0], ripple.clip[2] - ripple.x); ok(reach / ripple.speed < ripple.life - 0.4, `the ring reaches the far wall (${(reach / ripple.speed).toFixed(1)} s) before it fades (${ripple.life} s)`); }
 ok(T_RING > SIGNAL_LINE.from + 1.5 && T_RING < SIGNAL_LINE.to - 1, "the ring goes out while DISPATCH is talking about it");
 ok(SPEED * GAP >= 40, `the file is spaced ${(SPEED * GAP).toFixed(0)} px apart`);
-{ const last = squad.E.at(-1)[0]; ok(last <= D - 0.8, `COLE is through the door at ${last} s, ${(D - last).toFixed(1)} s before the cut`); }
+{ const last = squad[ORDER.at(-1)].at(-1)[0]; ok(last <= D - 0.8, `the last of the file is through the door at ${last} s, ${(D - last).toFixed(1)} s before the cut`); }
 { let o = true; for (const keys of Object.values(squad)) for (const k of keys) if (k[0] >= T_PAD && !inView(k.slice(1), k[0])) o = false; ok(o, "once the view is back on the parade ground, every blip stays in the picture until it goes in"); }
 ok(inView(PLACES.pad, T_PAD + 0.2) && inView(PLACES.entry, T_PAD + 0.2), "the pad and the door are both in the picture for the walk in");
 if (bad) { console.log(bad, "check(s) failed"); process.exit(1); }

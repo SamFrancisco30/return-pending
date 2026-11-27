@@ -1,0 +1,9 @@
+{
+ "action": "Hit_Knockback",
+ "char": "resident_c",
+ "frames": 21,
+ "fps": 24.0,
+ "size": 532,
+ "span_m": 3.6,
+ "source": "Quaternius Universal Animation Library (CC0) / Hit_Knockback"
+}
