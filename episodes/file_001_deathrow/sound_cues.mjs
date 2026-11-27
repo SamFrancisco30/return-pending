@@ -7,7 +7,7 @@ export function addSound(tl, { ambience = "garage", typing = [] } = {}) {
     step: S + "step_a.wav", step_heavy: S + "step_b.wav", step_light: S + "step_a.wav",
     gunfire: S + "f01/gunfire_burst.wav", hit: S + "hit.wav", relocate: S + "relocate.wav", glitch: S + "f01/glitch_burst.wav",
     door_slam: S + "f01/door_slam.wav", door_latch: S + "f01/door_latch.wav", thump: S + "f01/door_thump.wav",
-    shotgun: S + "f001/shotgun.wav", rifle: S + "f001/rifle.wav", sniper: S + "f001/sniper.wav", pistol_s: S + "f001/pistol_s.wav", pistol: S + "f001/pistol.wav", crossbow: S + "f001/crossbow.wav", axe: S + "f001/axe.wav",
+    shotgun: S + "f001/shotgun.wav", rifle: S + "f001/rifle.wav", sniper: S + "f001/sniper.wav", pistol_s: S + "f001/pistol_s.wav", mg_shot: S + "f001/mg_shot.wav", mg_tail: S + "f001/mg_tail.wav", blast_a: S + "f001/blast_a.wav", blast_b: S + "f001/blast_b.wav", blast_c: S + "f001/blast_c.wav", pistol: S + "f001/pistol.wav", crossbow: S + "f001/crossbow.wav", axe: S + "f001/axe.wav",
     shield_hit: S + "f001/shield_hit.wav", punch: S + "f001/punch.wav", door_pound: S + "f001/door_pound.wav", pulse: S + "f001/pulse.wav",
     door_open: S + "fire_door.wav", stamp: S + "f01/stamp.wav", beacon_chirp: S + "f01/beacon_chirp.wav", pack_drag: S + "f01/pack_drag.wav",
   };
@@ -15,14 +15,20 @@ export function addSound(tl, { ambience = "garage", typing = [] } = {}) {
   const W = 2048, pan = x => Math.max(-0.8, Math.min(0.8, (x - W / 2) / (W / 2)));
   const cues = [{ type: "ambience", kind: ambience }];
   // every shot is one cue, with the sound of the weapon that person carries
-  const GUN = { KNOX: "shotgun", MILLER: "rifle", REYES: "pistol_s", COLE: "pistol" };
+  const GUN = { KNOX: "shotgun", MILLER: "rifle", REYES: "pistol_s", FUSE: "mg_shot", COLE: "pistol" };
+  // a machine gun is heard round by round, as it is seen: every round is one short report, and the last of a burst carries the tail
+  const mgT = (tl.fire ?? []).filter(f => GUN[f.who] === "mg_shot" && !f.kind?.match(/melee|bolt/)).map(f => f.t).sort((a, b) => a - b);
+  const lastOfBurst = f => GUN[f.who] === "mg_shot" && !mgT.some(t => t > f.t + 0.001 && t < f.t + 0.2);
   for (const f of tl.fire ?? []) {
+    if (f.silent) continue;
     const sample = f.kind === "melee" ? "axe" : f.kind === "bolt" ? "crossbow" : f.kind === "sniper" ? "sniper" : GUN[f.who] ?? "rifle";
-    cues.push({ type: "oneshot", t: f.t, sample: f.sample ?? sample, vary: f.sample ? 0 : 50, pan: pan(f.at[0]) });   // f.sample: an audition can name the file itself
+    cues.push({ type: "oneshot", t: f.t, sample: f.sample ?? (lastOfBurst(f) ? "mg_tail" : sample), vary: f.sample ? 0 : sample === "mg_shot" ? 25 : 50, pan: pan(f.at[0]) });   // f.sample: an audition can name the file itself
   }
   // blows: what was hit decides the sound. An axe chop already carries its own impact.
   const BLOW = { shield: "shield_hit", body: "punch", door: "door_pound" };
   for (const i of tl.impacts ?? []) if (i.kind !== "chop") cues.push({ type: "oneshot", t: i.t, sample: i.sample ?? BLOW[i.kind] ?? "thump", vary: i.sample ? 0 : 90, gain: i.r > 100 ? 1.0 : i.r > 70 ? 0.8 : 0.6, pan: pan(i.x) });
+  // blasts: three recordings, used in turn so two explosions in a row never sound identical (a blast may name its own)
+  (tl.blasts ?? []).forEach((b, i) => cues.push({ type: "oneshot", t: b.t, sample: b.sample ?? "blast_" + "abc"[i % 3], pan: pan(b.x) }));
   for (const s of tl.swaps ?? []) { cues.push({ type: "relocate", t: s.t, sample: "relocate" }); cues.push({ type: "oneshot", t: s.t, sample: "glitch", gain: 0.8 }); }
   if (tl.swaps?.length) cues.push({ type: "drone", t: tl.swaps[0].t, gain: 0.7 });
   // the security door: a heavy push when it opens, a slam and a latch when it shuts

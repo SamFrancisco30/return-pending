@@ -1,0 +1,24 @@
+[
+ {
+  "name": "deathrow_open2_plate_a",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/deathrow_open_layout_nodoors.png",
+   "concepts/deathrow4_plate_a.png"
+  ],
+  "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, column and fixture must stay at the same pixel positions and proportions. Do not add, move or remove any wall, room, column or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colours and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of the death row of an old island penitentiary in an X-ray security scan style. It is ONE very large, bare, empty concrete hall: no cells along its walls, no furniture, no beds, nothing stored in it. Six massive square concrete columns stand in two rows of three down the hall, exactly where the plan shows them. Against the middle of the far right wall stands the ONLY cell: one isolated high-security holding chamber with double-thick reinforced side walls, heavy steel bars across its entire front facing the hall, and a square steel restraint plate with floor anchor rings and a drain bolted to the centre of its floor. The whole hall was built around this one cell. Worn bare concrete floor with a few drain grates, long cracks, water stains and faded painted lines; one faded painted warning line on the floor a short distance in front of the bars. On the far left a short wide vestibule comes in from the left edge of the image and ends at the hall entrance, which is a plain rectangular doorway cut straight through the hall's front wall, exactly as wide as the plan shows, with a steel threshold plate set into the floor across the opening. The wall on both sides of the doorway is flat and plain: no door frame blocks, no pilasters, no buttresses, no door leaf. Outside the walls is solid dark rock. Cold cyan glowing edges on the top faces of thick concrete walls and on the tops of the columns. Every doorway is an EMPTY opening with no door leaf drawn and the cell front is left OPEN with no bars drawn (they are added later). No people, no bodies, no text, no labels, no arrows, no UI."
+ },
+ {
+  "name": "deathrow_open2_plate_b",
+  "model": "gpt-image-2",
+  "size": "2048x1152",
+  "resolution": "2k",
+  "refs": [
+   "scene/deathrow_open_layout_nodoors.png",
+   "concepts/deathrow4_plate_a.png"
+  ],
+  "prompt": "Image 1 is an exact architectural floor plan. Reproduce its geometry EXACTLY in the same frame: every wall, doorway gap, column and fixture must stay at the same pixel positions and proportions. Do not add, move or remove any wall, room, column or doorway. Image 2 is only a STYLE reference: match its X-ray surveillance rendering, colours and wall treatment. Render the plan as a strict orthographic 90-degree top-down cutaway of the death row of an old island penitentiary in an X-ray security scan style. It is ONE very large, bare, empty concrete hall: no cells along its walls, no furniture, no beds, nothing stored in it. Six massive square concrete columns stand in two rows of three down the hall, exactly where the plan shows them. Against the middle of the far right wall stands the ONLY cell: one isolated high-security holding chamber with double-thick reinforced side walls, heavy steel bars across its entire front facing the hall, and a square steel restraint plate with floor anchor rings and a drain bolted to the centre of its floor. The whole hall was built around this one cell. Worn bare concrete floor with a few drain grates, long cracks, water stains and faded painted lines; one faded painted warning line on the floor a short distance in front of the bars. On the far left a short wide vestibule comes in from the left edge of the image and ends at the hall entrance, which is a plain rectangular doorway cut straight through the hall's front wall, exactly as wide as the plan shows, with a steel threshold plate set into the floor across the opening. The wall on both sides of the doorway is flat and plain: no door frame blocks, no pilasters, no buttresses, no door leaf. Outside the walls is solid dark rock. Cold cyan glowing edges on the top faces of thick concrete walls and on the tops of the columns. Every doorway is an EMPTY opening with no door leaf drawn and the cell front is left OPEN with no bars drawn (they are added later). No people, no bodies, no text, no labels, no arrows, no UI."
+ }
+]

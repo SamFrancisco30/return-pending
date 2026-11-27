@@ -200,7 +200,7 @@ for c in cues:
         s = smp(c["sample"]) if c.get("sample") else None
         lvl = {"gunfire": 0.9, "door_slam": 0.8, "door_burst": 0.45, "rattle": 0.5, "frost": 0.35, "door_latch": 0.45,
                "pack_drag": 0.45, "stamp": 0.6, "limb": 0.45, "beacon_chirp": 0.3, "glitch": 0.35,
-               "shotgun": 0.95, "sniper": 0.9, "rifle": 0.75, "pistol": 0.6, "pistol_s": 0.5, "crossbow": 0.5, "axe": 0.5, "shield_hit": 0.7, "punch": 0.8, "door_pound": 0.75, "pulse": 0.28}.get(c.get("sample").rsplit("_", 1)[0] if c.get("sample", "").rsplit("_", 1)[-1] in ("a", "b", "c") else c.get("sample"), 0.5)
+               "shotgun": 0.95, "blast": 1.0, "mg": 0.85, "mg_shot": 0.8, "mg_tail": 0.8, "sniper": 0.9, "rifle": 0.75, "pistol": 0.6, "pistol_s": 0.5, "crossbow": 0.5, "axe": 0.5, "shield_hit": 0.7, "punch": 0.8, "door_pound": 0.75, "pulse": 0.28}.get(c.get("sample").rsplit("_", 1)[0] if c.get("sample", "").rsplit("_", 1)[-1] in ("a", "b", "c") else c.get("sample"), 0.5)
         if s is not None:
             if c.get("vary"): s = vary(s, c["vary"])
             if c.get("sample") in ("stamp", "beacon_chirp", "pulse"): put(ui, s, t, lvl * g)

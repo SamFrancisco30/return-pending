@@ -16,5 +16,14 @@
    "dx": 30.7,
    "dy": 40.8
   }
+ },
+ "deathrow_open": {
+  "xray": "../concepts/deathrow_open_plate_b.png",
+  "fit": {
+   "sx": 0.9904,
+   "sy": 0.9828,
+   "dx": 6.7,
+   "dy": 39.4
+  }
  }
 }

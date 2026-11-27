@@ -1,0 +1,9 @@
+{
+ "action": "NinjaJump_Idle_Loop",
+ "char": "prisoner",
+ "frames": 49,
+ "fps": 24.0,
+ "size": 444,
+ "span_m": 3.0,
+ "source": "Quaternius Universal Animation Library (CC0) / NinjaJump_Idle_Loop"
+}

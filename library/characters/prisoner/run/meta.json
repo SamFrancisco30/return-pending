@@ -1,0 +1,10 @@
+{
+ "action": "Sprint_Loop",
+ "char": "prisoner",
+ "frames": 17,
+ "fps": 24.0,
+ "size": 384,
+ "span_m": 2.6,
+ "speed_mps": 2.891,
+ "source": "Quaternius Universal Animation Library (CC0) / Sprint_Loop"
+}

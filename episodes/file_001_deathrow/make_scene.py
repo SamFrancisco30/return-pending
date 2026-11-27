@@ -47,7 +47,7 @@ scene = {"name": "greyrock_deathrow", "template": "explicit", "canvas": {"w": 20
              {"id": "A", "callsign": "KNOX", "kit": "shield", "build": 1.18, "color": "#6fdcff", "icon": "tri"},
              {"id": "B", "callsign": "HOUND", "kit": "crossbow", "build": 1.05, "color": "#a6e36e", "icon": "arrow"},
              {"id": "C", "callsign": "REYES", "kit": "recon", "build": 0.92, "color": "#b9a4ff", "icon": "diamond"},
-             {"id": "D", "callsign": "MILLER", "kit": "rifle", "build": 1.0, "color": "#f0df7c", "icon": "square"},
+             {"id": "D", "callsign": "MILLER", "kit": "rifle", "build": 1.0, "color": "#f2f6f7", "icon": "square"},
              {"id": "E", "callsign": "COLE", "kit": "medic", "build": 0.98, "color": "#f2f6f7", "icon": "cross"},
              {"id": "F", "callsign": "T04-4", "kit": "rifle", "build": 1.0, "color": "#9fb4ba", "icon": "circle"}]}
 json.dump(scene, open("scene/deathrow.json", "w"), indent=1)

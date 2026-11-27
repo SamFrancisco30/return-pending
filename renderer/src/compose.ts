@@ -2,7 +2,7 @@
 // Scene space is 2048x1152; output is scaled to the output canvas size.
 import { createCanvas, loadImage, GlobalFonts, type SKRSContext2D, type Image, type Canvas } from "@napi-rs/canvas";
 import { buildGeometry, type Rect } from "./geometry.ts";
-import { doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawPulseHud, drawHeavyDoor, drawRopes, drawSounds, type Rope, type SoundRing, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
+import { doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawOrdnance, drawPulseHud, drawHeavyDoor, drawRopes, drawSounds, type Rope, type SoundRing, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
 import { drawOperatorThermal, drawCallsign, callsignWidth, drawEntityThermal, drawFootprints, drawResidue, drawIdentityArc, drawIcon, rgba, type OperatorSpec, type Footprint, type Gait, type EntityState } from "./thermal.ts";
 
 GlobalFonts.registerFromPath("C:/Windows/Fonts/consola.ttf", "Consolas");
@@ -13,6 +13,38 @@ function drawSprite(ctx: SKRSContext2D, u: { x: number; y: number; heading: numb
   ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size);
   if (flash > 0) { ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = Math.min(1, flash); ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.drawImage(s.img, -s.size / 2, -s.size / 2, s.size, s.size); ctx.restore(); }
   // (no light streak behind a swung blade: the swing itself and the hit burst carry it. The tip path is still in meta.json as tip_m.)
+  ctx.restore();
+}
+// KNOX's shield is not only a plate: when he sets it, it throws a wall of light out in front of him, wider than he is. g is how far the
+// wall is open (0..1); above 1 it is taking a blow. Two looks: "wall" (five bright panels with light spilling on the floor) and "hex" (a strip of cells).
+function drawLightShield(ctx: SKRSContext2D, u: { x: number; y: number; heading: number }, g: number, sc = 1, style = "wall", t = 0) {
+  const k = Math.min(1, g), fl = Math.min(1, Math.max(0, g - 1)), C = "110,225,255";
+  const D = 46 * sc, Rc = 130 * sc, cx = D - Rc, halfW = (16 + 60 * k) * sc, half = Math.asin(Math.min(0.95, halfW / Rc));
+  ctx.save(); ctx.translate(u.x, u.y); ctx.rotate(u.heading * Math.PI / 180); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "butt"; ctx.lineJoin = "round";
+  const arc = (a0: number, a1: number, w: number, col: string) => { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(cx, 0, Rc, a0, a1); ctx.stroke(); };
+  for (const sgn of [-1, 1]) { ctx.strokeStyle = `rgba(${C},${0.4 * k})`; ctx.lineWidth = 1.1 * sc; ctx.beginPath(); ctx.moveTo(27 * sc, sgn * 13 * sc); ctx.lineTo(cx + Rc * Math.cos(half), sgn * Rc * Math.sin(half)); ctx.stroke(); }      // thrown from the plate's two edges
+  if (style === "hex") {
+    const N = 7, step = 2 * half / N, r = Rc * step / Math.sqrt(3);
+    for (let i = 0; i < N; i++) { const a = -half + step * (i + 0.5), px = cx + Rc * Math.cos(a), py = Rc * Math.sin(a), edge = 1 - 0.55 * Math.abs(i - (N - 1) / 2) / ((N - 1) / 2), sh = 0.5 + 0.5 * Math.sin(t * 5 + i * 1.3);
+      ctx.save(); ctx.translate(px, py); ctx.rotate(a); ctx.beginPath(); for (let q = 0; q < 6; q++) { const an = q * Math.PI / 3; ctx.lineTo(Math.cos(an) * r * 0.62, Math.sin(an) * r * 0.98); } ctx.closePath();
+      ctx.fillStyle = `rgba(${C},${(0.16 + 0.08 * sh) * k * edge + 0.5 * fl})`; ctx.fill(); ctx.strokeStyle = `rgba(232,252,255,${0.9 * k * edge})`; ctx.lineWidth = (1.5 + fl) * sc; ctx.stroke(); ctx.restore(); }
+    arc(-half, half, (24 + 12 * fl) * sc, `rgba(${C},${0.06 * k + 0.12 * fl})`);
+  } else {
+    const N = 5, gap = 0.03;
+    for (let i = 0; i < N; i++) { const a0 = -half + 2 * half * i / N + gap / 2, a1 = -half + 2 * half * (i + 1) / N - gap / 2, sh = 0.5 + 0.5 * Math.sin(t * 6 - Math.abs(i - 2) * 1.6);
+      arc(a0, a1, (34 + 16 * fl) * sc, `rgba(${C},${0.055 * k + 0.1 * fl})`); arc(a0, a1, (13 + 8 * fl) * sc, `rgba(${C},${(0.13 + 0.05 * sh) * k + 0.25 * fl})`);
+      arc(a0, a1, (5 + 2 * fl) * sc, `rgba(${C},${0.45 * k})`); arc(a0, a1, (2.0 + 1.2 * fl) * sc, `rgba(238,253,255,${0.97 * k})`); }
+  }
+  for (const sgn of [-1, 1]) { const px = cx + Rc * Math.cos(half), py = sgn * Rc * Math.sin(half); ctx.fillStyle = `rgba(238,253,255,${0.95 * k})`; ctx.beginPath(); ctx.moveTo(px + 4 * sc, py); ctx.lineTo(px, py + 4 * sc); ctx.lineTo(px - 4 * sc, py); ctx.lineTo(px, py - 4 * sc); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+// The shackles do not let him out of the block: at the limit a line of light snaps taut from his wrists back to the cell and hauls him off his feet.
+function drawTether(ctx: SKRSContext2D, q: { x: number; y: number; ax: number; ay: number; age: number; dur: number }) {
+  const u = q.age / q.dur, a = u < 0.12 ? u / 0.12 : 1 - (u - 0.12) / 0.88, L = Math.hypot(q.ax - q.x, q.ay - q.y), th = Math.atan2(q.ay - q.y, q.ax - q.x), n = Math.max(6, Math.floor(L / 46));
+  ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(th); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const [w, col] of [[16, `rgba(70,170,255,${0.22 * a})`], [6, `rgba(120,205,255,${0.55 * a})`], [2, `rgba(235,250,255,${0.95 * a})`]] as [number, string][]) {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(0, 0); for (let i = 1; i <= n; i++) { const jit = i === n ? 0 : Math.sin(i * 12.9898 + Math.floor(q.age * 30) * 4.1) * 7 * (1 - u); ctx.lineTo(L * i / n, jit); } ctx.stroke(); }
+  for (let i = 0; i < 3; i++) { const r = (18 + 26 * i) * Math.min(1, u * 5 + 0.2); ctx.strokeStyle = `rgba(150,215,255,${0.7 * a / (i + 1)})`; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke(); }
   ctx.restore();
 }
 export type Unit = { id: string; x: number; y: number; heading: number; gait?: Gait; look?: number; down?: boolean; guard?: number; stow?: number; swing?: number; slash?: number; sprite?: { img: Image; size: number; trail?: number[][] }; color?: string };
@@ -282,7 +314,7 @@ export function post(ctx: SKRSContext2D, W: number, H: number, t: number, tint: 
   ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H);
 }
 
-function hud(ctx: SKRSContext2D, W: number, H: number, st: FrameState, accent: string) {
+export function hud(ctx: SKRSContext2D, W: number, H: number, st: FrameState, accent: string) {
   if (!st.hud) return;
   const m = 34, L = 26;
   ctx.strokeStyle = "rgba(190,225,230,0.55)"; ctx.lineWidth = 2;
@@ -478,7 +510,25 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   if (!closedLapse) for (const d of geo.doors) drawDoorFx(ctx, d as any, leafEnd(d, doorF[d.id]), st.doorFx?.[d.id], st.t);
   drawProps(ctx, st.props ?? [], st.t);
   if (!closedLapse) drawPulse(ctx, st.pulse, st.boundary, st.t);
-  for (const d of geo.doors) if ((d as any).heavy) { const [ex, ey] = leafEnd(d, doorF[d.id]); drawHeavyDoor(ctx, d.hx, d.hy, ex, ey, doorF[d.id], st.t); }
+  for (const d of geo.doors) if ((d as any).heavy) {
+    if ((d as any).art && (d as any)._img) {             // a double door from a picture: the top half slides up, the bottom half down, each out of sight behind the frame
+      const a = (d as any).art, img = (d as any)._img, f = doorF[d.id], hh = a.h / 2, ih = img.height / 2;
+      ctx.save(); ctx.beginPath(); ctx.rect(a.x - 4, a.y, a.w + 8, a.h); ctx.clip();
+      ctx.drawImage(img, 0, 0, img.width, ih, a.x, a.y - f * hh, a.w, hh); ctx.drawImage(img, 0, ih, img.width, ih, a.x, a.y + hh + f * hh, a.w, hh);
+      if (f < 0.04) { ctx.globalCompositeOperation = "lighter"; ctx.strokeStyle = "rgba(255,214,90,0.5)"; ctx.shadowColor = "rgba(255,200,60,1)"; ctx.shadowBlur = 10; ctx.lineWidth = 2; ctx.strokeRect(a.x + 3, a.y + 3, a.w - 6, a.h - 6); }
+      ctx.restore();
+    } else if ((d as any).slide) {                       // a sliding slab in a heavy steel frame: it runs back into the housing beside the opening, not into the room
+      const [cx, cy] = leafEnd(d, 0), L = Math.hypot(cx - d.hx, cy - d.hy) || 1, ux = (cx - d.hx) / L, uy = (cy - d.hy) / L, o = doorF[d.id] * (L + 4);
+      drawHeavyDoor(ctx, d.hx - ux * o, d.hy - uy * o, cx - ux * o, cy - uy * o, doorF[d.id], st.t, true);
+      ctx.save(); ctx.translate(d.hx, d.hy); ctx.rotate(Math.atan2(uy, ux));
+      const block = (x0: number, len: number, slot: boolean) => {      // drawn over the slab, so the slab goes out of sight inside it
+        ctx.shadowColor = "rgba(120,230,245,0.55)"; ctx.shadowBlur = 12; ctx.fillStyle = "rgba(30,60,68,1)"; ctx.beginPath(); ctx.roundRect(x0, -38, len, 76, 4); ctx.fill(); ctx.shadowBlur = 0;
+        ctx.strokeStyle = "rgba(170,228,238,0.95)"; ctx.lineWidth = 2.6; ctx.stroke(); ctx.fillStyle = "rgba(52,92,102,1)"; ctx.fillRect(x0 + 6, -31, len - 12, 62);
+        if (slot) { ctx.fillStyle = "rgba(6,14,17,0.95)"; ctx.fillRect(x0 + 10, -9, len - 10, 18); ctx.strokeStyle = "rgba(150,210,222,0.7)"; ctx.lineWidth = 1.2; ctx.strokeRect(x0 + 10, -9, len - 10, 18); }
+        ctx.fillStyle = "rgba(220,244,250,0.9)"; for (let x = x0 + 12; x < x0 + len - 6; x += 26) for (const y of [-25, 25]) { ctx.beginPath(); ctx.arc(x, y, 1.8, 0, Math.PI * 2); ctx.fill(); } };
+      block(-(L + 22), L + 22, true); block(L, 86, false); ctx.restore();
+    } else { const [ex, ey] = leafEnd(d, doorF[d.id]); drawHeavyDoor(ctx, d.hx, d.hy, ex, ey, doorF[d.id], st.t); }
+  }
   drawRopes(ctx, st.ropes ?? [], st.t);
 
   // 4b. thermal floor residue (S3): footprints and the heat an entity leaves behind
@@ -500,7 +550,11 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
     for (const o of st.operators) drawTag(ctx, o, "rgba(160,225,235,0.85)");
   } else {
     if (!closedLapse) {
-      for (const m of st.mobs ?? []) drawEntityThermal(ctx, m, st.t + m.x * 0.013, false, m.species, st.unitScale ?? 1);
+      for (const g of (st as any).ghosts ?? []) { ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = g.alpha; drawSprite(ctx, g); ctx.restore(); }     // the trail of something moving fast
+      for (const m of st.mobs ?? []) {
+        if ((m as any).sprite) { ctx.save(); ctx.globalAlpha = Math.min(1, m.visible); drawSprite(ctx, m as any, "#eafcff", (m as any).flash ?? 0); ctx.restore(); }      // heat going out = the picture fading
+        else drawEntityThermal(ctx, m, st.t + m.x * 0.013, false, m.species, st.unitScale ?? 1);
+      }
       if (st.entity.sprite) {
         if (st.entity.visible > 0.01) {
           drawSprite(ctx, st.entity, "#eafcff", (st.entity as any).flash ?? 0);
@@ -519,7 +573,7 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
     }
     const spec = (id: string): OperatorSpec => st.roster?.find(r => r.id === id) ?? { id, callsign: id, kit: "recon", build: 1 };
     for (const o of st.operators) if (!o.down && !o.sprite) drawIdentityArc(ctx, o, spec(o.id), st.unitScale ?? 1);
-    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; if (o.sprite) drawSprite(ctx, o, spec(o.id).color ?? "#eafcff"); else drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
+    for (const o of st.operators) { ctx.save(); if (o.down) ctx.globalAlpha = 0.62; if (o.sprite) { drawSprite(ctx, o, spec(o.id).color ?? "#eafcff"); if ((o.guard ?? 0) > 0.02) drawLightShield(ctx, o, o.guard!, st.unitScale ?? 1, (st as any).shieldStyle ?? "wall", st.t); } else drawOperatorThermal(ctx, o, spec(o.id), st.t, st.unitScale ?? 1); ctx.restore(); }
     // callsign labels: stack downward instead of overlapping
     const placed: Rect[] = [];
     for (const o of [...st.operators].sort((p, q) => p.y - q.y)) {
@@ -536,6 +590,8 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   drawSounds(ctx, st.sounds ?? []);
   drawGunfire(ctx, st.shots ?? []);
   drawImpacts(ctx, st.impacts ?? []);
+  for (const q of (st as any).tethers ?? []) drawTether(ctx, q);
+  drawOrdnance(ctx, (st as any).ordnance);
   drawSwap(ctx, st.swaps ?? []);
 
   // 8. map event tags (e.g. a door state change)

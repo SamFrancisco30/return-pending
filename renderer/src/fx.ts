@@ -247,6 +247,36 @@ export type Prop = { kind: string; x: number; y: number };
 export function drawProps(ctx: SKRSContext2D, props: Prop[], t: number) {
   for (const p of props) {
     ctx.save(); ctx.translate(p.x, p.y);
+    if (p.kind === "stain") {                // old blood on concrete: dried dark, not red. A pool where he lay, and (trail) the smear he left getting there
+      ctx.restore(); ctx.save(); const r = rng(Math.floor(p.x * 3 + p.y * 7) + (p.seed ?? 0)), blot = (x: number, y: number, R: number, a: number) => {
+        for (let k = 0; k < 7; k++) { const an = r() * TAU, d = R * 0.55 * r(), rx = R * (0.35 + 0.5 * r()), ry = rx * (0.55 + 0.4 * r());
+          ctx.fillStyle = `rgba(20,6,7,${a * (0.5 + 0.5 * r())})`; ctx.beginPath(); ctx.ellipse(x + Math.cos(an) * d, y + Math.sin(an) * d, rx, ry, r() * TAU, 0, TAU); ctx.fill(); } };
+      const tr: number[][] = p.trail ?? [];
+      for (let i = 1; i < tr.length; i++) { const [x0, y0] = tr[i - 1], [x1, y1] = tr[i], L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(2, Math.round(L / 16));
+        for (let k = 0; k <= n; k++) { const u = k / n, w = (p.w ?? 16) * (0.6 + 0.6 * r()), nx = -(y1 - y0) / L, ny = (x1 - x0) / L, off = (r() - 0.5) * 10;
+          blot(x0 + (x1 - x0) * u + nx * off, y0 + (y1 - y0) * u + ny * off, w, 0.13 + 0.12 * (i / tr.length)); if (k % 3 === 0) blot(x0 + (x1 - x0) * u + nx * (off + (r() < 0.5 ? -1 : 1) * 20), y0 + (y1 - y0) * u + ny * (off + 20), 6, 0.3); } }   // hand prints either side
+      blot(p.x, p.y, p.r ?? 40, 0.3); blot(p.x, p.y, (p.r ?? 40) * 0.55, 0.36);
+      ctx.restore(); continue;
+    }
+    if (p.kind === "rubble") {               // a column that is not there any more: the plate still shows it, so it is painted out and broken concrete laid over the spot
+      const r = rng(Math.floor(p.x + p.y * 3)), S = p.size ?? 60;
+      const g = ctx.createRadialGradient(0, 0, S * 0.2, 0, 0, S * 1.25); g.addColorStop(0, "rgba(20,36,40,1)"); g.addColorStop(0.62, "rgba(24,42,47,1)"); g.addColorStop(1, "rgba(24,42,47,0)");
+      ctx.fillStyle = g; ctx.fillRect(-S * 1.3, -S * 1.3, S * 2.6, S * 2.6);
+      for (let k = 0; k < 26; k++) { const an = r() * TAU, d = S * (0.1 + 1.9 * r() * r()), w = 6 + 20 * r() * (1 - d / (S * 2.2)), h = w * (0.5 + 0.5 * r()); ctx.save(); ctx.translate(Math.cos(an) * d, Math.sin(an) * d); ctx.rotate(r() * TAU);
+        ctx.fillStyle = `rgba(${96 + Math.floor(50 * r())},${150 + Math.floor(40 * r())},${156 + Math.floor(40 * r())},${0.75 + 0.25 * r()})`; ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(w / 2, -h / 2 + 2 * r()); ctx.lineTo(w / 2 - 3 * r(), h / 2); ctx.lineTo(-w / 2 + 2 * r(), h / 2 - 2 * r()); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = "rgba(10,20,23,0.8)"; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); }
+      ctx.restore(); continue;
+    }
+    if (p.kind === "panel") {                // a door control on the wall: a small box with one light. Red while the door is shut, green once someone has pressed it
+      const presses: number[] = p.presses ?? [], n = presses.filter(q => q <= t).length, open = n % 2 === 1, since = n ? t - presses[n - 1] : 9;
+      ctx.rotate((p.rot ?? 0) * Math.PI / 180); ctx.fillStyle = "rgba(14,28,33,0.98)"; ctx.strokeStyle = "rgba(170,222,232,0.95)"; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.roundRect(-10, -20, 20, 40, 3); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "rgba(90,130,140,1)"; ctx.fillRect(-6, 3, 12, 12);                                   // the button
+      ctx.globalCompositeOperation = "lighter"; const c = open ? "110,255,160" : "255,84,70";
+      ctx.fillStyle = `rgba(${c},1)`; ctx.shadowColor = `rgba(${c},1)`; ctx.shadowBlur = since < 0.5 ? 28 : 12; ctx.beginPath(); ctx.arc(0, -9, since < 0.5 ? 6.5 : 4.6, 0, TAU); ctx.fill();
+      if (since < 0.45) { ctx.shadowBlur = 0; ctx.strokeStyle = `rgba(${c},${1 - since / 0.45})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, -9, 8 + 40 * since / 0.45, 0, TAU); ctx.stroke(); }
+      ctx.restore(); continue;
+    }
     if (p.kind === "beacon") {
       const on = Math.floor(t * 1.6) % 2 === 0;
       ctx.globalCompositeOperation = "lighter";
@@ -446,6 +476,45 @@ export function drawSwap(ctx: SKRSContext2D, swaps: SwapFx[]) {
   }
 }
 
+// Explosives. A placed charge is a small dark block with a light that blinks faster in its last second; a thrown one tumbles through
+// the air over its shadow; a blast is a white flash, a shock ring racing out, a fireball that collapses, burning bits thrown outward,
+// then smoke that hangs and a scorch left on the floor. Sized by r (the radius, in pixels, inside which things are hurt).
+export function drawOrdnance(ctx: SKRSContext2D, o?: { blasts: any[]; lobs: any[]; charges: any[]; repels?: any[] }) {
+  if (!o) return; ctx.save();
+  // the shield's push: its face gathers light for half a second, then a bright crescent is thrown forward and widens as it goes
+  for (const q of o.repels ?? []) { const th = q.heading * Math.PI / 180; ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(th); ctx.globalCompositeOperation = "lighter"; ctx.lineCap = "round";
+    if (q.age < 0) { const u = 1 + q.age / 0.5; ctx.strokeStyle = `rgba(150,235,255,${0.75 * u * q.power})`; ctx.shadowColor = "rgba(120,225,255,1)"; ctx.shadowBlur = 18 * u; ctx.lineWidth = 5 + 4 * u; ctx.beginPath(); ctx.arc(-18, 0, 44, -0.75, 0.75); ctx.stroke(); }
+    else { const u = q.age / 0.8, e = 1 - Math.pow(1 - u, 3), R = 44 + 430 * q.power * e, half = 0.72 + 0.2 * e;
+      for (const [k, a] of [[1, 1], [0.87, 0.6], [0.74, 0.34], [0.6, 0.16]] as number[][]) { ctx.strokeStyle = `rgba(190,245,255,${a * (1 - u)})`; ctx.shadowColor = "rgba(120,225,255,1)"; ctx.shadowBlur = 26; ctx.lineWidth = (30 * (1 - u) + 3) * q.power; ctx.beginPath(); ctx.arc(-18, 0, R * k, -half, half); ctx.stroke(); }
+      ctx.shadowBlur = 0; ctx.lineWidth = 2;
+      for (let i = 0; i < 11; i++) { const an = -half + 2 * half * (i + 0.5) / 11, r0 = R * (0.3 + 0.12 * ((i * 7) % 3)), r1 = R * 0.96; ctx.strokeStyle = `rgba(215,250,255,${0.55 * (1 - u)})`; ctx.beginPath(); ctx.moveTo(-18 + Math.cos(an) * r0, Math.sin(an) * r0); ctx.lineTo(-18 + Math.cos(an) * r1, Math.sin(an) * r1); ctx.stroke(); }
+      if (u < 0.22) { const f = 1 - u / 0.22, g = ctx.createRadialGradient(30, 0, 0, 30, 0, 130 * q.power); g.addColorStop(0, `rgba(240,253,255,${0.95 * f})`); g.addColorStop(0.45, `rgba(140,228,255,${0.5 * f})`); g.addColorStop(1, "rgba(140,228,255,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(30, 0, 130 * q.power, 0, TAU); ctx.fill(); } }
+    ctx.restore(); }
+  for (const c of o.charges) { ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rot); ctx.fillStyle = "rgba(12,24,28,0.95)"; ctx.strokeStyle = "rgba(170,205,212,0.9)"; ctx.lineWidth = 1.5;
+    ctx.fillRect(-9, -6, 18, 12); ctx.strokeRect(-9, -6, 18, 12); if (c.on) { ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "rgba(255,90,70,1)"; ctx.shadowColor = "rgba(255,80,60,1)"; ctx.shadowBlur = 10; ctx.beginPath(); ctx.arc(0, 0, 3, 0, TAU); ctx.fill(); } ctx.restore(); }
+  for (const l of o.lobs) { ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.beginPath(); ctx.ellipse(l.x + 6 * l.h, l.y + 14 * l.h, 6, 4, 0, 0, TAU); ctx.fill();
+    ctx.save(); ctx.translate(l.x, l.y - 10 * l.h); ctx.rotate(l.spin); const k = 1 + 0.7 * l.h; ctx.fillStyle = "rgba(14,26,30,1)"; ctx.strokeStyle = "rgba(200,228,232,0.95)"; ctx.lineWidth = 1.5; ctx.fillRect(-7 * k, -4.5 * k, 14 * k, 9 * k); ctx.strokeRect(-7 * k, -4.5 * k, 14 * k, 9 * k); ctx.restore(); }
+  for (const b of o.blasts) {
+    const r = rng(b.seed + 3), Q = Array.from({ length: 80 }, () => r()), R = b.r, a = b.age;
+    ctx.globalCompositeOperation = "source-over";                                   // scorch, then smoke: both darken, neither adds light
+    const sc = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, R * 0.75); sc.addColorStop(0, `rgba(4,8,9,${0.55 * clamp(a / 0.15) * (1 - clamp((a - 1.6) / 0.8) * 0.4)})`); sc.addColorStop(1, "rgba(4,8,9,0)");
+    ctx.fillStyle = sc; ctx.beginPath(); ctx.arc(b.x, b.y, R * 0.75, 0, TAU); ctx.fill();
+    if (a > 0.12) { const u = clamp((a - 0.12) / 2.2); for (let k = 0; k < 9; k++) { const an = Q[k] * TAU, d = R * (0.15 + 0.55 * Q[k + 9]) * (0.5 + 0.7 * u), rr = R * (0.22 + 0.2 * Q[k + 18]) * (0.6 + 0.9 * u);
+      ctx.fillStyle = `rgba(150,164,170,${0.2 * (1 - u) * (1 - u)})`; ctx.beginPath(); ctx.arc(b.x + Math.cos(an) * d, b.y + Math.sin(an) * d - 10 * u, rr, 0, TAU); ctx.fill(); } }
+    ctx.globalCompositeOperation = "lighter";
+    if (a < 0.09) { const fg = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, R * 1.5); fg.addColorStop(0, `rgba(255,252,240,${0.95 * (1 - a / 0.09)})`); fg.addColorStop(0.45, `rgba(255,244,220,${0.5 * (1 - a / 0.09)})`); fg.addColorStop(1, "rgba(255,235,200,0)");
+      ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(b.x, b.y, R * 1.5, 0, TAU); ctx.fill(); }          // the flash
+    if (a < 0.45) { const u = a / 0.45, rr = R * (0.25 + 1.35 * (1 - (1 - u) * (1 - u)));                                                                         // the shock ring
+      ctx.strokeStyle = `rgba(255,240,215,${0.85 * (1 - u)})`; ctx.lineWidth = 2 + 10 * (1 - u); ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, TAU); ctx.stroke(); }
+    if (a < 0.55) { const u = a / 0.55, rr = R * (0.2 + 0.62 * Math.sin(Math.min(1, u * 2.4) * Math.PI / 2)) * (1 - 0.45 * u), g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, rr);                 // the fireball
+      g.addColorStop(0, `rgba(255,250,230,${1 - u})`); g.addColorStop(0.45, `rgba(255,196,96,${0.9 * (1 - u)})`); g.addColorStop(1, "rgba(255,110,40,0)"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, TAU); ctx.fill(); }
+    if (a < 0.9) { const u = a / 0.9, e = 1 - (1 - u) * (1 - u) * (1 - u);                                                                                          // burning bits
+      for (let k = 0; k < 22; k++) { const an = Q[27 + k] * TAU, d = R * (0.3 + 1.25 * Q[49 + k]) * e, len = 9 * (1 - u) + 2;
+        ctx.strokeStyle = `rgba(255,${200 + Math.floor(40 * Q[k])},150,${1 - u})`; ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(b.x + Math.cos(an) * d, b.y + Math.sin(an) * d); ctx.lineTo(b.x + Math.cos(an) * (d - len), b.y + Math.sin(an) * (d - len)); ctx.stroke(); } }
+  }
+  ctx.restore();
+}
+
 export function drawImpacts(ctx: SKRSContext2D, imps: Impact[]) {
   ctx.save(); ctx.globalCompositeOperation = "lighter";
   for (const i of imps) {
@@ -491,7 +560,7 @@ export function drawPulseHud(ctx: SKRSContext2D, W: number, H: number, t: number
 
 // ---------------- FILE 001: the block's security door, and a recovery line ----------------
 // A thick steel leaf from hinge (hx, hy) to its free end. f = open fraction; shut, it shows its bolts and a SEALED tag.
-export function drawHeavyDoor(ctx: SKRSContext2D, hx: number, hy: number, ex: number, ey: number, f: number, t: number) {
+export function drawHeavyDoor(ctx: SKRSContext2D, hx: number, hy: number, ex: number, ey: number, f: number, t: number, slide = false) {
   const L = Math.hypot(ex - hx, ey - hy) || 1, ux = (ex - hx) / L, uy = (ey - hy) / L, shut = f < 0.04, moving = f > 0.04 && f < 0.96;
   ctx.save(); ctx.translate(hx, hy); ctx.rotate(Math.atan2(uy, ux));
   ctx.shadowColor = shut ? "rgba(120,230,245,1)" : "rgba(120,230,245,0.6)"; ctx.shadowBlur = shut ? 22 : 10;
@@ -502,16 +571,16 @@ export function drawHeavyDoor(ctx: SKRSContext2D, hx: number, hy: number, ex: nu
   for (let x = 14; x < L - 6; x += 22) { ctx.beginPath(); ctx.moveTo(x, -7); ctx.lineTo(x, 7); ctx.stroke(); }   // ribs
   ctx.fillStyle = "rgba(220,244,250,0.95)";
   for (let x = 8; x < L; x += 22) { ctx.beginPath(); ctx.arc(x, -9.2, 1.5, 0, TAU); ctx.arc(x, 9.2, 1.5, 0, TAU); ctx.fill(); }   // rivets
-  ctx.beginPath(); ctx.arc(0, 0, 7, 0, TAU); ctx.fillStyle = "rgba(190,238,246,0.95)"; ctx.fill();   // hinge post
+  if (!slide) { ctx.beginPath(); ctx.arc(0, 0, 7, 0, TAU); ctx.fillStyle = "rgba(190,238,246,0.95)"; ctx.fill(); }   // hinge post
   if (shut) {                                                                                         // drop bolts thrown
     ctx.fillStyle = "rgba(255,214,130,0.95)"; ctx.fillRect(L * 0.30, -15, 7, 30); ctx.fillRect(L * 0.66, -15, 7, 30);
   }
   ctx.restore();
-  if (moving) {                                                                                       // swing arc
+  if (moving && !slide) {                                                                             // swing arc
     ctx.save(); ctx.strokeStyle = "rgba(150,235,245,0.3)"; ctx.setLineDash([5, 7]); ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(hx, hy, L, 0, Math.PI / 2); ctx.stroke(); ctx.restore();
   }
-  if (shut) {
+  if (shut && !slide) {
     ctx.save(); ctx.font = "bold 16px Consolas"; const txt = "DOOR SEALED", w = ctx.measureText(txt).width + 16, mx = (hx + ex) / 2, my = (hy + ey) / 2;
     ctx.fillStyle = "rgba(20,14,2,0.85)"; ctx.fillRect(mx - w - 26, my - 13, w, 26);
     ctx.strokeStyle = "rgba(255,214,130,0.9)"; ctx.lineWidth = 1.5; ctx.strokeRect(mx - w - 26, my - 13, w, 26);

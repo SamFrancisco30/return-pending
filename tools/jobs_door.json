@@ -1,0 +1,42 @@
+[
+ {
+  "name": "door_design_a",
+  "model": "gpt-image-2",
+  "size": "1024x1536",
+  "resolution": "1k",
+  "refs": [
+   "renders/door_ref.png"
+  ],
+  "prompt": "Image 1 is a top-down X-ray style floor plan detail of a doorway in the thick front wall of a prison hall: a vestibule on the left, the hall on the right, the wall running vertically between them. Keep the same strict 90-degree top-down view, the same framing, the same floor textures, the same wall thickness and position, and the same cold cyan X-ray rendering with glowing edges on the tops of the walls. Replace ONLY the door frame around the opening with a new design, and draw the door CLOSED across the opening. The opening stays exactly where it is and exactly as wide. Design: a single heavy steel sliding slab door, about as thick as the wall. On the upper side of the opening the wall widens into a long box-shaped steel housing with a dark slot in it, long enough to swallow the whole slab when it slides open. On the lower side a short steel receiving post. Rivets, ribs across the slab, two yellow locking bars. No people, no text, no labels, no arrows, no UI."
+ },
+ {
+  "name": "door_design_b",
+  "model": "gpt-image-2",
+  "size": "1024x1536",
+  "resolution": "1k",
+  "refs": [
+   "renders/door_ref.png"
+  ],
+  "prompt": "Image 1 is a top-down X-ray style floor plan detail of a doorway in the thick front wall of a prison hall: a vestibule on the left, the hall on the right, the wall running vertically between them. Keep the same strict 90-degree top-down view, the same framing, the same floor textures, the same wall thickness and position, and the same cold cyan X-ray rendering with glowing edges on the tops of the walls. Replace ONLY the door frame around the opening with a new design, and draw the door CLOSED across the opening. The opening stays exactly where it is and exactly as wide. Design: a double sliding blast door. Two thick steel slabs meet in the middle of the opening with interlocking teeth, and each slides away into its own steel housing built into the wall above and below the opening. Hazard chevrons along the meeting edge. No people, no text, no labels, no arrows, no UI."
+ },
+ {
+  "name": "door_design_c",
+  "model": "gpt-image-2",
+  "size": "1024x1536",
+  "resolution": "1k",
+  "refs": [
+   "renders/door_ref.png"
+  ],
+  "prompt": "Image 1 is a top-down X-ray style floor plan detail of a doorway in the thick front wall of a prison hall: a vestibule on the left, the hall on the right, the wall running vertically between them. Keep the same strict 90-degree top-down view, the same framing, the same floor textures, the same wall thickness and position, and the same cold cyan X-ray rendering with glowing edges on the tops of the walls. Replace ONLY the door frame around the opening with a new design, and draw the door CLOSED across the opening. The opening stays exactly where it is and exactly as wide. Design: a barred prison sally-port gate. A sliding gate of thick vertical steel bars in a steel frame runs on a floor rail along the hall-side face of the wall; a long guide rail and a gear housing are fixed to the wall above the opening so the gate can slide clear of it. No people, no text, no labels, no arrows, no UI."
+ },
+ {
+  "name": "door_design_d",
+  "model": "gpt-image-2",
+  "size": "1024x1536",
+  "resolution": "1k",
+  "refs": [
+   "renders/door_ref.png"
+  ],
+  "prompt": "Image 1 is a top-down X-ray style floor plan detail of a doorway in the thick front wall of a prison hall: a vestibule on the left, the hall on the right, the wall running vertically between them. Keep the same strict 90-degree top-down view, the same framing, the same floor textures, the same wall thickness and position, and the same cold cyan X-ray rendering with glowing edges on the tops of the walls. Replace ONLY the door frame around the opening with a new design, and draw the door CLOSED across the opening. The opening stays exactly where it is and exactly as wide. Design: a vault-style security door. A very thick round-cornered steel frame set into the wall, a massive sliding slab with a circular locking wheel at its centre and four locking pistons shot into the frame, and a recessed pocket in the widened wall on the upper side for the slab to slide into. No people, no text, no labels, no arrows, no UI."
+ }
+]

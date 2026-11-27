@@ -1,0 +1,10 @@
+{
+ "action": "Walk_Carry_Loop",
+ "char": "fuse",
+ "frames": 49,
+ "fps": 24.0,
+ "size": 384,
+ "span_m": 2.6,
+ "speed_mps": 0.715,
+ "source": "Quaternius Universal Animation Library (CC0) / Walk_Carry_Loop"
+}

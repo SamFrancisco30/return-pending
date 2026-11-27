@@ -9,7 +9,7 @@ from mathutils import Vector, Euler
 a = sys.argv[sys.argv.index("--") + 1:]
 GLB, ACTION, CHAR, OUT = a[0], a[1], a[2], a[3]
 VAR = os.environ.get("RP_VARIANT", "v1")     # v1 = first pass (plain body, basic kit); v1gun = v1 plus the new shotgun and upright shield; v2 = everything
-BASE = CHAR.split("_")[0]; OPS = ("knox", "hound", "reyes", "miller", "cole")     # CHAR may carry a loadout: hound_bow, hound_axe
+BASE = CHAR.split("_")[0]; OPS = ("knox", "hound", "reyes", "miller", "cole", "fuse")     # CHAR may carry a loadout: hound_bow, hound_axe
 CARRY = os.environ.get("RP_CARRY", "0") == "1"       # 1 = the weapon is carried at the chest (walking, standing); 0 = it is in the hands, pointed (aiming, firing)
 NOWEAPON = os.environ.get("RP_NOWEAPON", "0") == "1"
 TAC = os.environ.get("RP_TAC", "0") == "1"           # 1 = moving like someone carrying a weapon: the legs do what the clip does, the arms stay on the weapon
@@ -51,10 +51,10 @@ body.data.materials.clear(); body.data.materials.append(M_SKIN); body.data.mater
 V = body.data.vertices
 for p in body.data.polygons:
     c = sum((V[i].co for i in p.vertices), Vector()) / len(p.vertices); c = body.matrix_world @ c; ax = abs(c.x)
-    if CHAR == "prisoner": cloth = c.z < 1.02 or (ax < 0.24 and c.z < 1.50) or (0.24 <= ax < 0.36 and c.z > 1.30)      # jumpsuit: legs, torso, sleeves torn off at the shoulder
+    if CHAR in ("prisoner", "resident"): cloth = c.z < 1.02 or (ax < 0.24 and c.z < 1.50) or (0.24 <= ax < 0.36 and c.z > 1.30)      # jumpsuit: legs, torso, sleeves torn off at the shoulder
     else: cloth = not (ax > 0.70 or c.z > 1.52)                                                                    # uniform everywhere but hands and face
     p.material_index = 1 if cloth and VAR == "v2" else 0
-if VAR != "v2" and CHAR != "prisoner": body.data.materials[0] = mat("body", 0.0, 0.0, 1.0)
+if VAR != "v2" and CHAR not in ("prisoner", "resident"): body.data.materials[0] = mat("body", 0.0, 0.0, 1.0)
 
 # ---- kit: simple solids placed in the REST pose and parented to a bone
 arm.data.pose_position = "REST"; bpy.context.view_layer.update()
@@ -103,6 +103,10 @@ if BASE in OPS and BASE != "knox":
                                          ("sl_guard", 0.16, 0.24, 0.085, M_GUN, 0), ("sl_barrel", 0.40, 0.26, 0.048, M_GUN, 0), ("sl_brake", 0.555, 0.07, 0.08, M_KIT, 0)):
                 c = c0 + u * t; box(nm, (c.x, c.y, c.z + dz), (ln, wd, 0.06), "chest", m, rot=(0, 0, ang), bevel=0.01)
         arm.scale = (0.93, 0.93, 0.96)
+    if BASE == "fuse":                                    # demolitions: a deep satchel on the back with a row of charges strapped across its lid, and a bigger man under it
+        box("satchel", (ch.x, ch.y + 0.23, ch.z - 0.02), (0.38, 0.22, 0.40), "chest", M_KIT, bevel=0.05)
+        for dx in (-0.12, 0.0, 0.12): box("charge", (ch.x + dx, ch.y + 0.23, ch.z + 0.20), (0.085, 0.17, 0.05), "chest", M_GUN, bevel=0.015)
+        arm.scale = (1.10, 1.10, 1.03)
     if BASE == "cole":                                    # the recovery pack, with the cross on its lid
         box("med_pack", (ch.x, ch.y + 0.22, ch.z + 0.0), (0.33, 0.20, 0.36), "chest", M_KIT, bevel=0.05)
         box("cross_a", (ch.x, ch.y + 0.22, ch.z + 0.19), (0.19, 0.055, 0.02), "chest", M_GLOW); box("cross_b", (ch.x, ch.y + 0.22, ch.z + 0.19), (0.055, 0.17, 0.02), "chest", M_GLOW)
@@ -138,10 +142,16 @@ if CHAR == "prisoner":
     for k, hk in (("forearm_l", "hand_l"), ("forearm_r", "hand_r")):
         h = P(hk); s = 1 if k.endswith("l") else -1
         if VAR != "v2":
-            bpy.ops.mesh.primitive_torus_add(location=(h.x - s * 0.05, h.y, h.z), rotation=(0, math.pi / 2, 0), major_radius=0.07, minor_radius=0.03); attach(bpy.context.object, k, M_KIT); continue
+            # the shackles are the anomaly, not the man: they are the one thing on him that glows in their own colour, wrists and ankles
+            bpy.ops.mesh.primitive_torus_add(location=(h.x - s * 0.05, h.y, h.z), rotation=(0, math.pi / 2, 0), major_radius=0.078, minor_radius=0.04); attach(bpy.context.object, k, M_GLOW)
+            for j in (1, 2, 3): box("chain", (h.x - s * 0.05, h.y + 0.05 * j, h.z - 0.07 - 0.035 * j), (0.03, 0.05, 0.03), k, M_GLOW, bevel=0.008)      # a few broken links hanging from each
+            continue
         band("cuff", (h.x - s * 0.06, h.y, h.z), k, M_KIT, 0.075, 0.085)
         box("cuff_lock", (h.x - s * 0.06, h.y, h.z + 0.075), (0.06, 0.06, 0.035), k, M_GUN, bevel=0.008)
+    for k in ("shin_l", "shin_r"):
+        f = P(k.replace("shin", "foot")); bpy.ops.mesh.primitive_torus_add(location=(f.x, f.y + 0.02, f.z + 0.06), major_radius=0.062, minor_radius=0.032); attach(bpy.context.object, k, M_GLOW)
     arm.scale = (1.32, 1.30, 1.10)                       # a much bigger man: wide and deep, a little taller
+if CHAR == "resident": arm.scale = (0.94, 0.90, 0.97)     # an ordinary inmate, on the thin side: nothing on him, nothing in his hands
 arm.data.pose_position = "POSE"
 
 # ---- the action
@@ -182,7 +192,7 @@ def twist(e, frames):                                # turn a steadied bone abou
     base = e.matrix_world.copy(); e.rotation_mode = "QUATERNION"
     for fr, deg in frames: e.matrix_world = Matrix.Rotation(math.radians(deg), 4, "Z") @ base; bpy.context.view_layer.update(); e.keyframe_insert("rotation_quaternion", frame=f0 + fr)
 if TAC and BASE in OPS and not NOWEAPON:
-    SHOULDERED = CHAR == "reyes_rifle" or (BASE == "miller" and not CARRY)        # a long gun up in the shoulder, pointed
+    SHOULDERED = CHAR == "reyes_rifle" or (BASE in ("miller", "fuse") and not CARRY)        # a long gun up in the shoulder, pointed
     CHEST = steady("chest", 1.0 if PROC or SHOULDERED else 0.8); steady("head", 0.8)        # a runner with a weapon keeps shoulders and eyes on the way ahead; the hips do the work
     if "Jog" in ACTION or "Sprint" in ACTION:        # the clip is an open-field jog with a long reaching stride; someone moving through a building in kit takes shorter, quicker steps
         steady("hips", float(os.environ.get("RP_HIPS", "0.85")))                    # and runs upright, not leaning into it, so the legs work under the body instead of trailing behind
@@ -193,7 +203,8 @@ if TAC and BASE in OPS and not NOWEAPON:
         RE, RH = (-0.34, -0.02, -0.22), (-0.15, -0.26, 0.02)
         er, hr = hold("r", RE, RH); hold("l", (0.14, -0.28, -0.22), (-0.17, -0.50 if BASE == "reyes" else -0.44, -0.02))
         # recoil: the rifle comes straight back into the shoulder and the shoulder gives, then both settle. One heavy shot, or three quick light ones.
-        KICK = {"recoil": [(0, 0), (1, 0.08), (3, 0.055), (9, 0), (12, 0)], "burst": [(0, 0), (1, 0.05), (2, 0.02), (3, 0.012), (4, 0.05), (5, 0.022), (6, 0.014), (7, 0.05), (9, 0.022), (14, 0)]}.get(PROC)
+        KICK = {"recoil": [(0, 0), (1, 0.08), (3, 0.055), (9, 0), (12, 0)], "burst": [(0, 0), (1, 0.05), (2, 0.02), (3, 0.012), (4, 0.05), (5, 0.022), (6, 0.014), (7, 0.05), (9, 0.022), (14, 0)],
+                "auto": [(i, 0.034 if i % 2 else 0.012) for i in range(12)] + [(12, 0.012)]}.get(PROC)        # auto = a machine gun: twelve rounds a second for as long as the clip is looped
         if KICK:
             f1 = f0 + KICK[-1][0]; kick = lambda p, k: (p[0], p[1] + k, p[2])
             keys(er, [(f, kick(RE, k)) for f, k in KICK]); keys(hr, [(f, kick(RH, k)) for f, k in KICK]); twist(CHEST, [(f, -60 * k) for f, k in KICK])
@@ -210,6 +221,17 @@ if TAC and BASE in OPS and not NOWEAPON:
             keys(er, [(0, READY_E), (6, (-0.36, 0.14, 0.02)), (8, (-0.36, 0.12, 0.04)), (11, (-0.20, -0.24, -0.06)), (13, (-0.14, -0.22, -0.18)), (17, (-0.36, 0.04, -0.24)), (20, READY_E)])
             keys(hr, [(0, READY_H), (6, (-0.30, 0.30, 0.26)), (8, (-0.30, 0.32, 0.28)), (11, (-0.10, -0.60, -0.02)), (13, (0.04, -0.54, -0.26)), (17, (-0.31, -0.08, -0.52)), (20, READY_H)])   # 17: down to the belt, where the hatchet is put away
             twist(CHEST, [(0, 0), (6, -22), (8, -24), (11, 6), (13, 12), (17, 0), (20, 0)])
+
+# ---- kneeling: the clip lays the trailing leg out straight behind, which from above reads as a leg a metre and a half long.
+# Bring the trailing thigh and shin most of the way back under the body.
+if "Kneeling" in ACTION:
+    for k in ("thigh_l", "thigh_r"): steady(k, float(os.environ.get("RP_KNEEL_THIGH", "0.35")))
+    for k in ("shin_l", "shin_r"): steady(k, float(os.environ.get("RP_KNEEL_SHIN", "0.7")))
+
+# ---- a body on the floor: laid out straight it is three times the length of anyone standing, and reads as a giant. Draw the knees up
+# (seen from above the legs shorten by a third) so it reads as a man who went down and stayed there.
+if os.environ.get("RP_CURL") == "1":
+    steady("thigh_l", 0.45); steady("thigh_r", 0.2); steady("shin_l", 0.85); steady("shin_r", 0.6)
 
 # ---- one-handed shooting: the source clips are two-handed pistol stances, so the left arm is taken off the gun and
 # pointed at the shield grip instead (upper arm to a point low at the front-left, forearm on to where the shield is held)
@@ -297,6 +319,14 @@ if BASE in OPS and BASE != "knox" and not NOWEAPON:
             part("slide", 0.11, (0.055, 0.23, 0.06))
             if BASE == "reyes": part("suppressor", 0.315, (0.044, 0.18, 0.044)); part("muzzle", 0.415, (0.03, 0.02, 0.03))     # hers is suppressed: a long can on the front, which also tells her pistol from COLE's
             else: part("muzzle", 0.235, (0.04, 0.02, 0.04))
+    elif BASE == "fuse":                                  # belt-fed machine gun: the biggest gun in the squad. Fat receiver, a dark ammunition box hung on its left side, heavy barrel, folded bipod
+        g = -0.06
+        if not CARRY:
+            org = Vector((chest.x - 0.15, chest.y - 0.28, chest.z + 0.10)); d = Vector((0.0, -1, 0)); key = "chest"; side = Vector((-d.y, d.x, 0)); yaw = math.atan2(d.y, d.x) - math.pi / 2; g = 0.0
+        rifle = [part("stock", g - 0.22, (0.095, 0.24, 0.09)), part("receiver", g + 0.08, (0.135, 0.38, 0.10)), part("cover", g + 0.10, (0.06, 0.22, 0.04), M_KIT, dz=0.07),
+                 part("ammo_box", g + 0.12, (0.14, 0.18, 0.11), M_KIT, lat=0.135, dz=-0.02, bevel=0.02), part("shroud", g + 0.42, (0.085, 0.30, 0.075)), part("barrel", g + 0.68, (0.05, 0.24, 0.045)),
+                 part("muzzle", g + 0.82, (0.065, 0.05, 0.055), M_KIT), part("bipod_l", g + 0.50, (0.022, 0.24, 0.02), M_KIT, lat=0.07, dz=-0.03), part("bipod_r", g + 0.50, (0.022, 0.24, 0.02), M_KIT, lat=-0.07, dz=-0.03)]
+        if not CARRY and KICK: ride(rifle)
     elif BASE == "miller":                                # carbine: light-coloured and thick so it reads as a gun, with a dark sight, a dark magazine out of the left side and a dark flash hider
         g = -0.10                                         # where the grip is along it; carried, it hangs across the chest
         if not CARRY:                                     # shouldered: fixed to the chest with the butt in the right shoulder, like the long rifle

@@ -9,6 +9,7 @@ import { loadScene } from "./geometry.ts";
 import { loadPlates, renderFrame, renderBodycam, renderSignalLost, type FrameState, type Style } from "./compose.ts";
 import { doorFxAt } from "./fx.ts";
 import { renderTitleCard, renderCaseCard, renderReportCard } from "./cards.ts";
+import { renderAerial } from "./aerial.ts";
 
 const [, , styleArg, tlPath, outPath] = process.argv;
 const style = styleArg as Style;
@@ -18,15 +19,18 @@ const framePrefix = process.argv.includes("--prefix") ? process.argv[process.arg
 
 const tl = JSON.parse(fs.readFileSync(tlPath, "utf8"));
 const scene = loadScene(tl.scene ?? "../scene/motel.json");
+if (tl.roster) (scene as any).roster = tl.roster;
+for (const d of (scene as any).doors ?? []) if (d.art) d._img = await loadImage(d.art.img);      // a door drawn from a picture of it                 // a test scene may bring its own squad
 const plateCfg = tl.plates ?? { xray: "../concepts/plate_xray_b.png", real: "../concepts/plate_real_a.png" };
 const plates = { ...(await loadPlates(plateCfg.xray, plateCfg.real ?? plateCfg.xray)), fit: plateCfg.fit };
 const debugPlan = process.argv.includes("--debug-plan");
+const aerialImg = tl.aerial ? await loadImage(tl.aerial.plate) : null, aerialSea = tl.aerial?.sea ? await loadImage(tl.aerial.sea) : null;       // the high-altitude view has its own picture
 // ---------- pre-rendered character sprites (library/characters/<who>/<action>/NNNN.png + meta.json) ----------
 // tl.sprites = { <operator id or "ENTITY">: { dir, pxPerM, clips: [{ from, action, loop?, rate? }] } }. Whoever has an entry is
 // drawn from the sequence instead of the procedural figure. The art faces +x, so turning is just rotating the image.
 const spriteClips: Record<string, { imgs: any[]; fps: number; span: number; muzzle?: number[][]; speed?: number; tip?: number[][] }> = {};
 for (const cfg of Object.values(tl.sprites ?? {}) as any[]) for (const c of cfg.clips) {
-  const dir = path.join(cfg.dir, c.action); if (spriteClips[dir]) continue;
+  const dir = path.join(c.dir ?? cfg.dir, c.action); if (spriteClips[dir]) continue;        // a clip may come from another folder (the same creature at another heat)
   const meta = JSON.parse(fs.readFileSync(path.join(dir, "meta.json"), "utf8")), imgs: any[] = [];
   for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".png")).sort()) imgs.push(await loadImage(path.join(dir, f)));
   spriteClips[dir] = { imgs, fps: meta.fps, span: meta.span_m, muzzle: meta.muzzle_m, speed: meta.speed_mps, tip: meta.tip_m };
@@ -34,7 +38,7 @@ for (const cfg of Object.values(tl.sprites ?? {}) as any[]) for (const c of cfg.
 function spriteAt(who: string, t: number, clipSpeed?: (from: number) => number) {
   const cfg = (tl.sprites ?? {})[who]; if (!cfg) return undefined;
   let clip = cfg.clips[0]; for (const c of cfg.clips) if (c.from <= t) clip = c;
-  const s = spriteClips[path.join(cfg.dir, clip.action)], n = s.imgs.length;
+  const s = spriteClips[path.join(clip.dir ?? cfg.dir, clip.action)], n = s.imgs.length;
   // a walk or run loop is played as fast as the figure really travels, so the feet do not slide
   const auto = clip.loop && s.speed && clipSpeed ? Math.max(0.55, Math.min(2.0, clipSpeed(clip.from) / cfg.pxPerM / s.speed)) : 1;
   const k = Math.max(0, (t - clip.from) * s.fps * (clip.rate ?? auto));
@@ -234,6 +238,11 @@ function mapState(t: number): FrameState {
     .map(([a, b]: number[][]) => ({ e: { x: a[1], y: a[2], heading: a[3], visible: 1, pose: a[6] ?? 1, hidden: a[8] ?? 0 }, age: t - b[0] }));
   // entity uses step (no interpolation) across the relocation instant: keys 1ms apart
   const [ex, ey, eh, ev, eg, epose, elook, ehid, ereach] = sample(tl.entity as Track, t, [2, 6]);
+  const ghosts: any[] = [];
+  for (const d of tl.dashes ?? []) { if (t < d.from || t > d.to + 0.22) continue;
+    for (let k = 6; k >= 1; k--) { const tt = t - k * 0.038; if (tt < d.from || tt > d.to) continue;
+      const p = d.who === "ENTITY" ? sample(tl.entity as Track, tt, [2, 6]) : sample(tl.operators[d.who] as Track, tt), sprite = spriteAt(d.who, tt); if (!sprite) continue;
+      ghosts.push({ x: p[0], y: p[1], heading: p[2], sprite, alpha: 0.5 * (1 - k / 7) }); } }
   const shots = shotsAt(t, operators);
   const freeze = (tl.freeze ?? []).find((f: any) => t >= f.from && t < f.to);
   const warn = (tl.warn ?? []).find((w: any) => t >= w.from && t <= w.to);
@@ -265,22 +274,31 @@ function mapState(t: number): FrameState {
   const MELEE = new Set(["chop", "body"]);            // a blade or a fist landing throws no sparks: the one struck flares instead (see flash), and the picture still jolts
   const impactsAll = (tl.impacts ?? []).map((s: any) => ({ x: s.x, y: s.y, r: s.r ?? 60, age: t - s.t, kind: s.kind })).filter((s: any) => s.age >= 0 && s.age < 0.4);
   const impacts = impactsAll.filter((s: any) => !MELEE.has(s.kind));
+  // explosives: a charge lying where it was put (blinking), one in the air after a throw, and the blast itself
+  const blasts = (tl.blasts ?? []).map((b: any) => ({ x: b.x, y: b.y, r: b.r ?? 150, age: t - b.t, seed: Math.floor(b.t * 1000) })).filter((b: any) => b.age >= 0 && b.age < 2.4);
+  const lobs = (tl.throws ?? []).filter((q: any) => t >= q.t0 && t < q.t1).map((q: any) => { const u = (t - q.t0) / (q.t1 - q.t0); return { x: q.from[0] + (q.to[0] - q.from[0]) * u, y: q.from[1] + (q.to[1] - q.from[1]) * u, h: Math.sin(u * Math.PI), spin: u * 9 }; });
+  const charges = (tl.charges ?? []).filter((q: any) => t >= q.from && t < q.to).map((q: any) => ({ x: q.x, y: q.y, rot: q.rot ?? 0, on: Math.floor((t - q.from) * (q.to - t < 1 ? 10 : 4)) % 2 === 0 }));
+  const repels = (tl.repels ?? []).map((q: any) => ({ x: q.x, y: q.y, heading: q.heading ?? 0, power: q.power ?? 1, age: t - q.t })).filter((q: any) => q.age >= -0.5 && q.age < 0.8);
+  const repelShake = repels.reduce((m: number, q: any) => Math.max(m, q.age >= 0 && q.age < 0.35 ? 16 * q.power * (1 - q.age / 0.35) : 0), 0);
+  const tethers = (tl.tethers ?? []).map((q: any) => ({ ax: q.x, ay: q.y, age: t - q.t, dur: q.dur ?? 0.7 })).filter((q: any) => q.age >= 0 && q.age < q.dur);
+  const blastShake = blasts.reduce((m: number, b: any) => Math.max(m, b.age < 0.6 ? (b.r / 150) * 18 * (1 - b.age / 0.6) : 0), 0);
   const impShake = impactsAll.reduce((m: number, s: any) => Math.max(m, (s.r / 60) * 7 * (1 - s.age / 0.4)), 0);
   const swapShake = swaps.reduce((m: number, s: any) => Math.max(m, s.age < 0.35 ? 12 * (1 - s.age / 0.35) : 0), 0);
   const unitTags = (tl.unitTags ?? []).filter((g: any) => t >= g.from && t <= g.to).map((g: any) => {
     const o = operators.find(o => o.id === idOf(g.who)); return o ? { x: o.x, y: o.y - 34, text: g.text, alpha: windowAlpha(t, g.from, g.to, 0.2) } : null; }).filter(Boolean);
   return {
-    pulse, pulseHud, boundary: tl.boundary, swaps, impacts,
-    mobs: (tl.mobs ?? []).map((m: any) => { const [x, y, heading, visible, glitch, pose, look, , reach] = sample(m.track as Track, t, [2, 6]); return { x, y, heading, visible, glitch, pose, look, hidden: 0, reach, species: m.species ?? "inmate" }; }).filter((m: any) => m.visible > 0.01),
+    pulse, pulseHud, boundary: tl.boundary, swaps, impacts, ordnance: { blasts, lobs, charges, repels },
+    mobs: (tl.mobs ?? []).map((m: any) => { const [x, y, heading, visible, glitch, pose, look, , reach] = sample(m.track as Track, t, [2, 6]); return { x, y, heading, visible, glitch, pose, look, hidden: 0, reach, species: m.species ?? "inmate", sprite: m.id ? spriteAt(m.id, t) : undefined,
+      flash: Math.max(0, ...(tl.flashes ?? []).filter((q: any) => q.who === m.id).map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0)) }; }).filter((m: any) => m.visible > 0.01),
     sounds: (tl.sounds ?? []).map((q: any) => ({ x: q.x, y: q.y, r: q.r, loud: !!q.loud, age: t - q.t })).filter((q: any) => q.age >= 0 && q.age < 1.2),
     t, doors, operators, footprints, residues, roster: scene.roster,
     entity: { id: tl.entityId ?? "UNK-1", x: ex, y: ey, heading: eh, visible: ev, glitch: eg, pose: epose ?? 1, look: elook ?? 0, hidden: ehid ?? 0, reach: ereach ?? 0, sprite: spriteAt("ENTITY", t),
       // struck: the whole figure flares white for a few frames. Works on anything that has a sprite.
-      flash: Math.max(0, ...sticks().map(q => t >= q.tHit && t < q.tHit + 0.16 ? 1 - (t - q.tHit) / 0.16 : 0), ...(tl.impacts ?? []).filter((q: any) => q.kind === "chop").map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0), ...(tl.flashes ?? []).map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0)) },
+      flash: Math.max(0, ...sticks().map(q => t >= q.tHit && t < q.tHit + 0.16 ? 1 - (t - q.tHit) / 0.16 : 0), ...(tl.impacts ?? []).filter((q: any) => q.kind === "chop").map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0), ...(tl.flashes ?? []).filter((q: any) => !q.who).map((q: any) => t >= q.t && t < q.t + 0.16 ? 1 - (t - q.t) / 0.16 : 0)) },
     stuck: sticks().filter(q => t >= q.tHit && t < q.until).map(q => { const r = eh * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
       return { x: ex + q.lx * c - q.ly * s, y: ey + q.lx * s + q.ly * c, ang: q.la + r, alpha: Math.min(1, (q.until - t) / 0.5), color: q.color }; }),
     doorFx: Object.fromEntries(Object.entries(tl.doorFx ?? {}).map(([id, tr]) => [id, doorFxAt(tr as [number, string][], t)!])),
-    shots, shake: Math.max(impShake, swapShake, shots.reduce((m, s) => Math.max(m, s.age < 0.25 ? 5 * (1 - s.age / 0.25) : 0), 0)),
+    ghosts, shots, shieldStyle: tl.shieldStyle, tethers: tethers.map((q: any) => ({ ...q, x: ex, y: ey })), shake: Math.max(impShake, blastShake, swapShake, repelShake, shots.reduce((m, s) => Math.max(m, s.age < 0.25 ? 5 * (1 - s.age / 0.25) : 0), 0)),
     frozenAt: freeze ? freeze.from : null,
     props: propsAt(t), ropes,
     hudX: { confidence: tl.pulse && !confKeys.length ? undefined : confAt(t), zone: zoneAt(t), countdown: countdownAt(t), entityId: tl.entityId },
@@ -346,6 +364,12 @@ async function frameAt(i: number) {
   if (shot.type === "black") return renderTitleCard(cards, lt, shot.to - shot.from, W, H);
   if (shot.type === "card" && shot.card === "case") return renderCaseCard(cards, plates, beaconXY(), lt, shot.to - shot.from, W, H, t);
   if (shot.type === "card" && shot.card === "report") return renderReportCard(cards, clockAt(Math.min(tZero, tl.duration)).slice(0, 8), lt, shot.to - shot.from, W, H, t);
+  if (shot.type === "aerial") {
+    const a = tl.aerial, sub = subAt(t), lit = Object.entries(a.squad as Record<string, number[][]>).filter(([, k]) => a.aboard || lt >= k[0][0]).map(([id]) => ({ id }));
+    const hudSt = { t, hud: { label: feedLabel, clock: clockAt(t), warn: undefined, warnAlpha: 0 }, operators: lit, roster: (scene as any).roster,
+      subtitle: sub ? { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15) } : undefined };
+    return renderAerial(a, aerialImg!, aerialSea, lt, t, (keys, q) => sample({ interp: "linear", keys }, q), hudSt, W, H);
+  }
   if (shot.type === "card") return placeholderCard(shot.lines ?? [`[${shot.card}]`], t);
   // the overhead feed itself drops out: the map is not drawn at all
   if (inWindow(t, tl.feedLoss)) return renderSignalLost(t, feedLabel, clockAt(t), W, H);
