@@ -1,0 +1,42 @@
+[
+ {
+  "name": "portrait_fuse",
+  "model": "gpt-image-2",
+  "size": "1024x1024",
+  "resolution": "1k",
+  "refs": [
+   "concepts/style_portrait_dossier.png"
+  ],
+  "prompt": "Personnel file ID photograph of a recovery team demolitions specialist, callsign FUSE: a stocky, careful man in his late thirties, close-cropped dark hair, clean shaven, heavy brow, patient unreadable expression, a faint old burn scar on the side of his neck, wearing a dark tactical plate carrier with a sealed gas mask hanging at his chest and clear safety glasses pushed up on his head. Photorealistic head-and-shoulders portrait, flat front lighting, neutral grey-blue background, slightly desaturated with a cold cyan grade, faint scanlines and print grain, like a scanned agency dossier photo. Image 1 is the STYLE and framing reference only (same agency, same photographer, same background, same crop); the person is a different person. No text."
+ },
+ {
+  "name": "portrait_reyes",
+  "model": "gpt-image-2",
+  "size": "1024x1024",
+  "resolution": "1k",
+  "refs": [
+   "concepts/style_portrait_dossier.png"
+  ],
+  "prompt": "Personnel file ID photograph of a new recovery team recon operator, surname REYES: a Latina woman in her mid twenties, dark hair tied back tight, sharp attentive eyes, serious and a little tense, no makeup, wearing a dark tactical plate carrier with a sealed gas mask hanging at her chest. Photorealistic head-and-shoulders portrait, flat front lighting, neutral grey-blue background, slightly desaturated with a cold cyan grade, faint scanlines and print grain, like a scanned agency dossier photo. Image 1 is the STYLE and framing reference only (same agency, same photographer, same background, same crop); the person is a different person. No text."
+ },
+ {
+  "name": "portrait_miller",
+  "model": "gpt-image-2",
+  "size": "1024x1024",
+  "resolution": "1k",
+  "refs": [
+   "concepts/style_portrait_dossier.png"
+  ],
+  "prompt": "Personnel file ID photograph of a recovery team rifleman, surname MILLER: a broad-shouldered man in his early thirties with short sandy hair and light stubble, an open friendly face with the hint of a smile he is trying to hide for the photo, wearing a dark tactical plate carrier with a sealed gas mask hanging at his chest. Photorealistic head-and-shoulders portrait, flat front lighting, neutral grey-blue background, slightly desaturated with a cold cyan grade, faint scanlines and print grain, like a scanned agency dossier photo. Image 1 is the STYLE and framing reference only (same agency, same photographer, same background, same crop); the person is a different person. No text."
+ },
+ {
+  "name": "portrait_cole",
+  "model": "gpt-image-2",
+  "size": "1024x1024",
+  "resolution": "1k",
+  "refs": [
+   "concepts/style_portrait_dossier.png"
+  ],
+  "prompt": "Personnel file ID photograph of a recovery team recovery specialist and medic, surname COLE: a lean Black man in his late thirties, shaved head, thin wire-rimmed glasses, quiet tired eyes, composed, wearing a dark tactical plate carrier with a sealed gas mask hanging at his chest and a white recovery cross patch on the shoulder. Photorealistic head-and-shoulders portrait, flat front lighting, neutral grey-blue background, slightly desaturated with a cold cyan grade, faint scanlines and print grain, like a scanned agency dossier photo. Image 1 is the STYLE and framing reference only (same agency, same photographer, same background, same crop); the person is a different person. No text."
+ }
+]

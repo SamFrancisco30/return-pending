@@ -28,6 +28,7 @@ Everything here was learned making FILE 001 (DEATH ROW). The user judges by watc
 - **Pushed back is not knocked down.** A repel visibly moves the target (about 2.5 m, on its feet, afterimage trail), then it comes on again. Reserve falling for things that are finished.
 - **Effects belong to the fight.** The light shield opens when contact starts and closes when it ends, not while someone is examining a body.
 - **Big moments welcome, new lore is not.** Set pieces (a column blown down, a man thrown into a wall) are good. Do not invent world rules to patch a hole (the "tether" was rejected); prefer the simpler plot (shut the door).
+- **Everyone stays in character.** Before any script or dialogue goes to the user, and again when reviewing a staged act, go through it person by person against the bible (`RETURN_PENDING_V4.md`) and the script's own character notes: would this person say this line, in these words, and do this thing? Rank, job and temperament decide who speaks, who gives orders, who explains and who stays quiet (KNOX commands and says little; FUSE is meticulous; REYES is the new one; MILLER is warm to his team; COLE confirms recoveries; DISPATCH is off-site, calm and procedural). A line that only exists to tell the audience something is out of character for whoever says it: move the information to the case card or cut it. Report the check to the user as a short list of anything changed for this reason.
 - **Deliberate intent needs a line.** If the monster is being clever, someone says what just happened ("He wanted me in front.").
 - No gore on screen. Bodies are respected. Dried stains are fine.
 
@@ -50,6 +51,13 @@ Everything here was learned making FILE 001 (DEATH ROW). The user judges by watc
 - Keep the camera inside the plate; a centre near the map edge shows black.
 - High-altitude shots are their own shot type (`type: "aerial"`, data under `tl.aerial`, drawn by `renderer/src/aerial.ts`): one still plate with a moving camera, a transport blip, squad blips, name plates, and a ring clipped to one building. The plate is made from a layout drawn by `make_island.py`; the image model shifts things, so measure the places on the finished plate and keep them in the builder (`PLACES`).
 - Acts must hand over cleanly: the first positions of act N+1 are the last positions of act N. Change both builders together.
+
+## Sound
+
+- Picture first, sound after: sound gets its own pass once the staging of an act is settled, because every picture change moves the cues.
+- I cannot hear. Every new or replaced sound goes to the user as candidates in an audition video (`python tools/sfx_candidates.py tools/jobs_sfx_roundN.json`), levelled the same, a few per kind; nothing already generated is generated twice. Say where in the film each sound is used, with the count.
+- Real recordings or generated samples, not synthesis in code. Ready-made CC0 packs are fine (ask before downloading; keep them under `audio/_downloads/<pack>/`).
+- One event, one sound. An exchange of places keeps its own sound and nothing else is laid over it (no static, no alert). Before adding a sound, list what already fires at that instant.
 
 ## What is not done by these tools
 

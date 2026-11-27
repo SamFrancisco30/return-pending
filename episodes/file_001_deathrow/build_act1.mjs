@@ -18,6 +18,7 @@
 // top, right or bottom edge, where the land simply stops.
 import fs from "node:fs";
 import { addSound } from "./sound_cues.mjs";
+import { PORTRAITS, withFaces } from "./cast_ui.mjs";
 
 const PLATE = process.env.ISLAND_PLATE ?? "island3_plate_b";
 const PLACES = {
@@ -92,7 +93,7 @@ const tl = {
       { x: PLACES.entry[0], y: PLACES.entry[1], text: "CELLHOUSE  //  ENTRY", from: 32.6, to: 40.6, side: 1 },
     ],
   },
-  subtitles,
+  subtitles: withFaces(subtitles), portraits: PORTRAITS,
   extraSamples: { ambience: "../audio/sfx/f001/amb_sea.wav", heli: "../audio/sfx/f001/heli_approach.wav", heli_cruise: "../audio/sfx/f001/heli_cruise.wav" },
   extraCues: [
     { type: "oneshot", t: 0.0, sample: "heli_cruise", gain: 0.7 },

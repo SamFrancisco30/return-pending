@@ -1,0 +1,46 @@
+{
+ "out": "audio/sfx/f001/cand",
+ "video": "episodes/file_001_deathrow/AUDITION_sound_round1.mp4",
+ "items": [
+  {"key": "typing", "title": "CARD TYPING", "where": "case card and recovery report: the rows being typed out", "secs": 3,
+   "takes": {
+    "a": "Fast soft typing on a modern low-profile computer keyboard, steady rapid keystrokes, close and dry, no room echo, no voices, no music.",
+    "b": "A computer terminal printing text on screen: a rapid stream of tiny soft digital ticks, like an old data readout, even and quick, dry, no beeps, no music.",
+    "c": "An old electromechanical teletype printing a line of text quickly, crisp mechanical chatter, close and dry, no bell, no voices."}},
+  {"key": "amb_prison", "title": "PRISON ROOM TONE", "where": "under every scene inside the prison", "secs": 10, "play": 6,
+   "takes": {
+    "a": "Room tone of a huge empty concrete prison hall at night: a deep low air rumble, faint distant metallic ticks and a slow water drip far away, cold and still, seamless loop, no voices, no music.",
+    "b": "Inside an abandoned concrete cell block: low ventilation hum from failing ducts, a faint electrical buzz, long reverberant emptiness, very quiet, seamless loop, no voices, no music.",
+    "c": "Dead silent underground concrete chamber: only a very low sub rumble and the occasional distant creak of metal settling, oppressive, seamless loop, no voices, no music."}},
+  {"key": "drone", "title": "TENSION BED", "where": "rises in the death row once the prisoner has traded places for the first time", "secs": 10, "play": 6,
+   "takes": {
+    "a": "A dark sustained horror drone: a low bowed metal tone with slow uneasy movement and a faint high whine, no rhythm, no melody, seamless.",
+    "b": "A deep pulsing sub-bass tension bed, like a slow distant heartbeat inside a hum, ominous, no melody, no drums, seamless.",
+    "c": "Cold eerie atmosphere: a low dissonant synth cluster with a faint breathing texture, slowly swelling, no rhythm, no melody, seamless."}},
+  {"key": "repel", "title": "SHIELD REPEL", "where": "KNOX slams the light shield and throws the target back", "secs": 1.5,
+   "takes": {
+    "a": "A heavy energy shield shockwave: a short charge-up whine, then a deep concussive whump of force with a bright electric crack, punchy, no voices.",
+    "b": "A massive blunt force blast of compressed air and light: a deep sub thump with a short shimmering electrical tail, cinematic impact, no voices.",
+    "c": "A riot shield slammed forward releasing a pulse of energy: metallic clang followed instantly by a low booming pressure wave, tight and powerful, no voices."}},
+  {"key": "alert", "title": "HUD ALERT", "where": "each time a warning banner appears at the top of the feed", "secs": 0.8,
+   "takes": {
+    "a": "A short two-tone military interface alert beep, clean and restrained, falling pitch, dry, no reverb.",
+    "b": "A brief low digital warning tone from a surveillance console, one soft buzz, serious, dry.",
+    "c": "A quick sharp radar style ping from a tactical display, single ping with a very short tail, dry."}},
+  {"key": "static", "title": "FEED STATIC", "where": "the surveillance picture tears for a moment (each exchange of places, the beacon replay)", "secs": 0.6,
+   "takes": {
+    "a": "A very short burst of analog video static and signal dropout, harsh crackle, abrupt start and stop.",
+    "b": "A quick digital glitch: a stuttering data-corruption buzz, less than half a second, abrupt.",
+    "c": "A brief electrical interference zap on a monitor, a sharp crackle with a tiny low thump, abrupt."}},
+  {"key": "bell", "title": "COUNT BELL", "where": "act 2: the count comes out wrong and the block's bell rings", "secs": 2.5,
+   "takes": {
+    "a": "An old prison electric alarm bell ringing harshly for two seconds in a large concrete hall, metallic clatter, echoing, no voices.",
+    "b": "A loud industrial buzzer in an old penitentiary, one long harsh electric buzz with concrete echo, two seconds, no voices.",
+    "c": "A worn institutional electric bell, weak and uneven as if the power is failing, ringing in a big empty cell block, echoing, no voices."}},
+  {"key": "gang_lock", "title": "ALL CELL DOORS RELEASE", "where": "act 2: FUSE blows the linkage and every cell door on the block comes open at once", "secs": 3,
+   "takes": {
+    "a": "A row of heavy steel prison cell doors unlocking and sliding open all at once: a loud mechanical clunk of the gang lock, then many barred doors rolling and banging against their stops, concrete echo, no voices.",
+    "b": "A prison block's cell doors released together: one deep metal lever clank followed by a rippling series of steel bolts snapping back down a long corridor, echoing, no voices.",
+    "c": "Many iron cell doors swinging open at the same moment in a large concrete hall: groaning hinges and a clatter of metal on metal, reverberant, no voices."}}
+ ]
+}

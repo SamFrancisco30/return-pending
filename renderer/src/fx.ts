@@ -613,3 +613,37 @@ export function drawSounds(ctx: SKRSContext2D, rings: SoundRing[]) {
   }
   ctx.restore();
 }
+
+// ---------------- special equipment card ----------------
+// A panel on the right of the feed the first time a piece of special kit matters: what it is, one picture, what it does, one number.
+// The action carries on beside it. card = { lt, dur, label, klass, name, sub, lines[], stat: { label, value, frac }, color, img, kind }
+const rgba = (hex: string, al: number) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${al})`; };
+export function drawEquipCard(ctx: SKRSContext2D, W: number, H: number, t: number, q: any) {
+  const a = Math.max(0, Math.min(1, q.lt / 0.3)) * Math.max(0, Math.min(1, (q.dur - q.lt) / 0.4)); if (a <= 0.01) return;
+  const w = 500, h = 600, x = W - 34 - w - 14, y = 150, c = q.color ?? "#6fdcff", slide = (1 - Math.min(1, q.lt / 0.3)) * 40;
+  ctx.save(); ctx.globalAlpha = a; ctx.translate(slide, 0);
+  ctx.fillStyle = "rgba(4,9,12,0.9)"; ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = rgba(c, 0.55); ctx.lineWidth = 1.5; ctx.strokeRect(x, y, w, h); ctx.strokeRect(x + 8, y + 8, w - 16, h - 16);
+  ctx.font = "bold 16px Consolas"; ctx.fillStyle = rgba(c, 0.95); ctx.fillText(q.label, x + 28, y + 44);
+  ctx.fillStyle = "rgba(214,234,238,0.9)"; const kw = ctx.measureText(q.klass).width; ctx.fillText(q.klass, x + w - 28 - kw, y + 44);
+  // the picture: the piece of kit seen from above inside a dashed ring, drawn in as the card opens
+  const cx = x + w / 2, cy = y + 196, R = 122, grow = Math.max(0, Math.min(1, (q.lt - 0.2) / 0.6));
+  ctx.strokeStyle = rgba(c, 0.8); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * grow); ctx.stroke();
+  ctx.setLineDash([14, 10]); ctx.strokeStyle = "rgba(214,234,238,0.45)"; ctx.lineDashOffset = -t * 14; ctx.beginPath(); ctx.arc(cx, cy, R - 14, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+  if (q.img) { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R - 16, 0, Math.PI * 2); ctx.clip(); const s = 430; ctx.translate(cx, cy + 34); ctx.rotate(-Math.PI / 2); ctx.drawImage(q.img, -s / 2, -s / 2, s, s); ctx.restore(); }
+  if (q.kind === "shield") {                                   // the wall of light it throws up in front of the man holding it
+    const pulse = 0.75 + 0.25 * Math.sin(t * 5);
+    for (const [dr, al, lw] of [[0, 0.95, 6], [10, 0.4, 14], [22, 0.15, 22]]) { ctx.strokeStyle = rgba("#bff3ff", al * pulse * grow); ctx.lineWidth = lw; ctx.shadowColor = c; ctx.shadowBlur = 18; ctx.beginPath(); ctx.arc(cx, cy + 26, 78 + dr, -Math.PI / 2 - 0.95, -Math.PI / 2 + 0.95); ctx.stroke(); }
+    ctx.shadowBlur = 0;
+  }
+  ctx.font = "bold 44px Consolas"; ctx.fillStyle = "rgba(238,246,247,0.98)"; ctx.fillText(q.name, x + 28, y + 388);
+  ctx.fillStyle = rgba(c, 0.95); ctx.fillRect(x + 28, y + 400, 52, 3);
+  ctx.font = "15px Consolas"; ctx.fillStyle = "rgba(150,180,186,0.9)"; ctx.fillText(q.sub, x + 92, y + 406);
+  ctx.font = "20px Consolas"; ctx.fillStyle = "rgba(226,238,240,0.95)";
+  const shown = Math.max(0, (q.lt - 0.5) * 60); let used = 0;
+  (q.lines as string[]).forEach((ln, i) => { const part = ln.slice(0, Math.max(0, Math.floor(shown - used))); used += ln.length; ctx.fillText(part, x + 28, y + 446 + i * 30); });
+  const by = y + h - 44; ctx.font = "15px Consolas"; ctx.fillStyle = "rgba(150,180,186,0.9)"; ctx.fillText(q.stat.label, x + 28, by + 5);
+  for (let k = 0; k < 10; k++) { ctx.fillStyle = k < Math.round(q.stat.frac * 10) ? rgba(c, 0.95) : "rgba(120,150,155,0.22)"; ctx.fillRect(x + 150 + k * 21, by - 8, 16, 14); }
+  ctx.font = "bold 18px Consolas"; ctx.fillStyle = "rgba(238,246,247,0.98)"; ctx.fillText(q.stat.value, x + 150 + 10 * 21 + 14, by + 6);
+  ctx.restore();
+}

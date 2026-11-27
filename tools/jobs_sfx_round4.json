@@ -1,0 +1,19 @@
+{
+ "out": "audio/sfx/f001/cand",
+ "video": "episodes/file_001_deathrow/AUDITION_sound_round4.mp4",
+ "items": [
+  {
+   "key": "alert4",
+   "title": "HUD WARNING (ROUND 4)",
+   "where": "block roused / doors released / door shut / pulse stopped at the door",
+   "secs": 1.0,
+   "takes": {
+    "a": "A military warning alarm on a control console: two short harsh low buzzer blasts, urgent and serious, dry, no reverb, no voices.",
+    "b": "A submarine style caution klaxon, one short low honk that cuts off abruptly, menacing, dry, no voices.",
+    "c": "A red alert warning tone from a security system: three fast sharp descending electronic beeps, tense and urgent, dry.",
+    "d": "A dark cinematic warning stinger: one short distorted low synth blast like an alarm horn, threatening, cuts off sharply, no melody.",
+    "e": "A harsh electronic error buzz from an old security terminal, a single rough rasping buzz of half a second, access denied, dry."
+   }
+  }
+ ]
+}

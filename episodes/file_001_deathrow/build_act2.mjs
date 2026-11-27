@@ -14,6 +14,7 @@
 //               block wakes. KNOX holds the wing mouth and throws the eight who come out of it back with the shield; the guns do the rest.
 import fs from "node:fs";
 import { addSound } from "./sound_cues.mjs";
+import { PORTRAITS, EQUIP } from "./cast_ui.mjs";
 const M = 56, L = "../library/characters/", SCALE = 1.12, HOT = L + "resident", DIM = L + "resident_dim";
 const P = (x, y) => [8 + M * x, 20 + M * y];
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -156,12 +157,13 @@ const tl = {
     { from: REPEL + 0.6, to: REPEL + 1.7, who: "REYES", text: "...The shield does that?" }, { from: REPEL + 1.9, to: REPEL + 3.2, who: "KNOX", text: "Once. Then it needs time." },
     { from: CUT + 0.8, to: CUT + 3.0, who: "COLE", text: "Three of four. All gone. One still missing." }, { from: CUT + 3.2, to: CUT + 4.4, who: "KNOX", text: "Death row. Move." },
   ],
-  extraCues: [BELL, LEVER + 0.6].map(t => ({ type: "oneshot", t, sample: "door_pound", gain: 0.5 })),
+  extraCues: [{ type: "oneshot", t: BELL, sample: "bell", gain: 1.3 }, { type: "oneshot", t: LEVER + 0.6, sample: "door_pound", gain: 0.5 }],
 };
 { const on = [[BLAST + 0.3, CUT - 1.5]], blows = [REPEL], keys = [];          // the light shield: only once the block is awake
   for (let t = 0; t <= DUR + 0.001; t += 0.05) { let g = 0; for (const [a, b] of on) g = Math.max(g, Math.min(1, (t - a) / 0.35, (b - t) / 0.25)); if (g > 0) for (const tb of blows) if (t >= tb - 0.001 && t < tb + 0.6) g += 0.9 * Math.exp(-(t - tb) / 0.14); keys.push([+t.toFixed(2), +Math.max(0, g).toFixed(3)]); }
   tl.guard = { A: { interp: "linear", keys } }; }
-addSound(tl, { ambience: "garage" });
+tl.portraits = PORTRAITS; tl.equip = [EQUIP.shield(REPEL - 3.4, REPEL + 1.6)];        // the shield is explained once, as KNOX sets himself to use it
+addSound(tl, { ambience: "garage", gangRelease: BLAST });
 fs.writeFileSync("episodes/file_001_deathrow/timeline_act2.json", JSON.stringify(tl));
 
 // ---- checks

@@ -1,0 +1,19 @@
+{
+ "out": "audio/sfx/f001/cand",
+ "video": "episodes/file_001_deathrow/AUDITION_sound_round3.mp4",
+ "items": [
+  {
+   "key": "alert3",
+   "title": "HUD ALERT (READY-MADE)",
+   "where": "from Kenney Interface Sounds (CC0): each time a warning banner appears",
+   "secs": 0.7,
+   "takes": {
+    "a": "bong_001",
+    "b": "error_005",
+    "c": "error_006",
+    "d": "confirmation_001",
+    "e": "question_004"
+   }
+  }
+ ]
+}

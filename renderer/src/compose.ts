@@ -2,7 +2,7 @@
 // Scene space is 2048x1152; output is scaled to the output canvas size.
 import { createCanvas, loadImage, GlobalFonts, type SKRSContext2D, type Image, type Canvas } from "@napi-rs/canvas";
 import { buildGeometry, type Rect } from "./geometry.ts";
-import { doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawOrdnance, drawPulseHud, drawHeavyDoor, drawRopes, drawSounds, type Rope, type SoundRing, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
+import { drawEquipCard, doorJolt, drawDoorFx, drawGunfire, drawProps, drawHudExtras, applyCollapse, drawWireframe, drawPulse, drawSwap, drawImpacts, drawOrdnance, drawPulseHud, drawHeavyDoor, drawRopes, drawSounds, type Rope, type SoundRing, type DoorFx, type Shot, type Prop, type HudExtras, type Pulse, type Boundary, type SwapFx, type Impact, type PulseHud } from "./fx.ts";
 import { drawOperatorThermal, drawCallsign, callsignWidth, drawEntityThermal, drawFootprints, drawResidue, drawIdentityArc, drawIcon, rgba, type OperatorSpec, type Footprint, type Gait, type EntityState } from "./thermal.ts";
 
 GlobalFonts.registerFromPath("C:/Windows/Fonts/consola.ttf", "Consolas");
@@ -351,6 +351,24 @@ export function hud(ctx: SKRSContext2D, W: number, H: number, st: FrameState, ac
 
 function subtitle(ctx: SKRSContext2D, W: number, H: number, st: FrameState) {
   const s = st.subtitle; if (!s || s.alpha <= 0.01) return;
+  if ((s as any).portrait) {                                   // the line is given with a face: dossier photo, name, rank and job
+    const sp = st.roster?.find(r => r.callsign === s.who), c = sp?.color ?? "#96e1eb", P = 132, pad = 16;
+    ctx.save(); ctx.globalAlpha = s.alpha; ctx.font = "30px Consolas";
+    const tw = Math.max(ctx.measureText(s.text).width, 380), w = pad + P + 24 + tw + 30, h = P + pad * 2, x = W / 2 - w / 2, y = H - 70 - h;
+    ctx.fillStyle = "rgba(4,8,10,0.86)"; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = rgba(c, 0.95); ctx.fillRect(x, y, 5, h);
+    ctx.strokeStyle = rgba(c, 0.35); ctx.lineWidth = 1.5; ctx.strokeRect(x, y, w, h);
+    ctx.drawImage((s as any).portrait, x + pad, y + pad, P, P);
+    ctx.strokeStyle = rgba(c, 0.9); ctx.lineWidth = 2; ctx.strokeRect(x + pad, y + pad, P, P);
+    const tx = x + pad + P + 24;
+    drawIcon(ctx, sp?.icon, tx + 9, y + pad + 17, 9, c);
+    ctx.font = "bold 28px Consolas"; ctx.fillStyle = rgba(c, 0.98); ctx.fillText(s.who, tx + 28, y + pad + 27);
+    const nw = ctx.measureText(s.who).width;
+    ctx.font = "16px Consolas"; ctx.fillStyle = "rgba(150,180,186,0.85)"; ctx.fillText((s as any).tag ?? "", tx + 28 + nw + 18, y + pad + 25);
+    ctx.fillStyle = "rgba(150,200,210,0.25)"; ctx.fillRect(tx, y + pad + 44, tw, 1.5);
+    ctx.font = "30px Consolas"; ctx.fillStyle = "#eef4f5"; ctx.fillText(s.text, tx, y + pad + 96);
+    ctx.restore(); return;
+  }
   ctx.save(); ctx.globalAlpha = s.alpha;
   ctx.font = "bold 22px Consolas"; const who = s.who + "  ";
   ctx.font = "30px Consolas"; const tw = ctx.measureText(s.text).width;
@@ -613,6 +631,7 @@ export function renderFrame(scene: any, plates: { xray: Image; real: Image }, st
   hud(ctx, W, H, st, style === "S2" ? "#e0453c" : "#ff3a32");
   if (st.hudX) drawHudExtras(ctx, W, H, st.t, st.hudX);
   if (st.pulseHud) drawPulseHud(ctx, W, H, st.t, st.pulseHud);
+  if ((st as any).equip) drawEquipCard(ctx, W, H, st.t, (st as any).equip);
   staticBurst(ctx, W, H, st.t, st.staticAmt ?? 0);
   return cv;
 }

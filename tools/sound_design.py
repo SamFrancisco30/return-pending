@@ -64,7 +64,7 @@ _cache = {}
 def smp(name, trim=True):
     """48 kHz mono sample from timeline 'samples' (path relative to renderer/), peak-normalized."""
     p = SAMPLES.get(name)
-    if not p: return None
+    if not p or not os.path.exists(os.path.join(RENDERER, p)): return None      # named but not made yet: silent
     if p not in _cache:
         w = wave.open(os.path.join(RENDERER, p)); sr = w.getframerate(); ch = w.getnchannels()
         x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(float) / 32768
@@ -177,6 +177,7 @@ for c in cues:
         fx(boom(1.4, 48, 0.4), t, 0.55 * g)
     elif ty == "drone":
         m = N - int(t * SR)
+        if smp("drone", trim=False) is not None: put(drone_buf, loop(smp("drone", trim=False), m, 1.0) * np.minimum(1, np.arange(m) / (4.0 * SR)), t, 0.16 * g); continue
         dr = norm(bandpass(rng.normal(0, 1, m), 40, 170)) * 0.6 + np.sin(2 * np.pi * 49 * np.arange(m) / SR) * 0.4
         put(drone_buf, dr * np.linspace(0.15, 1.0, m) ** 2, t, 0.10 * g)
     elif ty == "door_push":
@@ -221,6 +222,8 @@ for c in cues:
         s = smp(c["sample"]) if c.get("sample") else None
         fx(s if s is not None else boom(3.0, 32, 1.2), t - 0.05, 0.38)
     elif ty == "typing":
+        if smp("typing") is not None:
+            m = int((c["to"] - c["from"]) * SR); put(ui, loop(smp("typing"), m, 0.05) * env(m, 0.01, 0.05), c["from"], 0.22); continue
         tt = c["from"]
         while tt < c["to"]: put(ui, click(0.5), tt, rng.uniform(0.10, 0.18)); tt += rng.uniform(1 / 26, 1 / 14)
     elif ty == "scrape": fx(scrape(c.get("dur", 0.4)), t, 0.32 * g, rng.uniform(-0.3, 0.3))
@@ -252,8 +255,13 @@ for c in cues:
 def blip():
     m = int(0.07 * SR); tt = np.arange(m) / SR; e = env(m, 0.004, 0.04)
     return np.concatenate([np.sin(2 * np.pi * 880 * tt) * e, np.zeros(int(0.03 * SR)), np.sin(2 * np.pi * 660 * tt) * e])
-for w in tl.get("warn", []): fx(blip(), w["from"], 0.06)
+SWAP_T = [q["t"] for q in tl.get("swaps", [])]; at_swap = lambda t, d: any(-0.1 <= t - q <= d for q in SWAP_T)   # an exchange of places has its own sound: nothing else is laid over it
+for w in tl.get("warn", []):
+    if at_swap(w["from"], 0.8): continue
+    if smp("alert") is not None: put(ui, fit(smp("alert"), 1.0), w["from"], 0.16)
+    else: fx(blip(), w["from"], 0.06)
 for c0, w0 in tl.get("static", []):
+    if smp("static") is not None and not at_swap(c0, 0.4): fx(fit(vary(smp("static"), 80), 0.45, 0.08), c0 - 0.05, 0.30 * min(1, w0 / 0.15)); continue
     m = int(0.18 * SR); x = bandpass(rng.normal(0, 1, m), 1000, 8000) * np.sin(np.linspace(0, np.pi, m))
     fx(x, c0 - 0.09, 0.12 * min(1, w0 / 0.15))
 

@@ -308,9 +308,9 @@ function mapState(t: number): FrameState {
     hud: { label: feedLabel, clock: clockAt(t), warn: warn?.text, warnAlpha: warn ? windowAlpha(t, warn.from, warn.to, 0.15) : 0 },
     evac: tl.evac ? sample(tl.evac, t)[0] : 0,
     events: [...(tl.events ?? []).map((e: any) => ({ x: e.x, y: e.y, text: e.text, alpha: windowAlpha(t, e.from, e.to, 0.2) })), ...unitTags],
-    subtitle: sub ? { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15) } : undefined,
+    subtitle: subState(sub, t),
     camera: (() => { const [cx, cy, zoom] = sample(tl.camera as Track, t); return { cx, cy, zoom }; })(),
-    staticAmt: staticAt(t), debugPlan,
+    staticAmt: staticAt(t), debugPlan, equip: equipAt(t),
   };
 }
 
@@ -333,6 +333,13 @@ for (const s of (tl.shots ?? []).filter((s: any) => s.type === "bodycam" || s.ty
   clipFrames.set(key, frames);
 }
 
+// faces for lines marked `card: true` (tl.portraits = { CALLSIGN: { img, tag } }) and pictures for the special-equipment cards (tl.equip)
+const portraits: Record<string, { img: Image; tag: string }> = {};
+for (const [who, p] of Object.entries(tl.portraits ?? {}) as any) portraits[who] = { img: await loadImage(p.img), tag: p.tag };
+const equipImgs: Record<string, Image> = {};
+for (const q of tl.equip ?? []) if (q.img) equipImgs[q.img] = await loadImage(q.img);
+function subState(sub: any, t: number) { return sub ? { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15), ...(sub.card && portraits[sub.who] ? { portrait: portraits[sub.who].img, tag: portraits[sub.who].tag } : {}) } : undefined; }
+function equipAt(t: number) { const q = (tl.equip ?? []).find((q: any) => t >= q.from && t < q.to); return q ? { ...q, lt: t - q.from, dur: q.to - q.from, img: q.img ? equipImgs[q.img] : undefined } : undefined; }
 const inWindow = (t: number, wins: number[][] = []) => wins.some(([a, b]) => t >= a && t < b);
 const subAt = (t: number) => (tl.subtitles ?? []).find((s: any) => t >= s.from && t <= s.to);
 
@@ -357,7 +364,7 @@ async function frameAt(i: number) {
     const k = Math.min(frames.length - 1, Math.floor((lt + (shot.clipOffset ?? 0)) * FPS));
     const label = shot.type === "cctv" ? shot.label : `BODYCAM // ${shot.unit}`;
     const sub = subAt(t);
-    const subSt = sub ? { subtitle: { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15) }, roster: scene.roster } : undefined;
+    const subSt = sub ? { subtitle: subState(sub, t), roster: scene.roster } : undefined;
     return renderBodycam(frames[Math.max(0, k)], t, lt, label, clockAt(t), staticAt(t), W, H, shot.type, subSt);
   }
   const lt = t - shot.from, cards = tl.cards ?? {};
@@ -367,7 +374,7 @@ async function frameAt(i: number) {
   if (shot.type === "aerial") {
     const a = tl.aerial, sub = subAt(t), lit = Object.entries(a.squad as Record<string, number[][]>).filter(([, k]) => a.aboard || lt >= k[0][0]).map(([id]) => ({ id }));
     const hudSt = { t, hud: { label: feedLabel, clock: clockAt(t), warn: undefined, warnAlpha: 0 }, operators: lit, roster: (scene as any).roster,
-      subtitle: sub ? { who: sub.who, text: sub.text, alpha: windowAlpha(t, sub.from, sub.to, 0.15) } : undefined };
+      subtitle: subState(sub, t) };
     return renderAerial(a, aerialImg!, aerialSea, lt, t, (keys, q) => sample({ interp: "linear", keys }, q), hudSt, W, H);
   }
   if (shot.type === "card") return placeholderCard(shot.lines ?? [`[${shot.card}]`], t);

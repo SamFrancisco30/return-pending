@@ -67,7 +67,7 @@ const row = (label, text, o = {}) => ({ label, segs: [{ text, ...o }] });
   tl.warn = [{ from: 0.2, to: tEnd, text: "LOCAL LOG  //  POSITION OF T04-4  //  EVERY 20 SECONDS" }, { from: tEnd + 0.3, to: D, text: "LOG ENDS  //  12 EXCHANGES  //  4 MIN 00 SEC" }];
   tl.clockStart = "21:14:07";
   tl.subtitles = [];
-  tl.extraCues = Array.from({ length: N }, (_, k) => ({ type: "oneshot", t: T0 + k * STEP, sample: "glitch", gain: 0.5 }));
+  tl.extraCues = [];                 // each jump is heard through tl.static (the feed-static sample), one sound per jump
   addSound(tl, { ambience: "garage" });
   write("timeline_replay", tl);
 }

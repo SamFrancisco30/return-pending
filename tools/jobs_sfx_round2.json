@@ -1,0 +1,30 @@
+{
+ "out": "audio/sfx/f001/cand",
+ "video": "episodes/file_001_deathrow/AUDITION_sound_round2.mp4",
+ "items": [
+  {
+   "key": "repel2",
+   "title": "SHIELD REPEL (ROUND 2)",
+   "where": "KNOX slams the light shield and throws the target back",
+   "secs": 1.5,
+   "takes": {
+    "a": "A huge riot shield bash: a heavy body-slam impact of steel on flesh with a deep bass thud and a rush of displaced air, physical and brutal, no electricity, no sci-fi, no voices.",
+    "b": "A deep air cannon blast: one massive low whoomp of pressure that punches the chest, followed by a short gust of wind and falling dust, no electricity, no voices.",
+    "c": "A cinematic trailer impact hit: an enormous sub-bass boom with a short reversed whoosh leading into it, clean and powerful, no melody, no voices.",
+    "d": "A heavy steel plate struck once by a sledgehammer inside a concrete hall, a huge resonant clang with a deep thump underneath and a short echo, no voices."
+   }
+  },
+  {
+   "key": "alert2",
+   "title": "HUD ALERT (ROUND 2)",
+   "where": "each time a warning banner appears at the top of the feed",
+   "secs": 0.7,
+   "takes": {
+    "a": "A soft low single interface tone, warm and muted, like a quiet notification on professional military software, very short, dry.",
+    "b": "Two quick soft muted ticks from a computer interface, subtle and low, barely there, dry.",
+    "c": "A short low sonar-like pulse, dark and round, one pulse with a quick fade, dry.",
+    "d": "A brief tense low synth stab, a single dark note that swells and cuts, ominous, dry, no melody."
+   }
+  }
+ ]
+}
